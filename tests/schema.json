@@ -1,0 +1,13 @@
+{
+    "viewWidth": 375,
+    "viewHeight": 677,
+    "captureSelector": "html",
+    "host": "http://localhost:8888",
+    "scenarios": [
+        {
+            "name": "view1",
+            "path": "/",
+            "actions": []
+        }
+    ]
+}
