@@ -2,3 +2,4 @@ node_modules
 runner/screenshots
 runner/results
 *prod*
+*.log
