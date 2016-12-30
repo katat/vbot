@@ -78,7 +78,7 @@ To run the tests following the scenarios definition file, use the command below.
 
 vbot will visit the pages defined in the test.json, the schema file, and carry out test steps, taking screenshots which will be compared in the end. All the screenshot taken will be in folders.
 
-The `screenshots` is the based images, while the `results` have the comparison result images. To refresh the based images, remove the screenshots folder and run command above, it will look for this folder and create it if it doesn't exist and treat the images in this folder as the base images.
+The `screenshots` is the based images, while the `results` have the comparison result images. To rebase the images, use `rebase` flag, such as `vbot --f=test.json --rebase`.
 
 ## Contribute
 
