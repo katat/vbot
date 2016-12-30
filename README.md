@@ -1,5 +1,5 @@
 # vbot
-A visual regression testing tool, that it is easier to share the tests and communicate among the team.
+A visual regression testing tool, that it is easy to create tests, share the works and communicate among the team.
 
 ## Install
 `npm install -g vbot`
