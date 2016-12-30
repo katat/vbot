@@ -27,8 +27,9 @@ var runActions = function(scenario, test) {
                         }
                         if(action.type === 'scrollTo') {
                             casper.evaluate(function(action) {
-                                var elms = document.getElementsByClassName(action.scrollElm);
+                                var elms = document.getElementsByClassName(action.waitFor||action.scrollElm);
                                 for(var i=0; i<elms.length; i++) {
+                                    elms[i].scrollLeft += action.position[0];
                                     elms[i].scrollTop += action.position[1];
                                 }
                             }, action);

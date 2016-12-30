@@ -22,8 +22,7 @@
                 },{
                     "type": "scrollTo",
                     "position": [0, 1000],
-                    "scrollElm": "box",
-                    "waitFor": ".btn-2"
+                    "waitFor": ".box"
                 },{
                     "type": "enter",
                     "waitFor": "input.text",

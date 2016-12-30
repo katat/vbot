@@ -27,6 +27,10 @@ A visual regression testing tool, that it is easier to share the tests and commu
                 "type": "click",
                 "waitFor": ".trade-btn button"
             },{
+                "type": "scrollTo",
+                "waitFor": ".box",
+                "position": [100, 100]
+            },{
                 "type": "click",
                 "waitFor": ".forget-pwd"
             }]
@@ -59,9 +63,10 @@ A visual regression testing tool, that it is easier to share the tests and commu
  - **actions** A set of test steps
    - **type** Action Type
      - `assert`, `click`, `scrollTo`
-   - **waitFor** Wait for the element to exist before proceeding to the action type.
+   - **waitFor** Wait for the element to exist before proceeding to the action type. It is target element regarding to the action.
    - **shot** Take screenshot before this step action is executed.
    - **captureDelay** Delay(millisecond) to wait before this step's screenshot is taken.
+   - **position** The [x, y] position to scroll to, when using action type `scrollTo`.
 
 ## Run tests
 
