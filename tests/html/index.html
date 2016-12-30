@@ -6,7 +6,24 @@
     <title>Document</title>
 </head>
 <body>
-    test
-    test2
+    <div class="box" style="width: 500px; height: 500px; overflow:scroll;">
+        <button class="btn" style="display:block">click me</button>
+        <div class="msg"></div>
+        <button class="btn-2" style="display:block;margin-top:1000">bottom button</button>
+        <input type="text" name="text" class="text" style="display:block; border: 1px solid black" />
+    </div>
+    <script type="text/javascript">
+        (function() {
+            document.getElementsByClassName("btn")[0].addEventListener("click", function() {
+                setTimeout(function() {
+                    var node = document.createElement('div');
+                    node.className = "clicked-text";
+                    var textnode = document.createTextNode('clicked');
+                    node.appendChild(textnode);
+                    document.getElementsByClassName('msg')[0].appendChild(node);
+                }, 3000);
+            });
+        })();
+    </script>
 </body>
 </html>

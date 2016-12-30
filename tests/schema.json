@@ -7,7 +7,29 @@
         {
             "name": "view1",
             "path": "/",
-            "actions": []
+            "actions": [
+                {
+                    "type": "assert",
+                    "waitFor": ".box",
+                    "shot": true
+                },{
+                    "type": "click",
+                    "waitFor": ".btn"
+                },{
+                    "type": "assert",
+                    "waitFor": ".clicked-text",
+                    "shot": true
+                },{
+                    "type": "scrollTo",
+                    "position": [0, 1000],
+                    "scrollElm": "box",
+                    "waitFor": ".btn-2"
+                },{
+                    "type": "enter",
+                    "waitFor": "input.text",
+                    "value": "12345"
+                }
+            ]
         }
     ]
 }
