@@ -22,7 +22,8 @@ A visual regression testing tool, that it is easier to share the tests and commu
             },{
                 "type": "assert",
                 "waitFor": ".list-mid",
-                "shot": true
+                "shot": true,
+                "waitTimeout": 5000
             },{
                 "type": "click",
                 "waitFor": ".trade-btn button"
@@ -64,6 +65,7 @@ A visual regression testing tool, that it is easier to share the tests and commu
    - **type** Action Type
      - `assert`, `click`, `scrollTo`
    - **waitFor** Wait for the element to exist before proceeding to the action type. It is the target element regarding to the action.
+   - **waitTimeout** Maximum time to wait for the element `waitFor` exists in the DOM. If waited longer than this setting, it throws error of not found the `waitFor` element.
    - **shot** Take screenshot before this step action is executed.
    - **captureDelay** Delay(millisecond) to wait before this step's screenshot is taken.
    - **position** The [x, y] position to scroll to, when using action type `scrollTo`.

@@ -18,6 +18,7 @@
                 },{
                     "type": "assert",
                     "waitFor": ".clicked-text",
+                    "waitTimeout": 6000,
                     "shot": true
                 },{
                     "type": "scrollTo",
