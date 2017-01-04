@@ -43,7 +43,7 @@ var runActions = function(scenario, test) {
                             }, action);
                         }
                         if(action.shot) {
-                            phantomcss.screenshot(action.shotSelector||defaultCaptureSelector, action.captureDelay||captureDelay, null, scenario.name + '/' + stepIndex + '_' + action.waitFor.replace(' ', '_'));
+                            phantomcss.screenshot(action.shotSelector||defaultCaptureSelector, action.captureDelay||captureDelay, null, scenario.name + '/' + stepIndex + '_' + action.type + '-' + action.waitFor.replace(' ', '_'));
                             // casper.then(function() {
                             // });
                         }
