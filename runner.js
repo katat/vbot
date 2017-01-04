@@ -1,9 +1,16 @@
 'use strict';
-
+var async = require('async');
 var x = require('casper').selectXPath;
 var args = casper.cli.options;
 var schemaFile = args['f'];
-var schema = require(fs.absolute(fs.workingDirectory + '/' + schemaFile));
+var scenarioFilter = args['scenario'];
+var schema;
+try{
+    schema = JSON.parse(fs.read(fs.workingDirectory + '/' + schemaFile));
+}catch(ex) {
+    console.error('There are JSON syntax errors in the schema file, please have a check and run again.');
+}
+// var schema = require(fs.absolute(fs.workingDirectory + '/' + schemaFile));
 var defaultCaptureSelector = schema.captureSelector;
 casper.options.viewportSize = {width: schema.viewWidth, height: schema.viewHeight};
 casper.on('page.error', function(msg, trace) {
@@ -22,9 +29,9 @@ var runActions = function(scenario, test) {
                 casper.waitForSelector(action.waitFor,
                     function success() {
                         test.assertExists(action.waitFor);
-                        if(action.wait) {
-                            casper.wait(action.wait);
-                        }
+                        // if(action.wait) {
+                        //     casper.wait(action.wait);
+                        // }
                         if(action.type === 'scrollTo') {
                             casper.evaluate(function(action) {
                                 var query = action.waitFor || action.scrollElm;
@@ -36,18 +43,18 @@ var runActions = function(scenario, test) {
                             }, action);
                         }
                         if(action.shot) {
-                            casper.then(function() {
-                                phantomcss.screenshot(action.shotSelector||defaultCaptureSelector, action.captureDelay||captureDelay, null, scenario.name + '/step_' + stepIndex);
-                            });
+                            phantomcss.screenshot(action.shotSelector||defaultCaptureSelector, action.captureDelay||captureDelay, null, scenario.name + '/step_' + stepIndex);
+                            // casper.then(function() {
+                            // });
                         }
                         if(action.type === 'click'){
-                            casper.then(function() {
-                                this.click(action.waitFor);
-                            });
+                            this.click(action.waitFor);
+                            // casper.then(function() {
+                            // });
                         }
                     },
                     function fail() {
-                        test.assertExists(action.waitFor);
+                        test.assertExist(action.waitFor + ', timeout:' + action.waitTimeout);
                     }, action.waitTimeout);
             }
             if (action.type === 'enter') {
@@ -125,18 +132,24 @@ if (specific) {
     });
 }
 builtScenarios.forEach(function(scenario, index) {
-    phantom.clearCookies();
+    if(scenarioFilter && scenario.name !== scenarioFilter) {
+        return;
+    }
     casper.test.begin(scenario.name, function(test) {
         scenario.url = schema.host + scenario.path;
         if (!scenario.url) {
             console.error('no url specified by scenario %s', scenario.name);
         }
-        // casper.clear();
-        casper.start(scenario.url, function() {
-            // this.clear();
-            this.wait(1000, function() {
-                this.reload();
+        casper.start();
+        casper.setHttpAuth('dev', 'q1p0w2o');
+        casper.thenOpen(scenario.url, function() {
+            casper.evaluate(function() {
+                localStorage.clear();
+                sessionStorage.clear();
             });
+        });
+        casper.wait(1000, function() {
+            this.reload();
         });
         casper.then(function() {
             casper.evaluate(function() {
@@ -158,9 +171,13 @@ builtScenarios.forEach(function(scenario, index) {
             });
         }
 
-        casper.evaluate(function() {
-            localStorage.clear();
-        }, {});
+
+        // casper.test.tearDown(function(done) {
+        //     casper.evaluate(function(done) {
+        //         localStorage.clear();
+        //         // done();
+        //     }, {done: done});
+        // });
 
         casper.run(function() {
             test.done();

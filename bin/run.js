@@ -7,4 +7,7 @@ var cmd = "$(npm root -g)/vbot/node_modules/casperjs/bin/casperjs test $(npm roo
 if(argv.rebase) {
     cmd += ' --rebase';
 }
+if(argv.scenario) {
+    cmd += ' --scenario=' + argv.scenario;
+}
 shell.exec(cmd);
