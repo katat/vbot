@@ -143,10 +143,15 @@ builtScenarios.forEach(function(scenario, index) {
         casper.start();
         casper.setHttpAuth('dev', 'q1p0w2o');
         casper.thenOpen(scenario.url, function() {
-            casper.evaluate(function() {
+            casper.evaluate(function(scenario) {
                 localStorage.clear();
                 sessionStorage.clear();
-            });
+                if(scenario.localStorage) {
+                    for(var i=0; i<scenario.localStorage.length; i++) {
+                        localStorage[scenario.localStorage[i].key] = scenario.localStorage[i].value;
+                    }
+                }
+            }, scenario);
         });
         casper.wait(1000, function() {
             this.reload();
