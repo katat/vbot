@@ -4,6 +4,7 @@ var x = require('casper').selectXPath;
 var args = casper.cli.options;
 var schemaFile = args['f'];
 var scenarioFilter = args['scenario'];
+var output = args['output'];
 var schema;
 try{
     schema = JSON.parse(fs.read(fs.workingDirectory + '/' + schemaFile));
@@ -102,11 +103,14 @@ phantomcss.init({
     addLabelToFailedImage: false,
     addIteratorToImage: false,
     errorType: 'movement',
-    transparency: 0.3
+    transparency: 0.3,
+    // onFail: function (test){
+    //     require('utils').dump(test);
+    //     // console.log(test);
+    // },
     /*
     fileNameGetter: function overide_file_naming(){},
     onPass: function passCallback(){},
-    onFail: function failCallback(){},
     onTimeout: function timeoutCallback(){},
     onComplete: function completeCallback(){},
     hideElements: '#thing.waitFor',
@@ -119,6 +123,8 @@ phantomcss.init({
 },
 }*/
 });
+
+// phantomcss.turnOffAnimations();
 
 var builtScenarios = [];
 schema.scenarios.forEach(function(scenario) {
@@ -177,12 +183,17 @@ builtScenarios.forEach(function(scenario, index) {
         }
 
 
-        // casper.test.tearDown(function(done) {
-        //     casper.evaluate(function(done) {
-        //         localStorage.clear();
-        //         // done();
-        //     }, {done: done});
-        // });
+        var failures = [];
+        casper.test.on("fail", function(failure) {
+            failures.push(failure);
+        });
+
+        casper.test.tearDown(function() {
+            if(failures.length > 0 && output) {
+                fs.write(output, JSON.stringify(failures), 'w');
+            }
+            // require('utils').dump(failures);
+        });
 
         casper.run(function() {
             test.done();

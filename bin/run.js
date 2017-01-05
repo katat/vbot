@@ -10,4 +10,7 @@ if(argv.rebase) {
 if(argv.scenario) {
     cmd += ' --scenario=' + argv.scenario;
 }
+if(argv.output) {
+    cmd += ' --output=' + argv.output;
+}
 shell.exec(cmd);
