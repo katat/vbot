@@ -92,12 +92,13 @@ var buildScenario = function (schema, allScenarios, scenario) {
 };
 
 // var path = fs.absolute( fs.workingDirectory + '/node_modules/phantomcss/phantomcss.js' );
+var failures = [];
 var imgbase = fs.workingDirectory;
 if(imgdir) {
     imgbase += imgdir;
 }
 var phantomcss = require( 'phantomcss' );
-phantomcss.init({
+var phantomcssOpts = {
     rebase: casper.cli.get( "rebase" ),
     // SlimerJS needs explicit knowledge of this Casper, and lots of absolute paths
     casper: casper,
@@ -108,11 +109,7 @@ phantomcss.init({
     addLabelToFailedImage: false,
     addIteratorToImage: false,
     errorType: 'movement',
-    transparency: 0.3,
-    // onFail: function (test){
-    //     require('utils').dump(test);
-    //     // console.log(test);
-    // },
+    transparency: 0.3
     /*
     fileNameGetter: function overide_file_naming(){},
     onPass: function passCallback(){},
@@ -127,7 +124,18 @@ phantomcss.init({
     blue: 0
 },
 }*/
-});
+}
+if(output) {
+    phantomcssOpts.onFail = function(test) {
+        if(test.failFile) {
+            failures.push({
+                message: test.failFile.replace(imgbase, ''),
+                file: true
+            })
+        }
+    }
+}
+phantomcss.init(phantomcssOpts);
 
 // phantomcss.turnOffAnimations();
 
@@ -188,7 +196,6 @@ builtScenarios.forEach(function(scenario, index) {
         }
 
 
-        var failures = [];
         casper.test.on("fail", function(failure) {
             failures.push(failure);
         });
