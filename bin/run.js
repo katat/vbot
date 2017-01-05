@@ -13,4 +13,7 @@ if(argv.scenario) {
 if(argv.output) {
     cmd += ' --output=' + argv.output;
 }
+if(argv.imgdir) {
+    cmd += ' --imgdir=' + argv.imgdir;
+}
 shell.exec(cmd);

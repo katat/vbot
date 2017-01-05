@@ -5,6 +5,7 @@ var args = casper.cli.options;
 var schemaFile = args['f'];
 var scenarioFilter = args['scenario'];
 var output = args['output'];
+var imgdir = args['imgdir'];
 var schema;
 try{
     schema = JSON.parse(fs.read(fs.workingDirectory + '/' + schemaFile));
@@ -91,15 +92,19 @@ var buildScenario = function (schema, allScenarios, scenario) {
 };
 
 // var path = fs.absolute( fs.workingDirectory + '/node_modules/phantomcss/phantomcss.js' );
+var imgbase = fs.workingDirectory;
+if(imgdir) {
+    imgbase += imgdir;
+}
 var phantomcss = require( 'phantomcss' );
 phantomcss.init({
     rebase: casper.cli.get( "rebase" ),
     // SlimerJS needs explicit knowledge of this Casper, and lots of absolute paths
     casper: casper,
     // libraryRoot: fs.absolute( fs.workingDirectory + '/node_modules/phantomcss' ),
-    screenshotRoot: fs.absolute( fs.workingDirectory + '/screenshots/' + schemaFile ),
-    failedComparisonsRoot: fs.absolute( fs.workingDirectory + '/results/' + schemaFile + '/failures' ),
-    comparisonResultRoot: fs.absolute(fs.workingDirectory + '/results/' + schemaFile),
+    screenshotRoot: fs.absolute( imgbase + '/screenshots/' + schemaFile ),
+    failedComparisonsRoot: fs.absolute( imgbase + '/results/' + schemaFile + '/failures' ),
+    comparisonResultRoot: fs.absolute(imgbase + '/results/' + schemaFile),
     addLabelToFailedImage: false,
     addIteratorToImage: false,
     errorType: 'movement',
