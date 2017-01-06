@@ -1,5 +1,4 @@
 'use strict';
-var async = require('async');
 var x = require('casper').selectXPath;
 var args = casper.cli.options;
 var schemaFile = args['f'];
