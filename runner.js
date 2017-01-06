@@ -92,7 +92,7 @@ var buildScenario = function (schema, allScenarios, scenario) {
 };
 
 // var path = fs.absolute( fs.workingDirectory + '/node_modules/phantomcss/phantomcss.js' );
-var failures = [];
+var failures = [], newImages = [];
 var imgbase = fs.workingDirectory;
 if(imgdir) {
     imgbase += imgdir;
@@ -109,13 +109,13 @@ var phantomcssOpts = {
     addLabelToFailedImage: false,
     addIteratorToImage: false,
     errorType: 'movement',
-    transparency: 0.3
+    transparency: 0.3,
+    hideElements: schema.hideElements
     /*
     fileNameGetter: function overide_file_naming(){},
     onPass: function passCallback(){},
     onTimeout: function timeoutCallback(){},
     onComplete: function completeCallback(){},
-    hideElements: '#thing.waitFor',
     addLabelToFailedImage: true,
     outputSettings: {
     errorColor: {
@@ -130,9 +130,16 @@ if(output) {
         if(test.failFile) {
             failures.push({
                 message: test.failFile.replace(imgbase, ''),
-                file: true
+                fail: true,
+                mismatch: test.mismatch
             })
         }
+    }
+    phantomcssOpts.onNewImage = function(test) {
+        newImages.push({
+            message: test.filename.replace(imgbase, ''),
+            new: true
+        });
     }
 }
 phantomcss.init(phantomcssOpts);
@@ -178,7 +185,8 @@ builtScenarios.forEach(function(scenario, index) {
         casper.then(function() {
             casper.evaluate(function() {
                 var style = document.createElement('style');
-                style.innerHTML = '* {animation-delay: 0s !important; -webkit-animation-delay: 0s !important; -webkit-animation-duration: 0s !important; }';
+                style.type = "text/css";
+                style.innerHTML = '* {animation-delay: 0s !important; -webkit-animation-delay: 0s !important; -webkit-animation-duration: 0s !important;  -webkit-transition: none !important; transition: none !important; -webkit-animation: none !important; animation: none !important; }';
                 document.body.appendChild(style);
             });
         });
@@ -201,8 +209,9 @@ builtScenarios.forEach(function(scenario, index) {
         });
 
         casper.test.tearDown(function() {
-            if(failures.length > 0 && output) {
-                fs.write(output, JSON.stringify(failures), 'w');
+            var outputs = newImages.concat(failures);
+            if(outputs.length > 0 && output) {
+                fs.write(output, JSON.stringify(outputs), 'w');
             }
             // require('utils').dump(failures);
         });
