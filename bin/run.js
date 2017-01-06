@@ -16,4 +16,7 @@ if(argv.output) {
 if(argv.imgdir) {
     cmd += ' --imgdir=' + argv.imgdir;
 }
+if(argv.nf) {
+    cmd += ' --nf=' + argv.nf;
+}
 shell.exec(cmd);

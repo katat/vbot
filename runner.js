@@ -3,12 +3,16 @@ var async = require('async');
 var x = require('casper').selectXPath;
 var args = casper.cli.options;
 var schemaFile = args['f'];
+var newSchemaFile = args['nf'];
 var scenarioFilter = args['scenario'];
 var output = args['output'];
 var imgdir = args['imgdir'];
 var schema;
+if(!newSchemaFile) {
+    newSchemaFile = schemaFile;
+}
 try{
-    schema = JSON.parse(fs.read(fs.workingDirectory + '/' + schemaFile));
+    schema = JSON.parse(fs.read(fs.workingDirectory + '/' + newSchemaFile));
 }catch(ex) {
     console.error('There are JSON syntax errors in the schema file, please have a check and run again.');
 }
@@ -104,8 +108,8 @@ var phantomcssOpts = {
     casper: casper,
     // libraryRoot: fs.absolute( fs.workingDirectory + '/node_modules/phantomcss' ),
     screenshotRoot: fs.absolute( imgbase + '/screenshots/' + schemaFile ),
-    failedComparisonsRoot: fs.absolute( imgbase + '/results/' + schemaFile + '/failures' ),
-    comparisonResultRoot: fs.absolute(imgbase + '/results/' + schemaFile),
+    failedComparisonsRoot: fs.absolute( imgbase + '/results/' + newSchemaFile + '/failures' ),
+    comparisonResultRoot: fs.absolute(imgbase + '/results/' + newSchemaFile),
     addLabelToFailedImage: false,
     addIteratorToImage: false,
     errorType: 'movement',
