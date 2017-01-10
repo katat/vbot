@@ -65,7 +65,10 @@ var runActions = function(scenario, test) {
             if (action.type === 'enter') {
                 casper.waitForSelector(action.waitFor,
                     function success() {
-                        this.sendKeys(action.waitFor, action.value);
+                        this.sendKeys(action.waitFor, action.value, {keepFocus: true});
+                        if(action.enter === true) {
+                            this.sendKeys(action.waitFor, casper.page.event.key.Enter , {keepFocus: true});
+                        }
                     },
                     function fail() {
                         test.assertExists(action.waitFor);
