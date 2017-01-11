@@ -29,7 +29,7 @@ Each scenario can comprise of a set of actions in the page view. It groups a set
  Exclude the DOM elements when taking screenshots.
  - **localStorage**  
  Preset localStorage values before the actions taking place.
- ```
+ ```json
  [{"key": "key", "value": true}]
  ```
 
