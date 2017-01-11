@@ -54,7 +54,7 @@ Each scenario can comprise of a set of actions in the page view. It groups a set
 
 Let's take a look at how vbot can ease the VRT process. Suppose we want to test this [TODO](http://todomvc.com/examples/react) web app using vbot. We define the interaction flow in a JSON file as below:
 
-```javascript
+```json
 {
     "viewWidth": 375,
     "viewHeight": 677,
@@ -126,7 +126,7 @@ Below are the screenshots captured during the interaction flow:
 
 ------------
 
-```javascript
+```json
 {
     "type": "assert",
     "waitFor": ".new-todo",
@@ -137,7 +137,7 @@ Below are the screenshots captured during the interaction flow:
 ![0_assert-.new-todo.png](img/0_assert-.new-todo.png)
 
 -------------
-```javascript
+```json
 {
     "type": "enter",
     "waitFor": ".new-todo",
@@ -154,7 +154,7 @@ Below are the screenshots captured during the interaction flow:
 ![2_assert-ul.todo-list_li:nth-child(1).png](img/2_step.png)
 
 --------------
-```javascript
+```json
 {
     "type": "enter",
     "waitFor": ".new-todo",
@@ -171,7 +171,7 @@ Below are the screenshots captured during the interaction flow:
 ![4_assert-ul.todo-list_li:nth-child(2).png](img/4_step.png)
 
 ---------------
-```javascript
+```json
 {
     "type": "click",
     "waitFor": "ul.todo-list li:nth-child(1) .toggle",
@@ -189,7 +189,7 @@ Below are the screenshots captured during the interaction flow:
 
 If this is the first time vbot run the tests for this JSON definition file, the images generated are the baselines. The subsequent tests will compare the newly generated image file with the baselines and highlight the differences if it is not 100% match. For example, let's change the action definition below:
 
-```javascript
+```json
 {
     "type": "enter",
     "waitFor": ".new-todo",
@@ -200,7 +200,7 @@ If this is the first time vbot run the tests for this JSON definition file, the 
 
 to
 
-```javascript
+```json
 {
     "type": "enter",
     "waitFor": ".new-todo",
