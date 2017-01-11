@@ -109,13 +109,13 @@ Let's take a look at how vbot can ease the VRT process. Suppose we want to test 
 
 ```
 
-To run the tests following the scenarios definition file, use the command below.
+Suppose this test definition is store in `test.json` file. To execute the tests, run the command below.
 
 `vbot --f=test.json`
 
-vbot will visit the pages defined in the test.json, the schema file, and carry out test steps, taking screenshots which will be compared in the end. All the screenshot taken will be in folders.
+vbot will execute the actions defined in the test.json, the schema file,  taking screenshots which will be compared in the end. All the screenshot taken will be in folders, `screenshots` and `results`.
 
-The `screenshots` is the based images, while the `results` have the comparison result images. To rebase the images, use `rebase` flag, such as `vbot --f=test.json --rebase`.
+The `screenshots` is the based image folder, while the `results` have the comparison result images. To rebase the images, use `rebase` flag, such as `vbot --f=test.json --rebase`, the images in the `screenshots` folder will be refreshed.
 
 In addition to the screenshots, it prints out the testings reports at the end of the tests, showing which tests passed or failed with a mismatch percentage compared with the baseline.
 
@@ -185,7 +185,7 @@ Below are the screenshots captured during the interaction flow:
 
 ------------
 
-If this is the first time vbot run the tests for this JSON definition file, the images generated are the baselines. The subsequent tests will compare the newly generated image file with the baselines and show the differences if it is not 100% match. For example, let's change the action definition below:
+If this is the first time vbot run the tests for this JSON definition file, the images generated are the baselines. The subsequent tests will compare the newly generated image file with the baselines and highlight the differences if it is not 100% match. For example, let's change the action definition below:
 
 ```
 {
