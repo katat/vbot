@@ -200,4 +200,4 @@ After re-run the command line above, it should report there is test result misma
 ------------------
 ## Welcome contributions
 
-Fork and make changes. In the tests directory, run `./test.sh` to make sure all the tests are passed. Welcome pull requests.
+Fork and make changes. In the tests directory, run `./test.sh` to make sure all the tests are passed. Welcome pull requests or request new features.
