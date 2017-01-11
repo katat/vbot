@@ -36,8 +36,7 @@ Each scenario can comprise of a set of actions in the page view. It groups a set
  - **actions**  
  A set of test steps
    - **type**  
-   Action Type
-     - `assert`, `click`, `enter`, `scrollTo`
+   Action Type: `assert`, `click`, `enter`, `scrollTo`
    - **waitFor**  
    Wait for the element to exist before proceeding to the action type. It is the target element regarding to the action.
    - **waitTimeout**  
