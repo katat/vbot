@@ -7,32 +7,49 @@ There is a [blog post](http://katat.github.io/2017/01/09/vbot/) discussing about
 `npm install -g vbot`
 
 ## Schema
-**viewHeight** height of the browser view
+**viewHeight**
+height of the browser view
 
-**viewWidth** width of the browser view
+**viewWidth**
+width of the browser view
 
-**captureSelector** Element to be captured in screenshot. All the screenshots in a schema is capturing the same element. It is recommend to test against the whole page view, so is the `html`. However it is allowed to target any elements in the view, such as `body` or `.css-selector`.
+**captureSelector**
+Element to be captured in screenshot. All the screenshots in a schema is capturing the same element. It is recommend to test against the whole page view, so is the `html`. However it is allowed to target any elements in the view, such as `body` or `.css-selector`.
 
-**host** The global host of for the test url path in the scenarios
+**host**
+The global host of for the test url path in the scenarios
 
-**scenarios** Each scenario can comprise of a set of actions in the page view. It groups a set of cohesive tests.
- - **path**  The url path for the scenario test to begin with
- - **captureDelay**  Delay(millisecond) to wait before take the final scenario screenshot. For the purpose of avoiding taking screenshot during the page animation. Apply to all the actions.
- - **hideElements**  Exclude the DOM elements when taking screenshots.
- - **localStorage**  Preset localStorage values before the actions taking place.
+**scenarios**
+Each scenario can comprise of a set of actions in the page view. It groups a set of cohesive tests.
+ - **path**  
+ The url path for the scenario test to begin with
+ - **captureDelay**  
+ Delay(millisecond) to wait before take the final scenario screenshot. For the purpose of avoiding taking screenshot during the page animation. Apply to all the actions.
+ - **hideElements**  
+ Exclude the DOM elements when taking screenshots.
+ - **localStorage**  
+ Preset localStorage values before the actions taking place.
  ```
  [{"key": "key", "value": true}]
  ```
 
- - **actions**  A set of test steps
-   - **type**  Action Type
+ - **actions**  
+ A set of test steps
+   - **type**  
+   Action Type
      - `assert`, `click`, `enter`, `scrollTo`
-   - **waitFor**  Wait for the element to exist before proceeding to the action type. It is the target element regarding to the action.
-   - **waitTimeout**  Maximum time to wait for the element `waitFor` exists in the DOM. If waited longer than this setting, it throws error of not found the `waitFor` element.
-   - **shot**  Take screenshot before this step action is executed.
-   - **captureDelay**  Delay(millisecond) to wait before this step's screenshot is taken. Apply only to an individual action.
-   - **position**  The [x, y] position to scroll to, when using action type `scrollTo`.
-   - **enter** Set `true` to simulate `enter` press key to a input field.
+   - **waitFor**  
+   Wait for the element to exist before proceeding to the action type. It is the target element regarding to the action.
+   - **waitTimeout**  
+   Maximum time to wait for the element `waitFor` exists in the DOM. If waited longer than this setting, it throws error of not found the `waitFor` element.
+   - **shot**  
+   Take screenshot before this step action is executed.
+   - **captureDelay**  
+   Delay(millisecond) to wait before this step's screenshot is taken. Apply only to an individual action.
+   - **position**  
+   The [x, y] position to scroll to, when using action type `scrollTo`.
+   - **enter**
+   Set `true` to simulate `enter` press key to a input field.
 
 ### Example
 
