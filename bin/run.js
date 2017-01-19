@@ -19,4 +19,5 @@ if(argv.imgdir) {
 if(argv.nf) {
     cmd += ' --nf=' + argv.nf;
 }
+cmd += ' --path=' + __dirname
 shell.exec(cmd);

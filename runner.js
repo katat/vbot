@@ -18,6 +18,7 @@ try{
 // var schema = require(fs.absolute(fs.workingDirectory + '/' + schemaFile));
 var defaultCaptureSelector = schema.captureSelector;
 casper.options.viewportSize = {width: schema.viewWidth, height: schema.viewHeight};
+casper.options.clientScripts = [args['path'] + '/jquery-3.1.1.min.js'];
 casper.on('page.error', function(msg, trace) {
    this.echo('Error: ' + msg, 'ERROR');
    for(var i=0; i<trace.length; i++) {
@@ -41,7 +42,7 @@ var runActions = function(scenario, test) {
                         if(action.type === 'scrollTo') {
                             casper.evaluate(function(action) {
                                 var query = action.waitFor || action.scrollElm;
-                                var elms = document.getElementsByClassName(query.replace('.', ''));
+                                var elms = $(query);
                                 for(var i=0; i<elms.length; i++) {
                                     if(!elms[i].style.overflow){
                                         if(!elms[i].style.height){
@@ -57,21 +58,22 @@ var runActions = function(scenario, test) {
                         if(action.type === 'touch'){
                             casper.evaluate(function(action){
                                 var query = action.waitFor || action.scrollElm;
-                                var elms = document.getElementsByClassName(query.replace('.', ''))[0];
-                                // var elms = document.getElementById('holding');
+                                var elms = $(query);
                                 for(var i=0; i<action.touchEvents.length; i++){
                                     var evt = document.createEvent('HTMLEvents');
                                     var touchEvent = action.touchEvents[i];
                                     evt.initEvent(touchEvent.name, false, false);
                                     evt[touchEvent.enentTarget] = touchEvent.enentTargetObj;
-                                    elms.dispatchEvent(evt);
+                                    for(var j=0; j<elms.length; j++){
+                                        elms[j].dispatchEvent(evt);
+                                    }
                                 }
                             }, action);
                         }
                         if(action.type === 'touchByPageXY'){
                             casper.evaluate(function(action){
                                 var query = action.waitFor || action.scrollElm;
-                                var elms = document.getElementsByClassName(query.replace('.', ''))[0];
+                                var elms = $(query);
                                 var evt = document.createEvent('HTMLEvents');
                                 evt.initEvent('touchstart', false, false);
                                 evt.targetTouches = [
@@ -80,7 +82,6 @@ var runActions = function(scenario, test) {
                                         "pageY": 0
                                     }
                                 ];
-                                elms.dispatchEvent(evt);
 
                                 var evt1 = document.createEvent('HTMLEvents');
                                 evt1.initEvent('touchend', false, false);
@@ -90,7 +91,11 @@ var runActions = function(scenario, test) {
                                         "pageY": action.xy_displacement[1]
                                     }
                                 ];
-                                elms.dispatchEvent(evt1);
+
+                                for(var i=0; i<elms.length; i++){
+                                    elms[i].dispatchEvent(evt);
+                                    elms[i].dispatchEvent(evt1);
+                                }
                             }, action);
                         }
                         if(action.shot) {
