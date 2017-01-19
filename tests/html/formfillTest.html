@@ -1,0 +1,23 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="formfillTest">
+        <div class="msg"></div>
+        <input type="text" id="in" placeholder="请输入">
+        <button onclick="handdleClick()">确定</button>
+    </div>
+    <script type="text/javascript">
+        function handdleClick(){
+            var msg_wrap = document.getElementsByClassName('msg')[0];
+            var input = document.getElementById('in');
+            msg_wrap.innerHTML = input.value;
+        }
+    </script>
+</body>
+</html>

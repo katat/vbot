@@ -91,7 +91,6 @@ var runActions = function(scenario, test) {
                                         "pageY": action.xy_displacement[1]
                                     }
                                 ];
-
                                 for(var i=0; i<elms.length; i++){
                                     elms[i].dispatchEvent(evt);
                                     elms[i].dispatchEvent(evt1);
