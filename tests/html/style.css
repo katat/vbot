@@ -1,10 +1,13 @@
+body{
+    background-color: #f4f4f4;
+}
 .main{
     margin:30px 20px;
 }
 .main>a{
     display: block;
     text-decoration: none;
-    margin-bottom: 6px;
+    margin-bottom: 10px;
 }
 .scrollTest{
     width: 100%;
@@ -12,11 +15,21 @@
     overflow:scroll;
     background-color: white;
 }
+.scrollTest>p{
+    margin-left: 12px;
+}
 .scrollTest>p:nth-child(2){
     margin-top: 800px;
 }
 .formfillTest{
     margin: 30px 20px;
+}
+.formfillTest>button{
+    background-color: #388bff;
+    outline: 0;
+    color: #fff;
+    width: 50px;
+    border-color: #2678ec #2575e7 #1c6fe2 #2677e7;
 }
 .formfillTest>.msg{
     margin-bottom: 20px;
@@ -44,7 +57,8 @@
     width: 100%;
     top: 0;
     left: 0;
-    background-color: #f4f4f4;
+    background-color: #72a32b;
+    color: #fff;
 }
 .list-wrap>.swiper>span{
     margin-left: 10px;
@@ -56,7 +70,7 @@
     width: 80px;
     text-align: center;
     line-height: 50px;
-    background-color: red;
+    background-color: #ea4117;
     color: #fff;
 }
 

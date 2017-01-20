@@ -9,14 +9,14 @@
 <body>
     <div class="formfillTest">
         <div class="msg"></div>
-        <input type="text" id="in" placeholder="请输入">
-        <button onclick="handdleClick()">确定</button>
+        <input type="text" id="in" placeholder="write something">
+        <button onclick="handdleClick()">ok</button>
     </div>
     <script type="text/javascript">
         function handdleClick(){
             var msg_wrap = document.getElementsByClassName('msg')[0];
             var input = document.getElementById('in');
-            msg_wrap.innerHTML = input.value;
+            msg_wrap.innerHTML = 'You enter the ' + input.value;
         }
     </script>
 </body>

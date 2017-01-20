@@ -18,7 +18,6 @@ try{
 // var schema = require(fs.absolute(fs.workingDirectory + '/' + schemaFile));
 var defaultCaptureSelector = schema.captureSelector;
 casper.options.viewportSize = {width: schema.viewWidth, height: schema.viewHeight};
-casper.options.clientScripts = [args['path'] + '/jquery-3.1.1.min.js'];
 casper.on('page.error', function(msg, trace) {
    this.echo('Error: ' + msg, 'ERROR');
    for(var i=0; i<trace.length; i++) {
@@ -42,38 +41,34 @@ var runActions = function(scenario, test) {
                         if(action.type === 'scrollTo') {
                             casper.evaluate(function(action) {
                                 var query = action.waitFor || action.scrollElm;
-                                var elms = $(query);
-                                for(var i=0; i<elms.length; i++) {
-                                    if(!elms[i].style.overflow){
-                                        if(!elms[i].style.height){
-                                            elms[i].style.height = '100%';
-                                        }
-                                        elms[i].style.overflow = 'scroll';
+                                var elms = document.querySelector(query);
+                                if(!elms.style.overflow){
+                                    if(!elms.style.height){
+                                        elms.style.height = '100%';
                                     }
-                                    elms[i].scrollLeft += action.position[0];
-                                    elms[i].scrollTop += action.position[1];
+                                    elms.style.overflow = 'scroll';
                                 }
+                                elms.scrollLeft += action.position[0];
+                                elms.scrollTop += action.position[1];
                             }, action);
                         }
                         if(action.type === 'touch'){
                             casper.evaluate(function(action){
                                 var query = action.waitFor || action.scrollElm;
-                                var elms = $(query);
+                                var elms = document.querySelector(query);
                                 for(var i=0; i<action.touchEvents.length; i++){
                                     var evt = document.createEvent('HTMLEvents');
                                     var touchEvent = action.touchEvents[i];
                                     evt.initEvent(touchEvent.name, false, false);
                                     evt[touchEvent.enentTarget] = touchEvent.enentTargetObj;
-                                    for(var j=0; j<elms.length; j++){
-                                        elms[j].dispatchEvent(evt);
-                                    }
+                                    elms.dispatchEvent(evt);
                                 }
                             }, action);
                         }
                         if(action.type === 'touchByPageXY'){
                             casper.evaluate(function(action){
                                 var query = action.waitFor || action.scrollElm;
-                                var elms = $(query);
+                                var elms = document.querySelector(query);
                                 var evt = document.createEvent('HTMLEvents');
                                 evt.initEvent('touchstart', false, false);
                                 evt.targetTouches = [
@@ -91,10 +86,8 @@ var runActions = function(scenario, test) {
                                         "pageY": action.xy_displacement[1]
                                     }
                                 ];
-                                for(var i=0; i<elms.length; i++){
-                                    elms[i].dispatchEvent(evt);
-                                    elms[i].dispatchEvent(evt1);
-                                }
+                                elms.dispatchEvent(evt);
+                                elms.dispatchEvent(evt1);
                             }, action);
                         }
                         if(action.shot) {
