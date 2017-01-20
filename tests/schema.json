@@ -31,6 +31,7 @@
                 },
                 {
                     "type": "enter",
+
                     "waitFor": "input",
                     "value": "test",
                     "shot": false
@@ -71,6 +72,13 @@
                     "xy_displacement": [20, 0],
                     "captureDelay": 500,
                     "shot": true
+                    "waitFor": "input.text",
+                    "value": "12345",
+                    "enter": true
+                },{
+                    "type": "scrollTo",
+                    "position": [0, 100],
+                    "waitFor": ".box"
                 }
             ]
         }
