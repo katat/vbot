@@ -1,7 +1,7 @@
 'use strict';
 var x = require('casper').selectXPath;
 var args = casper.cli.options;
-var schemaFile = args['f'];
+var schemaFile = args['schema'];
 var newSchemaFile = args['nf'];
 var scenarioFilter = args['scenario'];
 var output = args['output'];
@@ -10,10 +10,11 @@ var schema;
 if(!newSchemaFile) {
     newSchemaFile = schemaFile;
 }
+var schemaFilePath = fs.workingDirectory + '/' + newSchemaFile;
 try{
-    schema = JSON.parse(fs.read(fs.workingDirectory + '/' + newSchemaFile));
+    schema = JSON.parse(fs.read(schemaFilePath));
 }catch(ex) {
-    console.error('There are JSON syntax errors in the schema file, please have a check and run again.');
+    console.error('Not found schema file on the path: ' + schemaFilePath + '. Or there are JSON syntax errors in the schema file. Please have a check and run again.');
 }
 // var schema = require(fs.absolute(fs.workingDirectory + '/' + schemaFile));
 var defaultCaptureSelector = schema.captureSelector;

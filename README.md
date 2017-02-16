@@ -112,12 +112,12 @@ Let's take a look at how vbot can ease the VRT process. Suppose we want to test 
 Suppose this test definition is store in `test.json` file. To execute the tests, run the command below.
 
 ```bash
-vbot --f=test.json
+vbot -f=test.json
 ```
 
 vbot will execute the actions defined in the test.json, the schema file,  taking screenshots which will be compared in the end. All the screenshot taken will be in folders, `screenshots` and `results`.
 
-The `screenshots` is the based image folder, while the `results` have the comparison result images. To rebase the images, use `rebase` flag, such as `vbot --f=test.json --rebase`, the images in the `screenshots` folder will be refreshed.
+The `screenshots` is the based image folder, while the `results` have the comparison result images. To rebase the images, use `rebase` flag, such as `vbot -f=test.json --rebase`, the images in the `screenshots` folder will be refreshed.
 
 In addition to the screenshots, it prints out the testings reports at the end of the tests, showing which tests passed or failed with a mismatch percentage compared with the baseline.
 
