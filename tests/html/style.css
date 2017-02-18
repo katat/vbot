@@ -1,0 +1,84 @@
+body{
+    background-color: #f4f4f4;
+}
+.main{
+    margin:30px 20px;
+}
+.main>a{
+    display: block;
+    text-decoration: none;
+    margin-bottom: 10px;
+}
+.scrollTest{
+    width: 100%;
+    height: 500px;
+    overflow:scroll;
+    background-color: white;
+}
+.scrollTest>p{
+    margin-left: 12px;
+}
+.scrollTest>p:nth-child(2){
+    margin-top: 800px;
+}
+.formfillTest{
+    margin: 30px 20px;
+}
+.formfillTest>button{
+    background-color: #388bff;
+    outline: 0;
+    color: #fff;
+    width: 50px;
+    border-color: #2678ec #2575e7 #1c6fe2 #2677e7;
+}
+.formfillTest>.msg{
+    margin-bottom: 20px;
+}
+.mobileTouchTest{
+    width: 100%;
+    margin: 30px auto;
+}
+.mobileTouchTest>.list-wrap{
+    position: relative;
+    margin-bottom: 5px;
+    width: 100%;
+    height: 50px;
+    overflow: hidden;
+}
+.list-wrap::after{
+    content: '';
+    clear: both;
+    display: block;
+}
+.list-wrap>.swiper{
+    line-height: 50px;
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    top: 0;
+    left: 0;
+    background-color: #72a32b;
+    color: #fff;
+}
+.list-wrap>.swiper>span{
+    margin-left: 10px;
+}
+.list-wrap>.del{
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 80px;
+    text-align: center;
+    line-height: 50px;
+    background-color: #ea4117;
+    color: #fff;
+}
+
+.del-show{
+    transition: all ease-out .25s;
+    transform: translate3d( -80px, 0, 0 );
+}
+.del-hind{
+    transition: all ease-in .25s;
+    transform: translate3d( 0, 0, 0 );
+}

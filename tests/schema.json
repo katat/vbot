@@ -1,31 +1,77 @@
 {
-    "viewWidth": 375,
+    "viewWidth": 400,
     "viewHeight": 677,
     "captureSelector": "html",
     "host": "http://localhost:8888",
     "scenarios": [
         {
-            "name": "view1",
-            "path": "/",
+            "name": "scrollTest",
+            "path": "/scrollTest.html",
             "actions": [
                 {
                     "type": "assert",
-                    "waitFor": ".box",
+                    "waitFor": ".scrollTest",
                     "shot": true
-                },{
-                    "type": "click",
-                    "waitFor": ".btn"
-                },{
-                    "type": "assert",
-                    "waitFor": ".clicked-text",
-                    "waitTimeout": 6000,
-                    "shot": true
-                },{
+                },
+                {
                     "type": "scrollTo",
-                    "position": [0, 1000],
-                    "waitFor": ".box"
-                },{
+                    "waitFor": ".scrollTest:nth-child(1)",
+                    "position": [0, 600]
+                }
+            ]
+        },
+        {
+            "name": "formfillTest",
+            "path": "/formfillTest.html",
+            "actions": [
+                {
+                    "type": "assert",
+                    "waitFor": ".formfillTest",
+                    "shot": true
+                },
+                {
                     "type": "enter",
+
+                    "waitFor": "input",
+                    "value": "test",
+                    "shot": false
+                },
+                {
+                    "type": "click",
+                    "waitFor": "button",
+                    "captureDelay": 300,
+                    "shot": true
+                }
+            ]
+        },
+        {
+            "name": "mobileTouchTest",
+            "path": "/mobileTouchTest.html",
+            "actions": [
+                {
+                    "type": "assert",
+                    "waitFor": ".mobileTouchTest",
+                    "captureDelay": 1000,
+                    "shot": true
+                },
+                {
+                    "type": "touchByPageXY",
+                    "waitFor": ".list-wrap:nth-of-type(1)>.swiper",
+                    "xy_displacement": [-20, 0]
+                },
+                {
+                    "type": "touchByPageXY",
+                    "waitFor": ".list-wrap:nth-of-type(2)>.swiper",
+                    "xy_displacement": [-20, 0],
+                    "captureDelay": 500,
+                    "shot": true
+                },
+                {
+                    "type": "touchByPageXY",
+                    "waitFor": ".list-wrap:nth-of-type(2)>.swiper",
+                    "xy_displacement": [20, 0],
+                    "captureDelay": 500,
+                    "shot": true
                     "waitFor": "input.text",
                     "value": "12345",
                     "enter": true
