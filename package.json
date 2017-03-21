@@ -4,7 +4,8 @@
   "description": "A visual regression testing tool, aims to help developers quickly create tests with minimum overhead, avoid repeated clicks and typings in testings, particularly helpful for single page applications or complicated web app. Automate the testings `headlessly` at local dev environment or on a continuous integration server.",
   "main": "vbot",
   "scripts": {
-    "vbot": "./bin/run.js"
+    "lint:staged": "lint-staged",
+    "lint:js": "eslint bin runner.js"
   },
   "author": "kata.choi@gmail.com",
   "license": "MIT License",
@@ -19,29 +20,31 @@
     "vbot": "./bin/run.js"
   },
   "devDependencies": {
-    "http-server": "^0.9.0",
+    "babel-eslint": "^7.2.0",
     "eslint": "^3.15.0",
     "eslint-config-airbnb": "^14.1.0",
     "eslint-loader": "^1.6.1",
     "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "http-server": "^0.9.0",
     "lint-staged": "^3.3.0"
   },
   "eslintConfig": {
     "parser": "babel-eslint",
     "extends": [
-      "airbnb",
-      "plugin:css-modules/recommended"
+      "eslint:recommended"
     ],
-    "rules": {
-    }
+    "globals": {
+      "casper": true,
+      "require": true,
+      "process": true
+    },
+    "rules": {}
   },
   "pre-commit": "lint:staged",
   "lint-staged": {
     "*.{js}": [
       "eslint"
     ]
-  },
-  "scripts": {
-    "lint:staged": "lint-staged"
   }
 }
