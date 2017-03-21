@@ -1,5 +1,4 @@
 'use strict';
-var x = require('casper').selectXPath;
 var args = casper.cli.options;
 var schemaFile = args['schema'];
 var newSchemaFile = args['nf'];

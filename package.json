@@ -5,7 +5,7 @@
   "main": "vbot",
   "scripts": {
     "lint:staged": "lint-staged",
-    "lint:js": "eslint bin runner.js"
+    "lint:js": "eslint bin runner.js||true"
   },
   "author": "kata.choi@gmail.com",
   "license": "MIT License",
@@ -36,9 +36,15 @@
     "globals": {
       "casper": true,
       "require": true,
+      "console": true,
+      "document": true,
+      "localStorage": true,
+      "sessionStorage": true,
       "process": true
     },
-    "rules": {}
+    "rules": {
+      "no-console": 0
+    }
   },
   "pre-commit": "lint:staged",
   "lint-staged": {
