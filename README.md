@@ -36,7 +36,7 @@ Each scenario can comprise of a set of actions in the page view. It groups a set
  - **actions**  
  A set of test steps
    - **type**  
-   Action Type: `assert`, `click`, `enter`, `scrollTo`
+   Action Type: `assert`, `click`, `enter`, `select`, `scrollTo`
    - **waitFor**  
    Wait for the element to exist before proceeding to the action type. It is the target element regarding to the action.
    - **waitTimeout**  
@@ -49,6 +49,8 @@ Each scenario can comprise of a set of actions in the page view. It groups a set
    The [x, y] position to scroll to, when using action type `scrollTo`.
    - **enter**
    Set `true` to simulate `enter` press key to a input field.
+   - **selectIndex**
+   Set a zero-based index to select one of the options for the `select` action type.
 
 ### Example
 
