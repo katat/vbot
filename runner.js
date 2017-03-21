@@ -15,7 +15,6 @@ try {
 } catch (ex) {
   console.error('Not found schema file on the path: ' + schemaFilePath + '. Or there are JSON syntax errors in the schema file. Please have a check and run again.');
 }
-// var schema = require(fs.absolute(fs.workingDirectory + '/' + schemaFile));
 var defaultCaptureSelector = schema.captureSelector;
 casper.options.viewportSize = {
   width: schema.viewWidth,
@@ -28,62 +27,77 @@ casper.on('page.error', function(msg, trace) {
     this.echo('   ' + step.file + ' (line ' + step.line + ')', 'ERROR');
   }
 });
-var fs = require('fs');
 var captureDelay = null;
 var runActions = function(scenario, test) {
   scenario.actions.forEach(function(action, stepIndex) {
     casper.then(function() {
-      if (action.type.indexOf(['click', 'assert', 'scrollTo'])) {
-        casper.waitForSelector(action.waitFor,
-          function success() {
-            test.assertExists(action.waitFor);
-            // if(action.wait) {
-            //     casper.wait(action.wait);
-            // }
-            if (action.type === 'scrollTo') {
-              casper.evaluate(function(action) {
-                var query = action.waitFor || action.scrollElm;
-                var elms = document.getElementsByClassName(query.replace('.', ''));
-                for (var i = 0; i < elms.length; i++) {
-                  elms[i].scrollLeft += action.position[0];
-                  elms[i].scrollTop += action.position[1];
-                }
-              }, action);
-            }
-            if (action.shot) {
-              phantomcss.screenshot(action.shotSelector || defaultCaptureSelector, action.captureDelay || captureDelay, null, scenario.name + '/' + stepIndex + '_' + action.type + '-' + action.waitFor.replace(' ', '_'));
-              // casper.then(function() {
-              // });
-            }
-            if (action.type === 'click') {
-              this.click(action.waitFor);
-              // casper.then(function() {
-              // });
-            }
-          },
-          function fail() {
-            test.assertExist(action.waitFor + ', timeout:' + action.waitTimeout);
-          }, action.waitTimeout);
-      }
-      if (action.type === 'enter') {
-        casper.waitForSelector(action.waitFor,
-          function success() {
-            this.sendKeys(action.waitFor, action.value, {
-              keepFocus: true
-            });
-            if (action.enter === true) {
-              this.sendKeys(action.waitFor, casper.page.event.key.Enter, {
-                keepFocus: true
-              });
-            }
-          },
-          function fail() {
-            test.assertExists(action.waitFor);
-          });
-      }
+      waitForSelector(action.waitFor, action.waitTimeout, test, function() {
+        if (action.type === 'scrollTo') {
+          evaluateInBrowser(action)
+        }
+        if (action.type === 'click') {
+          casper.click(action.waitFor);
+        }
+        if (action.type === 'enter') {
+          enterText(action)
+        }
+        if (action.type === 'select') {
+          selectDropdown(action)
+        }
+        if (action.shot) {
+          capture(action, stepIndex, scenario.name)
+        }
+      })
     });
   });
 };
+
+var capture = function(action, stepIndex, folder) {
+  phantomcss.screenshot(
+    action.shotSelector || defaultCaptureSelector,
+    action.captureDelay || captureDelay,
+    null,
+    folder + '/' + stepIndex + '_' + action.type + '-' + action.waitFor.replace(' ', '_'));
+}
+
+var evaluateInBrowser = function(action) {
+  casper.evaluate(function(_action) {
+    var query = _action.waitFor || _action.scrollElm;
+    var elms = document.getElementsByClassName(query.replace('.', ''));
+    for (var i = 0; i < elms.length; i++) {
+      elms[i].scrollLeft += _action.position[0];
+      elms[i].scrollTop += _action.position[1];
+    }
+  }, action);
+}
+
+var enterText = function(action) {
+  casper.sendKeys(action.waitFor, action.value, {
+    keepFocus: true
+  });
+  if (action.enter === true) {
+    casper.sendKeys(action.waitFor, casper.page.event.key.Enter, {
+      keepFocus: true
+    });
+  }
+}
+
+var selectDropdown = function(action) {
+  casper.evaluate(function(_action) {
+    document.querySelector(_action.waitFor).selectedIndex = _action.selectIndex;
+  }, action);
+}
+
+var waitForSelector = function(selector, timeout, test, callback) {
+  casper.waitForSelector(selector,
+    function success() {
+      test.assertExists(selector);
+      callback()
+    },
+    function fail() {
+      test.assertExist(selector + ', timeout:' + timeout);
+    }, timeout);
+}
 
 var buildScenario = function(schema, allScenarios, scenario) {
   if (scenario.inherit) {
@@ -104,7 +118,6 @@ var buildScenario = function(schema, allScenarios, scenario) {
   return scenario;
 };
 
-// var path = fs.absolute( fs.workingDirectory + '/node_modules/phantomcss/phantomcss.js' );
 var failures = [],
   newImages = [];
 var imgbase = fs.workingDirectory;
@@ -114,9 +127,7 @@ if (imgdir) {
 var phantomcss = require('phantomcss');
 var phantomcssOpts = {
   rebase: casper.cli.get("rebase"),
-  // SlimerJS needs explicit knowledge of this Casper, and lots of absolute paths
   casper: casper,
-  // libraryRoot: fs.absolute( fs.workingDirectory + '/node_modules/phantomcss' ),
   screenshotRoot: fs.absolute(imgbase + '/screenshots/' + schemaFile),
   failedComparisonsRoot: fs.absolute(imgbase + '/results/' + newSchemaFile + '/failures'),
   comparisonResultRoot: fs.absolute(imgbase + '/results/' + newSchemaFile),
@@ -125,19 +136,6 @@ var phantomcssOpts = {
   errorType: 'movement',
   transparency: 0.3,
   hideElements: schema.hideElements
-  /*
-    fileNameGetter: function overide_file_naming(){},
-    onPass: function passCallback(){},
-    onTimeout: function timeoutCallback(){},
-    onComplete: function completeCallback(){},
-    addLabelToFailedImage: true,
-    outputSettings: {
-    errorColor: {
-    red: 255,
-    green: 255,
-    blue: 0
-},
-}*/
 }
 if (output) {
   phantomcssOpts.onFail = function(test) {
@@ -157,8 +155,6 @@ if (output) {
   }
 }
 phantomcss.init(phantomcssOpts);
-
-// phantomcss.turnOffAnimations();
 
 var builtScenarios = [];
 schema.scenarios.forEach(function(scenario) {
@@ -227,7 +223,6 @@ builtScenarios.forEach(function(scenario, index) {
       if (outputs.length > 0 && output) {
         fs.write(output, JSON.stringify(outputs), 'w');
       }
-      // require('utils').dump(failures);
     });
 
     casper.run(function() {
