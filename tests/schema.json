@@ -33,6 +33,11 @@
                     "type": "scrollTo",
                     "position": [0, 100],
                     "waitFor": ".box"
+                },{
+                    "type": "select",
+                    "waitFor": "select",
+                    "selectIndex": 1,
+                    "shot": true
                 }
             ]
         }
