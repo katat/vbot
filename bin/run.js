@@ -1,4 +1,5 @@
 #! /usr/bin/env node
+'use strict'
 const shell = require("shelljs");
 const phantomjs = require('phantomjs');
 process.env.PHANTOMJS_EXECUTABLE = phantomjs.path;
