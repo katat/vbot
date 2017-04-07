@@ -6,6 +6,8 @@ There is a [blog post](http://katat.github.io/2017/01/09/vbot/) discussing about
 ## Install
 `npm install -g vbot`
 
+*PS. This tool tested with latest version of Node.js*
+
 ## Schema
 **viewHeight**
 height of the browser view

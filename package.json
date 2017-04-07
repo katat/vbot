@@ -5,7 +5,7 @@
   "main": "vbot",
   "scripts": {
     "lint:staged": "lint-staged",
-    "lint:js": "eslint bin runner.js||true"
+    "lint:js": "eslint bin lib runner.js||true"
   },
   "author": "kata.choi@gmail.com",
   "license": "MIT License",
@@ -34,6 +34,7 @@
       "eslint:recommended"
     ],
     "globals": {
+      "module": true,
       "casper": true,
       "require": true,
       "console": true,
@@ -49,6 +50,7 @@
   },
   "pre-commit": "lint:staged",
   "lint-staged": {
+    "lib/**/*.js": "eslint",
     "runner.js": "eslint",
     "bin/run.js": "eslint"
   }
