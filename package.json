@@ -53,7 +53,8 @@
       "localStorage": true,
       "sessionStorage": true,
       "fs": true,
-      "process": true
+      "process": true,
+      "Promise": true
     },
     "rules": {
       "no-console": 0

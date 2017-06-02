@@ -13,7 +13,7 @@ describe('vbot tests', async () => {
   after(localServer.stop)
   beforeEach(async () => {
     vbot = new VBot({
-      projectFile: `${__dirname}/project.json`,
+      projectFile: `${__dirname}/fixtures/project.json`,
       host: `http://localhost:${serverPort}`,
       imgdir: `${__dirname}/tmp`
     })
