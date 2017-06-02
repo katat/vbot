@@ -39,7 +39,7 @@ describe('vbot tests', async () => {
   });
   describe('pass or fail', function () {
     it('pass', function (done) {
-      vbot.on('action.pass', (log) => {
+      vbot.on('action.done', (log) => {
 
       })
       done();
@@ -52,13 +52,13 @@ describe('vbot tests', async () => {
     });
     describe('compare screenshots', function () {
       it('same', function (done) {
-        vbot.on('action.pass', (log) => {
+        vbot.on('action.done', (log) => {
 
         })
         done();
       });
       it('diff', function (done) {
-        vbot.on('action.fail', (log) => {
+        vbot.on('action.done', (log) => {
 
         })
         done();
