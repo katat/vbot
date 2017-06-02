@@ -37,4 +37,7 @@ describe('vbot tests', async () => {
       })
     });
   });
+  describe('pass or fail', function () {
+
+  });
 });
