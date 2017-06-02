@@ -38,6 +38,31 @@ describe('vbot tests', async () => {
     });
   });
   describe('pass or fail', function () {
+    it('pass', function (done) {
+      vbot.on('action.pass', (log) => {
 
+      })
+      done();
+    });
+    it('fail', function (done) {
+      vbot.on('action.fail', (log) => {
+
+      })
+      done();
+    });
+  });
+  describe('compare screenshots', function () {
+    it('same', function (done) {
+      vbot.on('action.pass', (log) => {
+
+      })
+      done();
+    });
+    it('diff', function (done) {
+      vbot.on('action.fail', (log) => {
+
+      })
+      done();
+    });
   });
 });
