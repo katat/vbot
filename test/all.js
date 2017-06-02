@@ -50,19 +50,19 @@ describe('vbot tests', async () => {
       })
       done();
     });
-  });
-  describe('compare screenshots', function () {
-    it('same', function (done) {
-      vbot.on('action.pass', (log) => {
+    describe('compare screenshots', function () {
+      it('same', function (done) {
+        vbot.on('action.pass', (log) => {
 
-      })
-      done();
-    });
-    it('diff', function (done) {
-      vbot.on('action.fail', (log) => {
+        })
+        done();
+      });
+      it('diff', function (done) {
+        vbot.on('action.fail', (log) => {
 
-      })
-      done();
+        })
+        done();
+      });
     });
   });
 });
