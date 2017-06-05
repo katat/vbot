@@ -11,19 +11,19 @@
             "actions": [
                 {
                     "type": "assert",
-                    "waitFor": ".box",
+                    "selector": ".box",
                     "shot": true
                 },{
                     "type": "click",
-                    "waitFor": ".btn"
+                    "selector": ".btn"
                 },{
                     "type": "scrollTo",
                     "position": [0, 1000],
-                    "waitFor": ".box",
+                    "selector": ".box",
                     "shot": true
                 },{
                     "type": "click",
-                    "waitFor": "input.text"
+                    "selector": "input.text"
                 },{
                     "type": "enter",
                     "value": "12345",
@@ -31,10 +31,10 @@
                 },{
                     "type": "scrollTo",
                     "position": [0, 100],
-                    "waitFor": ".box"
+                    "selector": ".box"
                 },{
                     "type": "select",
-                    "waitFor": "select",
+                    "selector": "select",
                     "selectIndex": 1,
                     "shot": true
                 }

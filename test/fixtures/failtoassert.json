@@ -11,13 +11,13 @@
             "actions": [
                 {
                     "type": "assert",
-                    "waitFor": ".box"
+                    "selector": ".box"
                 },{
                     "type": "assert",
-                    "waitFor": ".bo"
+                    "selector": ".bo"
                 },{
                     "type": "assert",
-                    "waitFor": ".box"
+                    "selector": ".box"
                 }
             ]
         }
