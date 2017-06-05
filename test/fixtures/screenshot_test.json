@@ -1,7 +1,7 @@
 {
     "viewWidth": 375,
     "viewHeight": 677,
-    "showWindow": false,
+    "showWindow": true,
     "captureSelector": "html",
     "host": "http://localhost:8888",
     "scenarios": [

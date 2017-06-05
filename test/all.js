@@ -9,6 +9,12 @@ describe('vbot tests', async () => {
       serverPort = instance.info.port
       done()
     })
+    process.on('uncaughtException', function(error) {
+      console.log(error)
+    })
+    process.on('unhandledRejection', function(error) {
+      console.log(error)
+    })
   })
   after(localServer.stop)
   beforeEach(async () => {
@@ -160,7 +166,7 @@ describe('vbot tests', async () => {
           await fs.copy(`${__dirname}/fixtures/compare_imgs/diff/2_scrollTo-.box.png`, `${__dirname}/tmp/compare_imgs/view1/base/2_scrollTo-.box.png`)
           await vbot.start()
         });
-        it('diff', function (done) {
+        it('should generate diff file and related analysis', function (done) {
           let count = 0
           vbot.on('action.executed', (log) => {
             if (!log.screenshot) {
@@ -173,8 +179,42 @@ describe('vbot tests', async () => {
             // assert.equal(true, log.screenshot.files.diff.indexOf(`${__dirname}/tmp/compare_imgs/view1/diff/`) >= 0)
             if (log.index === 2) {
               assert.equal(0.5, log.screenshot.analysis.misMatchPercentage)
+              assert(fs.existsSync(log.screenshot.files.diff))
             }
             assert.equal(true, log.screenshot.analysis.isSameDimensions)
+          })
+          vbot.on('end', () => {
+            done();
+          })
+        });
+      });
+      describe('rebase', function () {
+        beforeEach(async () => {
+          let imgdir = `${__dirname}/tmp/compare_imgs`
+          vbot = new VBot({
+            projectFile: `${__dirname}/fixtures/screenshot_test.json`,
+            host: `http://localhost:${serverPort}`,
+            imgdir: imgdir,
+            rebase: true
+          })
+          fs.removeSync(imgdir)
+          await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/base`)
+          await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/test`)
+          await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/diff`)
+          await vbot.start()
+        });
+        it('should remove diff and test folder and only generate base folder', function (done) {
+          let count = 0
+          vbot.on('action.executed', (log) => {
+            if (!log.screenshot) {
+              return
+            }
+            assert(!log.screenshot.files.diff)
+            assert(!log.screenshot.files.test)
+            assert(!log.screenshot.analysis)
+            assert(fs.existsSync(log.screenshot.files.base))
+            assert(!fs.existsSync(`${__dirname}/fixtures/compare_imgs/view1/diff`))
+            assert(!fs.existsSync(`${__dirname}/fixtures/compare_imgs/view1/test`))
           })
           vbot.on('end', () => {
             done();
