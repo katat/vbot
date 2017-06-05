@@ -19,7 +19,7 @@
                 },{
                     "type": "assert",
                     "waitFor": ".clicked-text",
-                    "waitTimeout": 6000
+                    "waitTimeout": 6500
                 },{
                     "type": "scrollTo",
                     "position": [0, 1000],
