@@ -6,7 +6,7 @@
   "scripts": {
     "lint:staged": "lint-staged",
     "lint:js": "eslint bin lib runner.js||true",
-    "test": "mocha -t 10000 --require babel-register"
+    "test": "mocha -t 10000 --full-trace --require babel-register"
   },
   "directories": {
     "test": "test"
@@ -14,8 +14,11 @@
   "author": "kata.choi@gmail.com",
   "license": "MIT License",
   "dependencies": {
+    "chromediff": "^1.0.2",
     "chromejs": "^0.3.1",
+    "fs-extra": "^3.0.1",
     "get-installed-path": "^2.0.3",
+    "mkdirp": "^0.5.1",
     "shelljs": "^0.7.5",
     "yargs": "^3.21.0"
   },

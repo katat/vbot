@@ -1,0 +1,44 @@
+{
+    "viewWidth": 375,
+    "viewHeight": 677,
+    "showWindow": false,
+    "captureSelector": "html",
+    "host": "http://localhost:8888",
+    "scenarios": [
+        {
+            "name": "view1",
+            "path": "/",
+            "actions": [
+                {
+                    "type": "assert",
+                    "waitFor": ".box",
+                    "shot": true
+                },{
+                    "type": "click",
+                    "waitFor": ".btn"
+                },{
+                    "type": "scrollTo",
+                    "position": [0, 1000],
+                    "waitFor": ".box",
+                    "shot": true
+                },{
+                    "type": "click",
+                    "waitFor": "input.text"
+                },{
+                    "type": "enter",
+                    "value": "12345",
+                    "enter": true
+                },{
+                    "type": "scrollTo",
+                    "position": [0, 100],
+                    "waitFor": ".box"
+                },{
+                    "type": "select",
+                    "waitFor": "select",
+                    "selectIndex": 1,
+                    "shot": true
+                }
+            ]
+        }
+    ]
+}

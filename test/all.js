@@ -1,6 +1,6 @@
 const localServer = require('./fixtures/server.js')
 const assert      = require('assert')
-const fs          = require('fs')
+const fs          = require('fs-extra')
 const VBot        = require('../lib/testbase')
 describe('vbot tests', async () => {
   let serverPort, vbot
@@ -15,12 +15,12 @@ describe('vbot tests', async () => {
     vbot = new VBot({
       projectFile: `${__dirname}/fixtures/project.json`,
       host: `http://localhost:${serverPort}`,
-      imgdir: `${__dirname}/tmp`
+      imgdir: `${__dirname}/tmp/screenshots`
     })
     // await vbot.start()
   });
   afterEach((done) => {
-    vbot.client.close().then(() => {
+    vbot.close().then(() => {
       done()
     })
   });
@@ -63,7 +63,7 @@ describe('vbot tests', async () => {
         vbot = new VBot({
           projectFile: `${__dirname}/fixtures/failtoassert.json`,
           host: `http://localhost:${serverPort}`,
-          imgdir: `${__dirname}/tmp`
+          imgdir: `${__dirname}/tmp/screenshots`
         })
         await vbot.start()
       });
@@ -83,19 +83,104 @@ describe('vbot tests', async () => {
         })
       });
     });
-    // describe('compare screenshots', function () {
-    //   it('same', function (done) {
-    //     vbot.on('action.done', (log) => {
-    //
-    //     })
-    //     done();
-    //   });
-    //   it('diff', function (done) {
-    //     vbot.on('action.done', (log) => {
-    //
-    //     })
-    //     done();
-    //   });
-    // });
+    describe('compare screenshots', function () {
+      describe('base', function () {
+        beforeEach(async () => {
+          let imgdir = `${__dirname}/tmp/compare_imgs`
+          vbot = new VBot({
+            projectFile: `${__dirname}/fixtures/screenshot_test.json`,
+            host: `http://localhost:${serverPort}`,
+            imgdir: imgdir
+          })
+          fs.removeSync(imgdir)
+          await vbot.start()
+        });
+        it('base', function (done) {
+          let screenshot = false
+          vbot.on('action.executed', (log) => {
+            if (!log.screenshot) {
+              return
+            }
+            screenshot = true
+            assert([0, 2, 4, 6].indexOf(log.index) >= 0)
+            assert.equal(true, log.screenshot.files.base.indexOf(`${__dirname}/tmp/compare_imgs/view1/base/`) >= 0)
+            assert.equal(undefined, log.screenshot.files.test)
+            assert.equal(undefined, log.screenshot.files.diff)
+            assert.equal(undefined, log.screenshot.misMatchPercentage)
+            assert.equal(undefined, log.screenshot.isSameDimensions)
+          })
+          vbot.on('end', () => {
+            assert(screenshot)
+            done();
+          })
+        });
+      });
+      describe('same', function () {
+        beforeEach(async () => {
+          let imgdir = `${__dirname}/tmp/compare_imgs`
+          vbot = new VBot({
+            projectFile: `${__dirname}/fixtures/screenshot_test.json`,
+            host: `http://localhost:${serverPort}`,
+            imgdir: imgdir
+          })
+          fs.removeSync(imgdir)
+          await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/base`)
+          await vbot.start()
+        });
+        it('same', function (done) {
+          let count = 0
+          vbot.on('action.executed', (log) => {
+            if (!log.screenshot) {
+              return
+            }
+            screenshot = true
+            assert([0, 2, 4, 6].indexOf(log.index) >= 0)
+            assert.equal(true, log.screenshot.files.base.indexOf(`${__dirname}/tmp/compare_imgs/view1/base/`) >= 0)
+            assert.equal(true, log.screenshot.files.test.indexOf(`${__dirname}/tmp/compare_imgs/view1/test/`) >= 0)
+            assert(!log.screenshot.files.diff)
+
+            assert.equal(0, log.screenshot.analysis.misMatchPercentage)
+            assert.equal(true, log.screenshot.analysis.isSameDimensions)
+          })
+          vbot.on('end', () => {
+            done();
+          })
+        });
+      });
+      describe('diff', function () {
+        beforeEach(async () => {
+          let imgdir = `${__dirname}/tmp/compare_imgs`
+          vbot = new VBot({
+            projectFile: `${__dirname}/fixtures/screenshot_test.json`,
+            host: `http://localhost:${serverPort}`,
+            imgdir: imgdir
+          })
+          fs.removeSync(imgdir)
+          await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/base`)
+          await fs.copy(`${__dirname}/fixtures/compare_imgs/diff/2_scrollTo-.box.png`, `${__dirname}/tmp/compare_imgs/view1/base/2_scrollTo-.box.png`)
+          await vbot.start()
+        });
+        it('diff', function (done) {
+          let count = 0
+          vbot.on('action.executed', (log) => {
+            if (!log.screenshot) {
+              return
+            }
+            screenshot = true
+            assert([0, 2, 4, 6].indexOf(log.index) >= 0)
+            // assert.equal(true, log.screenshot.files.base.indexOf(`${__dirname}/tmp/compare_imgs/view1/base/`) >= 0)
+            // assert.equal(true, log.screenshot.files.test.indexOf(`${__dirname}/tmp/compare_imgs/view1/test/`) >= 0)
+            // assert.equal(true, log.screenshot.files.diff.indexOf(`${__dirname}/tmp/compare_imgs/view1/diff/`) >= 0)
+            if (log.index === 2) {
+              assert.equal(0.5, log.screenshot.analysis.misMatchPercentage)
+            }
+            assert.equal(true, log.screenshot.analysis.isSameDimensions)
+          })
+          vbot.on('end', () => {
+            done();
+          })
+        });
+      });
+    });
   });
 });

@@ -3,4 +3,4 @@ screenshots
 results
 *prod*
 *.log
-test/tmp/screenshots/**.*
+test/tmp
