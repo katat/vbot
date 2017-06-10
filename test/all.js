@@ -121,17 +121,32 @@ describe('vbot tests', async () => {
           })
         });
       });
-      describe.only('same', function () {
+      describe('same', function () {
+        let threshold = 0
         beforeEach(async () => {
-          let imgdir = `${__dirname}/tmp/compare_imgs`
-          vbot = new VBot({
-            projectFile: `${__dirname}/fixtures/screenshot_test.json`,
-            host: `http://localhost:${serverPort}`,
-            imgdir: imgdir
+          return new Promise(async (resolve) => {
+            let imgdir = `${__dirname}/tmp/compare_imgs`
+            vbot = new VBot({
+              projectFile: `${__dirname}/fixtures/screenshot_test.json`,
+              host: `http://localhost:${serverPort}`,
+              imgdir: imgdir,
+              mismatchThreshold: threshold
+            })
+            fs.removeSync(imgdir)
+            // await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/base`)
+            await vbot.start()
+            vbot.on('end', async () => {
+              await vbot.close()
+              vbot = new VBot({
+                projectFile: `${__dirname}/fixtures/screenshot_test.json`,
+                host: `http://localhost:${serverPort}`,
+                imgdir: imgdir,
+                mismatchThreshold: threshold
+              })
+              await vbot.start()
+              resolve()
+            })
           })
-          fs.removeSync(imgdir)
-          await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/base`)
-          await vbot.start()
         });
         it('same', function (done) {
           let count = 0
@@ -144,9 +159,9 @@ describe('vbot tests', async () => {
             assert.equal(true, log.screenshot.files.base.indexOf(`${__dirname}/tmp/compare_imgs/view1/base/`) >= 0)
             assert.equal(true, log.screenshot.files.test.indexOf(`${__dirname}/tmp/compare_imgs/view1/test/`) >= 0)
             assert(!log.screenshot.files.diff)
-
             assert.equal(0, log.screenshot.analysis.misMatchPercentage)
             assert.equal(true, log.screenshot.analysis.isSameDimensions)
+            assert.equal(true, log.screenshot.analysis.acceptable)
           })
           vbot.on('end', () => {
             done();
@@ -154,38 +169,78 @@ describe('vbot tests', async () => {
         });
       });
       describe('diff', function () {
-        beforeEach(async () => {
+        let initDiffVbot = async (threshold) => {
           let imgdir = `${__dirname}/tmp/compare_imgs`
           vbot = new VBot({
             projectFile: `${__dirname}/fixtures/screenshot_test.json`,
             host: `http://localhost:${serverPort}`,
-            imgdir: imgdir
+            imgdir: imgdir,
+            mismatchThreshold: threshold
           })
           fs.removeSync(imgdir)
-          await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/base`)
+          // await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/base`)
           await fs.copy(`${__dirname}/fixtures/compare_imgs/diff/2_scrollTo-.box.png`, `${__dirname}/tmp/compare_imgs/view1/base/2_scrollTo-.box.png`)
           await vbot.start()
+        }
+        describe('without threshold', function () {
+          beforeEach(async () => {
+            await initDiffVbot()
+          });
+          it('should generate diff file and related analysis', function (done) {
+            let count = 0
+            vbot.on('action.executed', (log) => {
+              if (!log.screenshot) {
+                return
+              }
+              screenshot = true
+              assert([0, 2, 4, 6].indexOf(log.index) >= 0)
+              if (log.index === 2) {
+                assert(log.screenshot.files.base)
+                assert(log.screenshot.files.test)
+                assert(log.screenshot.files.diff)
+                assert(log.screenshot.analysis.isSameDimensions)
+                assert(log.screenshot.analysis.misMatchPercentage)
+                assert(!log.screenshot.analysis.acceptable)
+                return
+              }
+              assert(!log.screenshot.files.diff)
+              assert(!log.screenshot.files.test)
+              assert(log.screenshot.files.base)
+            })
+            vbot.on('end', () => {
+              done();
+            })
+          });
         });
-        it('should generate diff file and related analysis', function (done) {
-          let count = 0
-          vbot.on('action.executed', (log) => {
-            if (!log.screenshot) {
-              return
-            }
-            screenshot = true
-            assert([0, 2, 4, 6].indexOf(log.index) >= 0)
-            // assert.equal(true, log.screenshot.files.base.indexOf(`${__dirname}/tmp/compare_imgs/view1/base/`) >= 0)
-            // assert.equal(true, log.screenshot.files.test.indexOf(`${__dirname}/tmp/compare_imgs/view1/test/`) >= 0)
-            // assert.equal(true, log.screenshot.files.diff.indexOf(`${__dirname}/tmp/compare_imgs/view1/diff/`) >= 0)
-            if (log.index === 2) {
-              assert.equal(0.5, log.screenshot.analysis.misMatchPercentage)
-              assert(fs.existsSync(log.screenshot.files.diff))
-            }
-            assert.equal(true, log.screenshot.analysis.isSameDimensions)
-          })
-          vbot.on('end', () => {
-            done();
-          })
+        describe('with threshold', function () {
+          beforeEach(async () => {
+            await initDiffVbot(0.1)
+          });
+          it('should generate diff file and related analysis', function (done) {
+            let count = 0
+            vbot.on('action.executed', (log) => {
+              if (!log.screenshot) {
+                return
+              }
+              screenshot = true
+              assert([0, 2, 4, 6].indexOf(log.index) >= 0)
+              if (log.index === 2) {
+                assert(log.screenshot.files.base)
+                assert(log.screenshot.files.test)
+                assert(log.screenshot.files.diff)
+                assert(log.screenshot.analysis.isSameDimensions)
+                assert(log.screenshot.analysis.misMatchPercentage)
+                assert(log.screenshot.analysis.acceptable)
+                return
+              }
+              assert(!log.screenshot.files.diff)
+              assert(!log.screenshot.files.test)
+              assert(log.screenshot.files.base)
+            })
+            vbot.on('end', () => {
+              done();
+            })
+          });
         });
       });
       describe('rebase', function () {
