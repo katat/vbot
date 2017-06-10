@@ -121,7 +121,7 @@ describe('vbot tests', async () => {
           })
         });
       });
-      describe('same', function () {
+      describe.only('same', function () {
         beforeEach(async () => {
           let imgdir = `${__dirname}/tmp/compare_imgs`
           vbot = new VBot({
