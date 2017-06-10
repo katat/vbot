@@ -161,7 +161,7 @@ describe('vbot tests', async () => {
             assert(!log.screenshot.files.diff)
             assert.equal(0, log.screenshot.analysis.misMatchPercentage)
             assert.equal(true, log.screenshot.analysis.isSameDimensions)
-            assert.equal(true, log.screenshot.analysis.acceptable)
+            assert.equal(true, log.screenshot.analysis.passThreshold)
           })
           vbot.on('end', () => {
             done();
@@ -200,7 +200,7 @@ describe('vbot tests', async () => {
                 assert(log.screenshot.files.diff)
                 assert(log.screenshot.analysis.isSameDimensions)
                 assert(log.screenshot.analysis.misMatchPercentage)
-                assert(!log.screenshot.analysis.acceptable)
+                assert(!log.screenshot.analysis.passThreshold)
                 return
               }
               assert(!log.screenshot.files.diff)
@@ -230,7 +230,7 @@ describe('vbot tests', async () => {
                 assert(log.screenshot.files.diff)
                 assert(log.screenshot.analysis.isSameDimensions)
                 assert(log.screenshot.analysis.misMatchPercentage)
-                assert(log.screenshot.analysis.acceptable)
+                assert(log.screenshot.analysis.passThreshold)
                 return
               }
               assert(!log.screenshot.files.diff)
