@@ -19,7 +19,6 @@
     "fs-extra": "^3.0.1",
     "get-installed-path": "^2.0.3",
     "jimp": "^0.2.28",
-    "lighthouse": "^2.1.0",
     "mkdirp": "^0.5.1",
     "shelljs": "^0.7.5",
     "yargs": "^3.21.0"
