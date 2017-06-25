@@ -56,7 +56,8 @@
       "sessionStorage": true,
       "fs": true,
       "process": true,
-      "Promise": true
+      "Promise": true,
+      "setTimeout": true
     },
     "rules": {
       "no-console": 0

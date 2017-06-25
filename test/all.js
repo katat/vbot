@@ -31,11 +31,11 @@ describe('vbot tests', async () => {
     })
   });
   describe('window size', async () => {
-    beforeEach(async () => {
-      await vbot.start()
+    beforeEach(() => {
+      vbot.start()
     });
     it('should resize window', (done) => {
-      vbot.on('start', async () => {
+      vbot.on('scenario.start', async () => {
         let evalResponse = await vbot.client.eval('JSON.stringify({width: window.innerWidth, height: window.innerHeight})')
         let size = JSON.parse(evalResponse.result.value)
         assert.equal(375, size.width)
@@ -49,7 +49,7 @@ describe('vbot tests', async () => {
   describe('pass or fail', async () => {
     describe('pass', async () => {
       beforeEach(async () => {
-        await vbot.start()
+        vbot.start()
       });
       it('pass', (done) => {
         let project = require('./fixtures/project.json')
@@ -71,7 +71,7 @@ describe('vbot tests', async () => {
           host: `http://localhost:${serverPort}`,
           imgdir: `${__dirname}/tmp/screenshots`
         })
-        await vbot.start()
+        vbot.start()
       });
       it('fail', (done) => {
         let count = 0
@@ -99,7 +99,7 @@ describe('vbot tests', async () => {
             imgdir: imgdir
           })
           fs.removeSync(imgdir)
-          await vbot.start()
+          vbot.start()
         });
         it('base', function (done) {
           let screenshot = false
@@ -134,7 +134,7 @@ describe('vbot tests', async () => {
             })
             fs.removeSync(imgdir)
             // await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/base`)
-            await vbot.start()
+            vbot.start()
             vbot.on('end', async () => {
               await vbot.close()
               vbot = new VBot({
@@ -143,7 +143,7 @@ describe('vbot tests', async () => {
                 imgdir: imgdir,
                 mismatchThreshold: threshold
               })
-              await vbot.start()
+              vbot.start()
               resolve()
             })
           })
@@ -180,7 +180,7 @@ describe('vbot tests', async () => {
           fs.removeSync(imgdir)
           // await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/base`)
           await fs.copy(`${__dirname}/fixtures/compare_imgs/diff/2_scrollTo-.box.png`, `${__dirname}/tmp/compare_imgs/view1/base/2_scrollTo-.box.png`)
-          await vbot.start()
+          vbot.start()
         }
         describe('without threshold', function () {
           beforeEach(async () => {
@@ -256,7 +256,7 @@ describe('vbot tests', async () => {
           await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/base`)
           await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/test`)
           await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/diff`)
-          await vbot.start()
+          vbot.start()
         });
         it('should remove diff and test folder and only generate base folder', function (done) {
           let count = 0
