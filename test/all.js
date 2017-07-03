@@ -22,7 +22,7 @@ describe('vbot tests', async () => {
       projectFile: `${__dirname}/fixtures/project.json`,
       host: `http://localhost:${serverPort}`,
       imgdir: `${__dirname}/tmp/screenshots`,
-      showWindow: true
+      // showWindow: true
     })
     // await vbot.start()
   });
@@ -52,15 +52,20 @@ describe('vbot tests', async () => {
       beforeEach(async () => {
         vbot.start()
       });
-      it.only('pass', (done) => {
+      it('pass', (done) => {
         let project = require('./fixtures/project.json')
         let count = 0
-        vbot.on('action.executed', (log) => {
+        vbot.on('action.executed', async (log) => {
           assert.deepEqual(project.scenarios[0].actions[count], log.action)
           assert.equal(count ++, log.index)
         })
-        vbot.on('end', () => {
+        vbot.on('action.fail', (log) => {
+          assert.fail(log)
+        })
+        vbot.on('end', async () => {
           assert.equal(8, count)
+          let data = await vbot.client.querySelector('.entered-text')
+          assert.equal(data.result.subtype, 'node')
           done();
         })
       });

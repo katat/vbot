@@ -29,7 +29,7 @@
                     "type": "click",
                     "selector": "input.text"
                 },{
-                    "type": "enter",
+                    "type": "typing",
                     "value": "12345",
                     "enter": true
                 },{

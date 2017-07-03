@@ -56,7 +56,7 @@ Let's take a look at how vbot can ease the VRT process. Suppose we want to test 
                     "shot": true,
                     "comment": "wait for the input element .new-todo appear and take a screenshot"
                 },{
-                    "type": "enter",
+                    "type": "typing",
                     "selector": ".new-todo",
                     "value": "drink a cup of coffee",
                     "enter": true,
@@ -67,7 +67,7 @@ Let's take a look at how vbot can ease the VRT process. Suppose we want to test 
                     "shot": true,
                     "comment": "make sure there is a newly created task in the list and take screenshot"
                 },{
-                    "type": "enter",
+                    "type": "typing",
                     "selector": ".new-todo",
                     "value": "drink another cup of coffee",
                     "enter": true,
@@ -112,7 +112,7 @@ Below are the screenshots captured during the interaction flow:
 -------------
 ```json
 {
-    "type": "enter",
+    "type": "typing",
     "selector": ".new-todo",
     "value": "drink a cup of coffee",
     "enter": true,
@@ -129,7 +129,7 @@ Below are the screenshots captured during the interaction flow:
 --------------
 ```json
 {
-    "type": "enter",
+    "type": "typing",
     "selector": ".new-todo",
     "value": "drink another cup of coffee",
     "enter": true,
@@ -164,7 +164,7 @@ If this is the first time vbot run the tests for this JSON definition file, the 
 
 ```json
 {
-    "type": "enter",
+    "type": "typing",
     "selector": ".new-todo",
     "value": "drink a cup of coffee",
     "enter": true
@@ -175,7 +175,7 @@ to
 
 ```json
 {
-    "type": "enter",
+    "type": "typing",
     "selector": ".new-todo",
     "value": "drink a cup of milk",
     "enter": true
@@ -226,6 +226,8 @@ Each scenario can comprise of a set of actions in the page view. It groups a set
    The [x, y] position to scroll to, when using action type `scroll`.
    - **scrollTo**
    Set to `true` will scroll the element matched with the selector into the view.
+   - **enter**
+   Set to `true` will press the `enter` key, when using action type `typing`
 
 ## Welcome contributions
 
