@@ -6,6 +6,7 @@ There is a [blog post](http://katat.github.io/2017/01/09/vbot/) discussing about
 ## Requirements
 
 Node 7 or later
+
 Install Chrome59 or later to your machine.
 
 ## Install
