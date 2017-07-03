@@ -21,7 +21,8 @@ describe('vbot tests', async () => {
     vbot = new VBot({
       projectFile: `${__dirname}/fixtures/project.json`,
       host: `http://localhost:${serverPort}`,
-      imgdir: `${__dirname}/tmp/screenshots`
+      imgdir: `${__dirname}/tmp/screenshots`,
+      showWindow: true
     })
     // await vbot.start()
   });
@@ -51,7 +52,7 @@ describe('vbot tests', async () => {
       beforeEach(async () => {
         vbot.start()
       });
-      it('pass', (done) => {
+      it.only('pass', (done) => {
         let project = require('./fixtures/project.json')
         let count = 0
         vbot.on('action.executed', (log) => {

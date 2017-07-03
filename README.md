@@ -3,10 +3,13 @@ A visual regression testing tool, aims to help developers quickly create tests w
 
 There is a [blog post](http://katat.github.io/2017/01/09/vbot/) discussing about the motivation behind `vbot`.
 
+## Requirements
+
+Node 7 or later
+Install Chrome59 or later to your machine.
+
 ## Install
 `npm install -g vbot`
-
-*PS. This tool requires Node.js version 7.0+*
 
 ### Example
 
@@ -22,7 +25,7 @@ The `base` is the based image folder and `test` is the newly generated images, w
 
 In addition to the screenshots, it prints out the testings reports at the end of the tests, showing which tests passed or failed with a mismatch percentage compared with the baseline.
 
-Often, there are needs to watch the tests in action in a real browser. The command line tool provides a debug mode to see the tests in action
+Often, there are needs to watch the tests in action in a  browser. The command line tool provides a debug mode to see the tests in action
 
 ```bash
 vbot -f=test.json -d
