@@ -205,9 +205,6 @@ The global host of for the test url path in the scenarios. It can use `-d` to ov
 Each scenario can comprise of a set of actions in the page view. It groups a set of cohesive tests.
  - **path**  
  The url path for the scenario test to begin with
- - **captureDelay**  
- Delay(millisecond) to wait before take the final scenario screenshot. For the purpose of avoiding taking screenshot during the page animation. Apply to all the actions.
-
  - **actions**  
  A set of test steps
    - **type**  
@@ -226,6 +223,10 @@ Each scenario can comprise of a set of actions in the page view. It groups a set
    Delay(millisecond) to wait before this step's screenshot is taken. Apply only to an individual action.
    - **waitTimeout**  
    Maximum time to wait for the element `selector` exists in the DOM. If waited longer than this setting, it throws error of not found the `selector` element.
+   - **captureDelay**  
+   Delay(millisecond) before capture screenshot
+   - **comment**
+   Used for references of the action, and as the screenshot file name.
 
 ## Welcome contributions
 
