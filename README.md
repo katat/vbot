@@ -198,9 +198,6 @@ height of the browser view
 **viewWidth**
 width of the browser view
 
-**captureSelector**
-Element to be captured in screenshot. All the screenshots in a schema is capturing the same element. It is recommend to test against the whole page view, so is the `html`. However it is allowed to target any elements in the view, such as `body` or `.css-selector`.
-
 **host**
 The global host of for the test url path in the scenarios. It can use `-d` to override the host at the command.
 
