@@ -202,7 +202,7 @@ width of the browser view
 Element to be captured in screenshot. All the screenshots in a schema is capturing the same element. It is recommend to test against the whole page view, so is the `html`. However it is allowed to target any elements in the view, such as `body` or `.css-selector`.
 
 **host**
-The global host of for the test url path in the scenarios
+The global host of for the test url path in the scenarios. It can use `-d` to override the host at the command.
 
 **scenarios**
 Each scenario can comprise of a set of actions in the page view. It groups a set of cohesive tests.
@@ -215,21 +215,24 @@ Each scenario can comprise of a set of actions in the page view. It groups a set
  A set of test steps
    - **type**  
    Action Type: `assert`, `click`, `enter`, `scroll`
+     - `enter`
+     Set to `true` will press the `enter` key, when using action type `typing`
+     - `scroll`
+     The [x, y] position to scroll to, when using action type `scroll`.
    - **selector**  
    Wait for the element to exist before proceeding to the action type. It is the target element regarding to the action.
-   - **waitTimeout**  
-   Maximum time to wait for the element `selector` exists in the DOM. If waited longer than this setting, it throws error of not found the `selector` element.
+   - **scrollTo**
+   Set to `true` will scroll the element matched with the selector into the view.
    - **shot**  
    Take screenshot before this step action is executed.
    - **captureDelay**  
    Delay(millisecond) to wait before this step's screenshot is taken. Apply only to an individual action.
-   - **position**  
-   The [x, y] position to scroll to, when using action type `scroll`.
-   - **scrollTo**
-   Set to `true` will scroll the element matched with the selector into the view.
-   - **enter**
-   Set to `true` will press the `enter` key, when using action type `typing`
+   - **waitTimeout**  
+   Maximum time to wait for the element `selector` exists in the DOM. If waited longer than this setting, it throws error of not found the `selector` element.
 
 ## Welcome contributions
 
 Fork and make changes. In the tests directory, run `npm test` to make sure all the tests are passed. Welcome pull requests or request new features.
+
+## License
+MIT
