@@ -1,7 +1,7 @@
 const localServer = require('./fixtures/server.js')
 const assert      = require('assert')
 const fs          = require('fs-extra')
-const VBot        = require('../lib/testbase')
+const VBot        = require('../')
 describe('vbot tests', async () => {
   let serverPort, vbot
   before((done) => {
