@@ -10,13 +10,13 @@
             "path": "/",
             "actions": [
                 {
-                    "type": "assert",
+                    "type": "exist",
                     "selector": ".box"
                 },{
-                    "type": "assert",
+                    "type": "exist",
                     "selector": ".bo"
                 },{
-                    "type": "assert",
+                    "type": "exist",
                     "selector": ".box"
                 }
             ]

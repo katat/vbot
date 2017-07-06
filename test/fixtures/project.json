@@ -10,14 +10,14 @@
             "path": "/",
             "actions": [
                 {
-                    "type": "assert",
+                    "type": "exist",
                     "selector": ".box",
                     "screenshot": true
                 },{
                     "type": "click",
                     "selector": ".btn"
                 },{
-                    "type": "assert",
+                    "type": "exist",
                     "selector": ".clicked-text",
                     "waitTimeout": 6500
                 },{

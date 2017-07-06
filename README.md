@@ -5,9 +5,9 @@ There is a [blog post](http://katat.github.io/2017/01/09/vbot/) discussing about
 
 ## Requirements
 
-Node 7 or later
+Node 6 or later
 
-Install Chrome59 or later to your machine.
+Install Chrome 59 or later
 
 ## Install
 `npm install -g vbot`
@@ -52,9 +52,9 @@ Let's take a look at how vbot can ease the VRT process. Suppose we want to test 
             "path": "/examples/react",
             "actions": [
                 {
-                    "type": "assert",
+                    "type": "exist",
                     "selector": ".new-todo",
-                    "shot": true,
+                    "screenshot": true,
                     "comment": "wait for the input element .new-todo appear and take a screenshot"
                 },{
                     "type": "typing",
@@ -63,9 +63,9 @@ Let's take a look at how vbot can ease the VRT process. Suppose we want to test 
                     "enter": true,
                     "comment": "enter task message and press 'enter' key"
                 },{
-                    "type": "assert",
+                    "type": "exist",
                     "selector": "ul.todo-list li:nth-child(1)",
-                    "shot": true,
+                    "screenshot": true,
                     "comment": "make sure there is a newly created task in the list and take screenshot"
                 },{
                     "type": "typing",
@@ -74,18 +74,18 @@ Let's take a look at how vbot can ease the VRT process. Suppose we want to test 
                     "enter": true,
                     "comment": "create second task"
                 },{
-                    "type": "assert",
+                    "type": "exist",
                     "selector": "ul.todo-list li:nth-child(2)",
-                    "shot": true,
+                    "screenshot": true,
                     "comment": "ensure the second task is created"
                 },{
                     "type": "click",
                     "selector": "ul.todo-list li:nth-child(1) .toggle",
                     "comment": "mark the first task as completed"
                 },{
-                    "type": "assert",
+                    "type": "exist",
                     "selector": "ul.todo-list li.completed:nth-child(1)",
-                    "shot": true,
+                    "screenshot": true,
                     "commend": "ensure the completed status is reflected in the view and take screenshot"
                 }
             ]
@@ -102,9 +102,9 @@ Below are the screenshots captured during the interaction flow:
 
 ```json
 {
-    "type": "assert",
+    "type": "exist",
     "selector": ".new-todo",
-    "shot": true,
+    "screenshot": true,
     "comment": "wait for the input element .new-todo appear and take a screenshot"
 }
 ```
@@ -119,9 +119,9 @@ Below are the screenshots captured during the interaction flow:
     "enter": true,
     "comment": "enter task message and press 'enter' key"
 },{
-    "type": "assert",
+    "type": "exist",
     "selector": "ul.todo-list li:nth-child(1)",
-    "shot": true,
+    "screenshot": true,
     "comment": "make sure there is a newly created task in the list and take screenshot"
 }
 ```
@@ -136,9 +136,9 @@ Below are the screenshots captured during the interaction flow:
     "enter": true,
     "comment": "create second task"
 },{
-    "type": "assert",
+    "type": "exist",
     "selector": "ul.todo-list li:nth-child(2)",
-    "shot": true,
+    "screenshot": true,
     "comment": "ensure the second task is created"
 }
 ```
@@ -151,9 +151,9 @@ Below are the screenshots captured during the interaction flow:
     "selector": "ul.todo-list li:nth-child(1) .toggle",
     "comment": "mark the first task as completed"
 },{
-    "type": "assert",
+    "type": "exist",
     "selector": "ul.todo-list li.completed:nth-child(1)",
-    "shot": true,
+    "screenshot": true,
     "comment": "ensure the completed status is reflected in the view and take screenshot"
 }
 ```
@@ -191,7 +191,7 @@ After re-run the command line above, it should report there is test result misma
 
 ------------------
 
-## Test definitions in scenario file
+## Test options
 **viewHeight**
 height of the browser view
 
@@ -208,17 +208,17 @@ Each scenario can comprise of a set of actions in the page view. It groups a set
  - **actions**  
  A set of test steps
    - **type**  
-   Action Type: `assert`, `click`, `enter`, `scroll`
-     - `enter`
+   Action Type: `exist`, `click`, `typing`, `scroll`
+     - `typing`.`enter`
      Set to `true` will press the `enter` key, when using action type `typing`
-     - `scroll`
-     The [x, y] position to scroll to, when using action type `scroll`.
+     - `scroll`.`position`
+     The [x, y] increment position to scroll to, when using action type `scroll`.
    - **selector**  
    Wait for the element to exist before proceeding to the action type. It is the target element regarding to the action.
    - **scrollTo**
    Set to `true` will scroll the element matched with the selector into the view.
    - **screenshot**  
-   Set to `true` for taking screenshot before this step action is executed.
+   Set to `true` for taking screenshot after this step action is executed.
    - **captureDelay**  
    Delay(millisecond) to wait before this step's screenshot is taken.
    - **waitTimeout**  
