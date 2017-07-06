@@ -352,7 +352,7 @@ class VBot extends EventEmitter {
   }
 
   _onError(err) {
-    this._log(err.message, 'error')
+    this._log(err.message || err.stack, 'error')
   }
 
   _onFinish (cb) {

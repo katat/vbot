@@ -1,7 +1,7 @@
 'use strict'
 require('colors')
 const yargs  = require('yargs')
-const VBot   = require('../')
+const VBot   = require('./')
 
 module.exports = function() {
   this.cmdOptions = {
@@ -21,10 +21,10 @@ module.exports = function() {
       describe: 'rebase the screenshots',
       show: true
     },
-    nf: {
-      alias: 'nf',
-      describe: 'a new schema to run tests and compare screenshot results with original schema'
-    },
+    // nf: {
+    //   alias: 'nf',
+    //   describe: 'a new schema to run tests and compare screenshot results with original schema'
+    // },
     search: {
       alias: 's',
       describe: 'search and only test matched scenarios',

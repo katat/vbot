@@ -4,3 +4,4 @@ results
 *prod*
 *.log
 test/tmp
+dist

@@ -1,4 +1,4 @@
 #! /usr/bin/env node
 'use strict'
-const CmdBase = require('../lib/cmdbase')
+const CmdBase = require('../dist/cmdbase')
 new CmdBase().exec()

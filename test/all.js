@@ -1,7 +1,7 @@
 const localServer = require('./fixtures/server.js')
 const assert      = require('assert')
 const fs          = require('fs-extra')
-const VBot        = require('../')
+const VBot        = require('../dist')
 describe('vbot tests', async () => {
   let serverPort, vbot
   before((done) => {
@@ -160,7 +160,6 @@ describe('vbot tests', async () => {
             if (!log.screenshot) {
               return
             }
-            screenshot = true
             assert([0, 2, 4, 6].indexOf(log.index) >= 0)
             assert.equal(true, log.screenshot.files.base.indexOf(`${__dirname}/tmp/compare_imgs/view1/base/`) >= 0)
             assert.equal(true, log.screenshot.files.test.indexOf(`${__dirname}/tmp/compare_imgs/view1/test/`) >= 0)
@@ -198,7 +197,6 @@ describe('vbot tests', async () => {
               if (!log.screenshot) {
                 return
               }
-              screenshot = true
               assert([0, 2, 4, 6].indexOf(log.index) >= 0)
               if (log.index === 2) {
                 assert(log.screenshot.files.base)
@@ -228,7 +226,6 @@ describe('vbot tests', async () => {
               if (!log.screenshot) {
                 return
               }
-              screenshot = true
               assert([0, 2, 4, 6].indexOf(log.index) >= 0)
               if (log.index === 2) {
                 assert(log.screenshot.files.base)
