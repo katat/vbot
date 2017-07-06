@@ -92,7 +92,7 @@ class VBot extends EventEmitter {
           index: i,
           action: action
         }
-        if (action.shot) {
+        if (action.shot || action.screenshot) {
           await this.waitAnimation()
           action.captureDelay && await this.client.wait(action.captureDelay)
           let screenshot = await this.capture(action, i, imgFolder).catch((err) => {

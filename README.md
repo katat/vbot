@@ -191,7 +191,7 @@ After re-run the command line above, it should report there is test result misma
 
 ------------------
 
-## Schema
+## Test definitions in scenario file
 **viewHeight**
 height of the browser view
 
@@ -217,14 +217,12 @@ Each scenario can comprise of a set of actions in the page view. It groups a set
    Wait for the element to exist before proceeding to the action type. It is the target element regarding to the action.
    - **scrollTo**
    Set to `true` will scroll the element matched with the selector into the view.
-   - **shot**  
-   Take screenshot before this step action is executed.
+   - **screenshot**  
+   Set to true for taking screenshot before this step action is executed.
    - **captureDelay**  
-   Delay(millisecond) to wait before this step's screenshot is taken. Apply only to an individual action.
+   Delay(millisecond) to wait before this step's screenshot is taken.
    - **waitTimeout**  
    Maximum time to wait for the element `selector` exists in the DOM. If waited longer than this setting, it throws error of not found the `selector` element.
-   - **captureDelay**  
-   Delay(millisecond) before capture screenshot
    - **comment**
    Used for references of the action, and as the screenshot file name.
 

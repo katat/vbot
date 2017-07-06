@@ -12,7 +12,7 @@
                 {
                     "type": "assert",
                     "selector": ".box",
-                    "shot": true
+                    "screenshot": true
                 },{
                     "type": "click",
                     "selector": ".btn"
@@ -24,7 +24,7 @@
                     "type": "scrollTo",
                     "position": [0, 1000],
                     "selector": ".box",
-                    "shot": true
+                    "screenshot": true
                 },{
                     "type": "click",
                     "selector": "input.text"
@@ -40,7 +40,7 @@
                     "type": "select",
                     "selector": "select",
                     "selectIndex": 1,
-                    "shot": true
+                    "screenshot": true
                 }
             ]
         }
