@@ -6,6 +6,20 @@ const mkdirp       = require('mkdirp')
 const Jimp         = require('jimp')
 const jsonlint     = require("jsonlint")
 const getPort      = require('get-port')
+const colors       = require('colors/safe')
+
+colors.setTheme({
+  silly: 'rainbow',
+  input: 'grey',
+  verbose: 'cyan',
+  prompt: 'grey',
+  info: 'green',
+  data: 'cyan',
+  help: 'cyan',
+  warn: 'yellow',
+  section: 'blue',
+  error: 'red'
+});
 
 class VBot extends EventEmitter {
   constructor (options = {mismatchThreshold: 0}) {
@@ -280,10 +294,15 @@ class VBot extends EventEmitter {
   }
 
   async start () {
-    this.startTime = new Date()
-    let schema = await this.parseSchema(this.options.projectFile)
-    await this.runSchema(schema);
-    this.emit('end', {duration: new Date() - this.startTime})
+    try {
+      this._onStart()
+      this.startTime = new Date()
+      let schema = await this.parseSchema(this.options.projectFile)
+      await this.runSchema(schema);
+      this.emit('end', {duration: new Date() - this.startTime})
+    }catch(ex) {
+      this._onError(ex)
+    }
   }
 
   async close () {
@@ -296,12 +315,55 @@ class VBot extends EventEmitter {
     })
   }
 
-  onStart (cb) {
+  _onStart () {
+    this._log('> Starting', 'prompt')
+
+    this.on('scenario.start', (scenario) => {
+      this._log(`> started scenario ${scenario.name}`, 'section')
+    })
+
+    this.on('action.executed', (log) => {
+      this._log(`>> #${log.index+1} executed type:${log.action.type} selector:${log.action.selector}`, 'info')
+      this._log(`>>> duration:${log.duration/1000}s`, 'data')
+      if (log.screenshot) {
+        this._log(`>>>> screenshot`, 'data')
+        if (log.screenshot.err) {
+          this._log(`${log.screenshot.err}`, 'error')
+        }
+        if (log.screenshot.analysis) {
+          let analysis = log.screenshot.analysis
+          if (analysis.misMatchPercentage) {
+            this._log(`>>>> misMatchPercentage: ${analysis.misMatchPercentage*100}%, isSameDimensions: ${analysis.isSameDimensions}, acceptable: ${analysis.acceptable}`, 'warn')
+            this._log(`>>>> diff: ${log.screenshot.files.diff}`, 'warn')
+          } else {
+            this._log(`>>>> 100% matched`, 'data')
+          }
+        }
+      }
+    })
+
+    this.on('action.fail', (log) => {
+      this._log(log, 'error')
+    })
+
+    this.on('end', async (result) => {
+      this._log(`> DONE. duration: ${result.duration/1000}s`, 'prompt')
+    })
+  }
+
+  _onError(err) {
+    this._log(err.message, 'error')
+  }
+
+  _onFinish (cb) {
     cb()
   }
 
-  onFinish (cb) {
-    cb()
+  _log (text, type) {
+    if(!this.options.verbose) {
+      return
+    }
+    console.log(colors[type](text))
   }
 }
 

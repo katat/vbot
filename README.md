@@ -218,7 +218,7 @@ Each scenario can comprise of a set of actions in the page view. It groups a set
    - **scrollTo**
    Set to `true` will scroll the element matched with the selector into the view.
    - **screenshot**  
-   Set to true for taking screenshot before this step action is executed.
+   Set to `true` for taking screenshot before this step action is executed.
    - **captureDelay**  
    Delay(millisecond) to wait before this step's screenshot is taken.
    - **waitTimeout**  
