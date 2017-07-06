@@ -1,6 +1,6 @@
 {
   "name": "vbot",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "description": "A visual regression testing tool, aims to help developers quickly create tests with minimum overhead, avoid repeated clicks and typings in testings, particularly helpful for single page applications or complicated web app. Automate the testings `headlessly` at local dev environment or on a continuous integration server.",
   "main": "dist/index.js",
   "scripts": {
