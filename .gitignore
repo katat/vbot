@@ -1,7 +1,4 @@
 node_modules
-screenshots
-results
-*prod*
 *.log
 test/tmp
 dist
