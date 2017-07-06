@@ -17,7 +17,6 @@
     "chromejs": "^0.3.1",
     "colors": "^1.1.2",
     "fs-extra": "^3.0.1",
-    "get-installed-path": "^2.0.3",
     "get-port": "^3.1.0",
     "jimp": "^0.2.28",
     "jsonlint": "^1.6.2",
