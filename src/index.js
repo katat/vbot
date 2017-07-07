@@ -22,8 +22,12 @@ colors.setTheme({
 });
 
 class VBot extends EventEmitter {
-  constructor (options = {mismatchThreshold: 0}) {
+  constructor (options) {
     super()
+    this.setOptions(options)
+  }
+
+  setOptions (options = { mismatchThreshold: 0 }) {
     this.options = options
     this.options.imgdir = options.imgdir || `${process.cwd()}/vbot/${this.options.projectFile}`
   }
@@ -297,7 +301,7 @@ class VBot extends EventEmitter {
     try {
       this._onStart()
       this.startTime = new Date()
-      let schema = await this.parseSchema(this.options.projectFile)
+      let schema = this.options.schema || await this.parseSchema(this.options.projectFile)
       await this.runSchema(schema);
       this.emit('end', {duration: new Date() - this.startTime})
     }catch(ex) {
@@ -343,7 +347,7 @@ class VBot extends EventEmitter {
     })
 
     this.on('action.fail', (log) => {
-      this._log(log, 'error')
+      this._log(JSON.stringify(log, undefined, 2), 'error')
     })
 
     this.on('end', async (result) => {
