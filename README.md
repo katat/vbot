@@ -1,5 +1,5 @@
 # vbot
-A visual regression testing tool, aims to help developers quickly create tests with minimum overhead, avoid repeated clicks and typings in testings, particularly helpful for single page applications or complicated web app. Automate the testings using Chrome browser with or without `headless` mode at local dev environment or on a continuous integration server.
+A visual regression testing tool, aims to help developers quickly create tests with minimum overhead, avoid repeated clicks and typings in testings, particularly helpful for single page applications or complicated web app. Automate the testings using **Chrome** browser with or without `headless` mode at local dev environment or on a continuous integration server.
 
 There is a [blog post](http://katat.github.io/2017/01/09/vbot/) discussing about the motivation behind `vbot`.
 
