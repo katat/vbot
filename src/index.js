@@ -280,8 +280,8 @@ class VBot extends EventEmitter {
 
   //do a selection on select menu
   async selectDropdown(action){
-    //action.value should be the index of the option which will be selected
-    await this.client.select(action.selector,action.value)
+    //action.value should be the index of the option to be selected
+    await this.client.select(action.selector,action.selectIndex)
   }
 
   async wait (action) {
