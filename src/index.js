@@ -104,7 +104,7 @@ class VBot extends EventEmitter {
           }
         }
         if (action.type === 'select') {
-          // await this.selectDropdown(action)
+          await this.selectDropdown(action)
         }
         let actionLog = {
           index: i,
@@ -276,6 +276,12 @@ class VBot extends EventEmitter {
 
   async click(action) {
     await this.client.click(action.selector)
+  }
+
+  //do a selection on select menu
+  async selectDropdown(action){
+    //action.value should be the index of the option which will be selected
+    await this.client.select(action.selector,action.value)
   }
 
   async wait (action) {
