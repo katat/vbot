@@ -2,4 +2,3 @@ node_modules
 *.log
 test/tmp
 dist
-.DS_Store
