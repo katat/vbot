@@ -13,7 +13,7 @@
   "author": "kata.choi@gmail.com",
   "license": "MIT License",
   "dependencies": {
-    "chromejs": "^0.3.1",
+    "chromejs": "^0.4.1",
     "colors": "^1.1.2",
     "fs-extra": "^3.0.1",
     "get-port": "^3.1.0",
