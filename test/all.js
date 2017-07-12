@@ -301,7 +301,7 @@ describe('vbot tests', async () => {
                             },{
                               type:"select",
                               selector:"select",
-                              selectIndex:"3"
+                              selectIndex:3
                             }
                         ]
                     }
