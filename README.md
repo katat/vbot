@@ -208,11 +208,13 @@ Each scenario can comprise of a set of actions in the page view. It groups a set
  - **actions**  
  A set of test steps
    - **type**  
-   Action Type: `exist`, `click`, `typing`, `scroll`
+   Action Type: `exist`, `click`, `typing`, `select`, `scroll`
      - `typing`.`enter`
      Set to `true` will press the `enter` key, when using action type `typing`
      - `scroll`.`position`
-     The [x, y] increment position to scroll to, when using action type `scroll`.
+     The [x, y] increment position to scroll to, when using action type `scroll`
+     - `select`.`selectIndex`
+     Set an integer as an option index of the native dropdown to simulate selecting an option, when using action type `select`
    - **selector**  
    Wait for the element to exist before proceeding to the action type. It is the target element regarding to the action.
    - **scrollTo**
