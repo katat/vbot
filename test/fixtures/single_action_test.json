@@ -1,0 +1,19 @@
+{
+    "viewWidth": 375,
+    "viewHeight": 677,
+    "showWindow": false,
+    "captureSelector": "html",
+    "host": "http://localhost:8888",
+    "scenarios": [
+        {
+            "name": "view1",
+            "path": "/",
+            "actions": [
+                {
+                    "type": "exist",
+                    "selector": ".box"
+                }
+            ]
+        }
+    ]
+}
