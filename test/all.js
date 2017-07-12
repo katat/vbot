@@ -281,32 +281,50 @@ describe('vbot tests', async () => {
       });
     });
     describe('single action test', async () => {
-      beforeEach(async () => {
-        vbot = new VBot({
-          projectFile: `${__dirname}/fixtures/single_action_test.json`,
-          host: `http://localhost:${serverPort}`,
-          imgdir: `${__dirname}/tmp/screenshots`,
-          //showWindow: true
-        });
-        vbot.start()
-      });
-      afterEach((done) => {
-        vbot.close().then(() => {
-          done()
-        })
-      });
       describe('select test',async () =>{
-        it('should select a option', async () => {
-          vbot.on('scenario.start', async () => {
-            let action={
-              "selector":".select",
-              "selectIndex":"3"
+        beforeEach(async () => {
+          vbot = new VBot({
+            host: `http://localhost:${serverPort}`,
+            imgdir: `${__dirname}/tmp/screenshots`,
+            schema:{
+                viewWidth: 375,
+                viewHeight: 677,
+                captureSelector: "html",
+                scenarios: [
+                    {
+                        name: "view1",
+                        path: "/",
+                        actions: [
+                            {
+                              type: "exist",
+                              selector: ".box"
+                            },{
+                              type:"select",
+                              selector:"select",
+                              selectIndex:"3"
+                            }
+                        ]
+                    }
+                ]
             }
+            //showWindow: true
+          });
+          vbot.start()
+        });
+        afterEach(() => {
+          vbot.close()
+        });
+        it('should select a option', (done) => {
+          vbot.on('scenario.start', async () => {
             let evalResponse = await vbot.client.eval('document.querySelector("select").value')
             assert.equal('1', evalResponse.result.value)
-            await vbot.selectDropdown(action)
-            evalResponse = await vbot.client.eval('document.querySelector("select").value')
+          })
+          vbot.on('scenario.end', async () => {
+            let evalResponse = await vbot.client.eval('document.querySelector("select").value')
             assert.equal('3', evalResponse.result.value)
+          });
+          vbot.on('end', () => {
+            done()
           });
         });
       });
