@@ -110,6 +110,13 @@ class VBot extends EventEmitter {
           index: i,
           action: action
         }
+        if (action.type === 'assertTextValue') {
+          let result = await this.assertTextValue(action)
+          actionLog.assertTextValue = {
+            result: result,
+            expression: action.expression
+          }
+        }
         if (action.shot || action.screenshot) {
           await this.waitAnimation()
           action.captureDelay && await this.client.wait(action.captureDelay)
@@ -278,10 +285,18 @@ class VBot extends EventEmitter {
     await this.client.click(action.selector)
   }
 
-  //do a selection on select menu
-  async selectDropdown(action){
-    //action.value should be the index of the option to be selected
-    await this.client.select(action.selector,action.selectIndex)
+  async selectDropdown(action) {
+    await this.client.select(action.selector, action.selectIndex)
+  }
+
+  async assertTextValue(action) {
+    let expr = `document.querySelector('${action.selector}').innerHTML`
+    let regx = new RegExp(action.expression)
+    let nodeText = await this.client.eval(expr)
+    let result = {}
+    result.compareResult = regx.exec(nodeText.result.value)
+    result.nodeText = nodeText.result.value
+    return new Promise ((resolve) => resolve(result))
   }
 
   async wait (action) {
@@ -348,6 +363,16 @@ class VBot extends EventEmitter {
           } else {
             this._log(`>>>> 100% matched`, 'data')
           }
+        }
+      }
+      if (log.assertTextValue) {
+        this._log(`>>>> assertTextValue`, 'data')
+        if(log.assertTextValue.result.compareResult) {
+          this._log(`>>>> matched`, 'data')
+          this._log(`>>>> regExp: ${log.assertTextValue.expression}, nodeText: ${log.assertTextValue.result.nodeText}`, 'data')
+        } else {
+          this._log(`>>>> no match`, 'warn')
+          this._log(`>>>> regExp: ${log.assertTextValue.expression}, nodeText: ${log.assertTextValue.result.nodeText}`, 'warn')
         }
       }
     })

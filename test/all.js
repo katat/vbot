@@ -281,7 +281,7 @@ describe('vbot tests', async () => {
       });
     });
     describe('single action test', async () => {
-      describe('select test',async () =>{
+      describe('select', async () =>{
         beforeEach(async () => {
           vbot = new VBot({
             host: `http://localhost:${serverPort}`,
@@ -322,6 +322,71 @@ describe('vbot tests', async () => {
           vbot.on('scenario.end', async () => {
             let evalResponse = await vbot.client.eval('document.querySelector("select").value')
             assert.equal('3', evalResponse.result.value)
+          });
+          vbot.on('end', () => {
+            done()
+          });
+        });
+      });
+      describe('assertTextValue', async () => {
+        beforeEach(async () => {
+          vbot = new VBot({
+            host: `http://localhost:${serverPort}`,
+            imgdir: `${__dirname}/tmp/screenshots`,
+            schema:{
+                viewWidth: 375,
+                viewHeight: 677,
+                captureSelector: "html",
+                scenarios: [
+                    {
+                        name: "view1",
+                        path: "/",
+                        actions: [
+                            {
+                              type: "exist",
+                              selector: ".box"
+                            },{
+                              type: "assertTextValue",
+                              selector: ".p1",
+                              expression: "vbot"
+                            },{
+                              type: "assertTextValue",
+                              selector: ".p1",
+                              expression: "[a-z]{1,}"
+                            },{
+                              type: "assertTextValue",
+                              selector: ".p1",
+                              expression: "[0-9]{1,}"
+                            }
+                        ]
+                    }
+                ]
+            }
+            //showWindow: true
+          });
+          vbot.start()
+        });
+        afterEach(() => {
+          vbot.close()
+        });
+        it('should match innerHTML of an element using regular expression', (done) => {
+          let counter = 0
+          vbot.on('action.executed', (log) => {
+            switch (counter) {
+              case 1: {
+                assert(log.assertTextValue.result.compareResult)
+                break
+              }
+              case 2: {
+                assert(log.assertTextValue.result.compareResult)
+                break
+              }
+              case 3: {
+                assert(!log.assertTextValue.result.compareResult)
+                break
+              }
+            }
+            counter ++
           });
           vbot.on('end', () => {
             done()
