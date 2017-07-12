@@ -214,7 +214,7 @@ Each scenario can comprise of a set of actions in the page view. It groups a set
      - `scroll`.`position`
      The [x, y] increment position to scroll to, when using action type `scroll`
      - `select`.`selectIndex`
-     Set an integer as an option index of the native dropdown to simulate selecting an option, when using action type `select`
+     Set an integer (1 based) as an option index of the native dropdown to simulate selecting an option, when using action type `select`
    - **selector**  
    Wait for the element to exist before proceeding to the action type. It is the target element regarding to the action.
    - **scrollTo**
