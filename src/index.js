@@ -296,7 +296,7 @@ class VBot extends EventEmitter {
     let nodeText = await this.client.eval(expr)
     let result = {}
     let start = new Date()
-    let timeout = action.wait || 5000
+    let timeout = action.waitTimeout || 5000
     return new Promise (async (resolve,reject) => {
       while (true) {
         await this.timeout(10)
