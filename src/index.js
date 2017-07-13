@@ -215,6 +215,7 @@ class VBot extends EventEmitter {
       filename += `${action.type}-` + action.selector.replace(/\s/g, '_')
       return filename
     }
+    return filename
   }
 
   async capture (action, stepIndex, folder) {
@@ -398,7 +399,9 @@ class VBot extends EventEmitter {
     })
 
     this.on('action.fail', (log) => {
-      this._log(JSON.stringify(log, undefined, 2), 'error')
+      const details = log.details
+      delete log.details
+      this._log(details + '\n' + JSON.stringify(log, undefined, 2), 'error')
     })
 
     this.on('end', async (result) => {

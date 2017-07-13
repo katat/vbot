@@ -375,10 +375,12 @@ describe('vbot tests', async () => {
           vbot.close()
         });
         it('should match innerText of an element using regular expression', (done) => {
+          let count = 0
           vbot.on('action.fail', (log) => {
             assert.equal(3, log.index)
           })
           vbot.on('action.executed', async (log) => {
+            count ++
             if (log.index === 3) {
               let cmd = "document.getElementsByClassName('p1')[0].dispatchEvent(new Event('innerTextChange'))"
               await vbot.client.eval(cmd)
@@ -388,6 +390,7 @@ describe('vbot tests', async () => {
             }
           });
           vbot.on('end', () => {
+            assert.equal(5, count)
             done()
           });
         });
