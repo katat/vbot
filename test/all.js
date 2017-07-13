@@ -400,6 +400,7 @@ describe('vbot tests', async () => {
             counter ++
           });
           vbot.on('end', () => {
+            assert.equal(counter, 4)
             done()
           });
         });
