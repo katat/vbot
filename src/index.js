@@ -111,7 +111,8 @@ class VBot extends EventEmitter {
           action: action
         }
         if (action.type === 'assertTextValue') {
-          let result = await this.assertTextValue(action)
+          let result = {}
+          result = await this.assertTextValue(action).catch((rejected) => rejected)
           actionLog.assertTextValue = {
             result: result,
             expression: action.expression
@@ -290,13 +291,26 @@ class VBot extends EventEmitter {
   }
 
   async assertTextValue(action) {
-    let expr = `document.querySelector('${action.selector}').innerHTML`
+    let expr = `document.querySelector('${action.selector}').innerText`
     let regx = new RegExp(action.expression)
     let nodeText = await this.client.eval(expr)
     let result = {}
-    result.compareResult = regx.exec(nodeText.result.value)
-    result.nodeText = nodeText.result.value
-    return new Promise ((resolve) => resolve(result))
+    let start = new Date()
+    let timeout = action.wait || 5000
+    return new Promise (async (resolve,reject) => {
+      while (true) {
+        await this.timeout(10)
+        if (new Date() - start >= timeout) {
+          return reject(result)
+        }
+        nodeText = await this.client.eval(expr)
+        result.nodeText = nodeText.result.value
+        result.compareResult = regx.exec(nodeText.result.value)
+        if(result.compareResult) {
+          resolve(result)
+        }
+      }
+    })
   }
 
   async wait (action) {

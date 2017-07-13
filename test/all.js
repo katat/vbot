@@ -352,7 +352,8 @@ describe('vbot tests', async () => {
                             },{
                               type: "assertTextValue",
                               selector: ".p1",
-                              expression: "[a-z]{1,}"
+                              expression: "[a-z]{1,}",
+                              wait: 6000
                             },{
                               type: "assertTextValue",
                               selector: ".p1",
