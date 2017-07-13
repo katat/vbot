@@ -110,6 +110,14 @@ class VBot extends EventEmitter {
           index: i,
           action: action
         }
+        if (action.type === 'assertInnerText') {
+          let result = {}
+          result = await this.assertInnerText(action).catch((rejected) => rejected)
+          actionLog.assertInnerText = {
+            result: result,
+            match: action.match
+          }
+        }
         if (action.shot || action.screenshot) {
           await this.waitAnimation()
           action.captureDelay && await this.client.wait(action.captureDelay)
@@ -279,10 +287,31 @@ class VBot extends EventEmitter {
     await this.client.click(action.selector)
   }
 
-  //do a selection on select menu
-  async selectDropdown(action){
-    //action.value should be the index of the option to be selected
-    await this.client.select(action.selector,action.selectIndex)
+  async selectDropdown(action) {
+    await this.client.select(action.selector, action.selectIndex)
+  }
+
+  async assertInnerText(action) {
+    let expr = `document.querySelector('${action.selector}').innerText`
+    let regx = new RegExp(action.match)
+    let nodeText = await this.client.eval(expr)
+    let result = {}
+    let start = new Date()
+    let timeout = action.waitTimeout || 5000
+    return new Promise (async (resolve,reject) => {
+      while (true) {
+        await this.timeout(10)
+        if (new Date() - start >= timeout) {
+          return reject(result)
+        }
+        nodeText = await this.client.eval(expr)
+        result.nodeText = nodeText.result.value
+        result.compareResult = regx.exec(nodeText.result.value)
+        if(result.compareResult) {
+          resolve(result)
+        }
+      }
+    })
   }
 
   async wait (action) {
@@ -349,6 +378,16 @@ class VBot extends EventEmitter {
           } else {
             this._log(`>>>> 100% matched`, 'data')
           }
+        }
+      }
+      if (log.assertInnerText) {
+        this._log(`>>>> assertInnerText`, 'data')
+        if(log.assertInnerText.result.compareResult) {
+          this._log(`>>>> matched`, 'data')
+          this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'data')
+        } else {
+          this._log(`>>>> no match`, 'warn')
+          this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'warn')
         }
       }
     })
