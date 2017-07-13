@@ -40,6 +40,11 @@
                     document.getElementsByClassName('input-msg')[0].appendChild(node);
                 }
             });
+            document.getElementsByClassName('p1')[0].addEventListener('innerTextChange', function (e) {
+              setTimeout(() => {
+                e.target.innerText = '123'
+              }, 5000)
+            })
         })();
     </script>
 </body>

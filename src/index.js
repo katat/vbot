@@ -110,12 +110,12 @@ class VBot extends EventEmitter {
           index: i,
           action: action
         }
-        if (action.type === 'assertTextValue') {
+        if (action.type === 'assertInnerText') {
           let result = {}
-          result = await this.assertTextValue(action).catch((rejected) => rejected)
-          actionLog.assertTextValue = {
+          result = await this.assertInnerText(action).catch((rejected) => rejected)
+          actionLog.assertInnerText = {
             result: result,
-            expression: action.expression
+            match: action.match
           }
         }
         if (action.shot || action.screenshot) {
@@ -290,9 +290,9 @@ class VBot extends EventEmitter {
     await this.client.select(action.selector, action.selectIndex)
   }
 
-  async assertTextValue(action) {
+  async assertInnerText(action) {
     let expr = `document.querySelector('${action.selector}').innerText`
-    let regx = new RegExp(action.expression)
+    let regx = new RegExp(action.match)
     let nodeText = await this.client.eval(expr)
     let result = {}
     let start = new Date()
@@ -379,14 +379,14 @@ class VBot extends EventEmitter {
           }
         }
       }
-      if (log.assertTextValue) {
-        this._log(`>>>> assertTextValue`, 'data')
-        if(log.assertTextValue.result.compareResult) {
+      if (log.assertInnerText) {
+        this._log(`>>>> assertInnerText`, 'data')
+        if(log.assertInnerText.result.compareResult) {
           this._log(`>>>> matched`, 'data')
-          this._log(`>>>> regExp: ${log.assertTextValue.expression}, nodeText: ${log.assertTextValue.result.nodeText}`, 'data')
+          this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'data')
         } else {
           this._log(`>>>> no match`, 'warn')
-          this._log(`>>>> regExp: ${log.assertTextValue.expression}, nodeText: ${log.assertTextValue.result.nodeText}`, 'warn')
+          this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'warn')
         }
       }
     })

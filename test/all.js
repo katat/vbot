@@ -328,7 +328,7 @@ describe('vbot tests', async () => {
           });
         });
       });
-      describe('assertTextValue', async () => {
+      describe('assertInnerText', async () => {
         beforeEach(async () => {
           vbot = new VBot({
             host: `http://localhost:${serverPort}`,
@@ -346,18 +346,21 @@ describe('vbot tests', async () => {
                               type: "exist",
                               selector: ".box"
                             },{
-                              type: "assertTextValue",
+                              type: "assertInnerText",
                               selector: ".p1",
-                              expression: "vbot"
+                              match: "vbot"
                             },{
-                              type: "assertTextValue",
+                              type: "assertInnerText",
                               selector: ".p1",
-                              expression: "[a-z]{1,}",
-                              waitTimeout: 6000
+                              match: "[a-z]{1,}",
                             },{
-                              type: "assertTextValue",
+                              type: "assertInnerText",
                               selector: ".p1",
-                              expression: "[0-9]{1,}",
+                              match: "[0-9]{1,}",
+                            },{
+                              type: "assertInnerText",
+                              selector: ".p1",
+                              match: "[0-9]{1,}",
                               waitTimeout: 6000
                             }
                         ]
@@ -371,20 +374,26 @@ describe('vbot tests', async () => {
         afterEach(() => {
           vbot.close()
         });
-        it('should match innerHTML of an element using regular expression', (done) => {
+        it('should match innerText of an element using regular expression', (done) => {
           let counter = 0
-          vbot.on('action.executed', (log) => {
+          vbot.on('action.executed', async (log) => {
             switch (counter) {
               case 1: {
-                assert(log.assertTextValue.result.compareResult)
+                assert(log.assertInnerText.result.compareResult)
                 break
               }
               case 2: {
-                assert(log.assertTextValue.result.compareResult)
+                assert(log.assertInnerText.result.compareResult)
                 break
               }
               case 3: {
-                assert(!log.assertTextValue.result.compareResult)
+                assert(!log.assertInnerText.result.compareResult)
+                let cmd = "document.getElementsByClassName('p1')[0].dispatchEvent(new Event('innerTextChange'))"
+                await vbot.client.eval(cmd)
+                break
+              }
+              case 4: {
+                assert(log.assertInnerText.result.compareResult)
                 break
               }
             }
