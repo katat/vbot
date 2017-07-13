@@ -356,7 +356,7 @@ class VBot extends EventEmitter {
     this.on('action.fail', (log) => {
       const details = log.details
       delete log.details
-      this._log(JSON.stringify(log, undefined, 2) + details, 'error')
+      this._log(details + '\n' + JSON.stringify(log, undefined, 2), 'error')
     })
 
     this.on('end', async (result) => {
