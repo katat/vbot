@@ -1,7 +1,9 @@
-const localServer = require('./fixtures/server.js')
+require('source-map-support').install()
+const localServer = require('../fixtures/server.js')
 const assert      = require('assert')
 const fs          = require('fs-extra')
-const VBot        = require('../dist')
+const VBot        = require('../../dist')
+const testPath = `${__dirname}/../`
 describe('vbot tests', async () => {
   let serverPort, vbot
   before((done) => {
@@ -19,9 +21,9 @@ describe('vbot tests', async () => {
   after(localServer.stop)
   beforeEach(async () => {
     vbot = new VBot({
-      projectFile: `${__dirname}/fixtures/project.json`,
+      projectFile: `${testPath}/fixtures/project.json`,
       host: `http://localhost:${serverPort}`,
-      imgdir: `${__dirname}/tmp/screenshots`,
+      imgdir: `${testPath}/tmp/screenshots`,
       // showWindow: true
     })
     // await vbot.start()
@@ -53,7 +55,7 @@ describe('vbot tests', async () => {
         vbot.start()
       });
       it('pass', (done) => {
-        let project = require('./fixtures/project.json')
+        let project = require(`${testPath}/fixtures/project.json`)
         let count = 0
         vbot.on('action.executed', async (log) => {
           assert.deepEqual(project.scenarios[0].actions[count], log.action)
@@ -73,9 +75,9 @@ describe('vbot tests', async () => {
     describe('fail', function () {
       beforeEach(async () => {
         vbot = new VBot({
-          projectFile: `${__dirname}/fixtures/failtoassert.json`,
+          projectFile: `${testPath}/fixtures/failtoassert.json`,
           host: `http://localhost:${serverPort}`,
-          imgdir: `${__dirname}/tmp/screenshots`
+          imgdir: `${testPath}/tmp/screenshots`
         })
         vbot.start()
       });
@@ -98,9 +100,9 @@ describe('vbot tests', async () => {
     describe('compare screenshots', function () {
       describe('base', function () {
         beforeEach(async () => {
-          let imgdir = `${__dirname}/tmp/compare_imgs`
+          let imgdir = `${testPath}/tmp/compare_imgs`
           vbot = new VBot({
-            projectFile: `${__dirname}/fixtures/screenshot_test.json`,
+            projectFile: `${testPath}/fixtures/screenshot_test.json`,
             host: `http://localhost:${serverPort}`,
             imgdir: imgdir
           })
@@ -115,7 +117,7 @@ describe('vbot tests', async () => {
             }
             screenshot = true
             assert([0, 2, 4, 6].indexOf(log.index) >= 0)
-            assert.equal(true, log.screenshot.files.base.indexOf(`${__dirname}/tmp/compare_imgs/view1/base/`) >= 0)
+            assert.equal(true, log.screenshot.files.base.indexOf(`${testPath}/tmp/compare_imgs/view1/base/`) >= 0)
             assert.equal(undefined, log.screenshot.files.test)
             assert.equal(undefined, log.screenshot.files.diff)
             assert.equal(undefined, log.screenshot.misMatchPercentage)
@@ -131,20 +133,20 @@ describe('vbot tests', async () => {
         let threshold = 0
         beforeEach(async () => {
           return new Promise(async (resolve) => {
-            let imgdir = `${__dirname}/tmp/compare_imgs`
+            let imgdir = `${testPath}/tmp/compare_imgs`
             vbot = new VBot({
-              projectFile: `${__dirname}/fixtures/screenshot_test.json`,
+              projectFile: `${testPath}/fixtures/screenshot_test.json`,
               host: `http://localhost:${serverPort}`,
               imgdir: imgdir,
               mismatchThreshold: threshold
             })
             fs.removeSync(imgdir)
-            // await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/base`)
+            // await fs.copy(`${testPath}/fixtures/compare_imgs/same`, `${testPath}/tmp/compare_imgs/view1/base`)
             vbot.start()
             vbot.on('end', async () => {
               await vbot.close()
               vbot = new VBot({
-                projectFile: `${__dirname}/fixtures/screenshot_test.json`,
+                projectFile: `${testPath}/fixtures/screenshot_test.json`,
                 host: `http://localhost:${serverPort}`,
                 imgdir: imgdir,
                 mismatchThreshold: threshold
@@ -161,8 +163,8 @@ describe('vbot tests', async () => {
               return
             }
             assert([0, 2, 4, 6].indexOf(log.index) >= 0)
-            assert.equal(true, log.screenshot.files.base.indexOf(`${__dirname}/tmp/compare_imgs/view1/base/`) >= 0)
-            assert.equal(true, log.screenshot.files.test.indexOf(`${__dirname}/tmp/compare_imgs/view1/test/`) >= 0)
+            assert.equal(true, log.screenshot.files.base.indexOf(`${testPath}/tmp/compare_imgs/view1/base/`) >= 0)
+            assert.equal(true, log.screenshot.files.test.indexOf(`${testPath}/tmp/compare_imgs/view1/test/`) >= 0)
             assert(!log.screenshot.files.diff)
             assert.equal(0, log.screenshot.analysis.misMatchPercentage)
             assert.equal(true, log.screenshot.analysis.isSameDimensions)
@@ -175,16 +177,16 @@ describe('vbot tests', async () => {
       });
       describe('diff', function () {
         let initDiffVbot = async (threshold) => {
-          let imgdir = `${__dirname}/tmp/compare_imgs`
+          let imgdir = `${testPath}/tmp/compare_imgs`
           vbot = new VBot({
-            projectFile: `${__dirname}/fixtures/screenshot_test.json`,
+            projectFile: `${testPath}/fixtures/screenshot_test.json`,
             host: `http://localhost:${serverPort}`,
             imgdir: imgdir,
             mismatchThreshold: threshold
           })
           fs.removeSync(imgdir)
-          // await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/base`)
-          await fs.copy(`${__dirname}/fixtures/compare_imgs/diff/2_scrollTo-.box.png`, `${__dirname}/tmp/compare_imgs/view1/base/2_scrollTo-.box.png`)
+          // await fs.copy(`${testPath}/fixtures/compare_imgs/same`, `${testPath}/tmp/compare_imgs/view1/base`)
+          await fs.copy(`${testPath}/fixtures/compare_imgs/diff/2_scrollTo-.box.png`, `${testPath}/tmp/compare_imgs/view1/base/2_scrollTo-.box.png`)
           vbot.start()
         }
         describe('without threshold', function () {
@@ -248,17 +250,17 @@ describe('vbot tests', async () => {
       });
       describe('rebase', function () {
         beforeEach(async () => {
-          let imgdir = `${__dirname}/tmp/compare_imgs`
+          let imgdir = `${testPath}/tmp/compare_imgs`
           vbot = new VBot({
-            projectFile: `${__dirname}/fixtures/screenshot_test.json`,
+            projectFile: `${testPath}/fixtures/screenshot_test.json`,
             host: `http://localhost:${serverPort}`,
             imgdir: imgdir,
             rebase: true
           })
           fs.removeSync(imgdir)
-          await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/base`)
-          await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/test`)
-          await fs.copy(`${__dirname}/fixtures/compare_imgs/same`, `${__dirname}/tmp/compare_imgs/view1/diff`)
+          await fs.copy(`${testPath}/fixtures/compare_imgs/same`, `${testPath}/tmp/compare_imgs/view1/base`)
+          await fs.copy(`${testPath}/fixtures/compare_imgs/same`, `${testPath}/tmp/compare_imgs/view1/test`)
+          await fs.copy(`${testPath}/fixtures/compare_imgs/same`, `${testPath}/tmp/compare_imgs/view1/diff`)
           vbot.start()
         });
         it('should remove diff and test folder and only generate base folder', function (done) {
@@ -271,8 +273,8 @@ describe('vbot tests', async () => {
             assert(!log.screenshot.files.test)
             assert(!log.screenshot.analysis)
             assert(fs.existsSync(log.screenshot.files.base))
-            assert(!fs.existsSync(`${__dirname}/fixtures/compare_imgs/view1/diff`))
-            assert(!fs.existsSync(`${__dirname}/fixtures/compare_imgs/view1/test`))
+            assert(!fs.existsSync(`${testPath}/fixtures/compare_imgs/view1/diff`))
+            assert(!fs.existsSync(`${testPath}/fixtures/compare_imgs/view1/test`))
           })
           vbot.on('end', () => {
             done();
@@ -285,7 +287,7 @@ describe('vbot tests', async () => {
         beforeEach(async () => {
           vbot = new VBot({
             host: `http://localhost:${serverPort}`,
-            imgdir: `${__dirname}/tmp/screenshots`,
+            imgdir: `${testPath}/tmp/screenshots`,
             schema:{
                 viewWidth: 375,
                 viewHeight: 677,
@@ -332,7 +334,7 @@ describe('vbot tests', async () => {
         beforeEach(async () => {
           vbot = new VBot({
             host: `http://localhost:${serverPort}`,
-            imgdir: `${__dirname}/tmp/screenshots`,
+            imgdir: `${testPath}/tmp/screenshots`,
             schema:{
                 viewWidth: 375,
                 viewHeight: 677,
@@ -384,9 +386,6 @@ describe('vbot tests', async () => {
             if (log.index === 3) {
               let cmd = "document.getElementsByClassName('p1')[0].dispatchEvent(new Event('innerTextChange'))"
               await vbot.client.eval(cmd)
-            }
-            if (log.index != 0 && log.index != 3) {
-              assert(log.assertInnerText.result.compareResult)
             }
           });
           vbot.on('end', () => {
