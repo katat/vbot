@@ -1,4 +1,6 @@
 'use strict';
+require('source-map-support').install()
+
 const ChromeJS     = require('chromejs')
 const EventEmitter = require('events')
 const fs           = require('fs-extra')
@@ -113,10 +115,6 @@ class VBot extends EventEmitter {
         if (action.type === 'select') {
           await this.selectDropdown(action)
         }
-        let actionLog = {
-          index: i,
-          action: action
-        }
         if (action.type === 'assertInnerText') {
           let result = {}
           result = await this.assertInnerText(action).catch((e) => {
@@ -126,10 +124,10 @@ class VBot extends EventEmitter {
               details: e
             })
           })
-          actionLog.assertInnerText = {
-            result: result,
-            match: action.match
-          }
+        }
+        let actionLog = {
+          index: i,
+          action: action
         }
         if (action.shot || action.screenshot) {
           await this.waitAnimation()
@@ -329,7 +327,7 @@ class VBot extends EventEmitter {
         result.nodeText = nodeText.result.value
         result.compareResult = regx.exec(nodeText.result.value)
         if(result.compareResult) {
-          resolve(result)
+          return resolve(result)
         }
       }
     })
