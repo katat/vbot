@@ -112,7 +112,13 @@ class VBot extends EventEmitter {
         }
         if (action.type === 'assertInnerText') {
           let result = {}
-          result = await this.assertInnerText(action).catch((rejected) => rejected)
+          result = await this.assertInnerText(action).catch((e) => {
+            this.emit('action.fail', {
+              index: i,
+              action: action,
+              details: e
+            })
+          })
           actionLog.assertInnerText = {
             result: result,
             match: action.match
@@ -305,7 +311,7 @@ class VBot extends EventEmitter {
       while (true) {
         await this.timeout(10)
         if (new Date() - start >= timeout) {
-          return reject(result)
+          return reject(new Error('timeout'))
         }
         nodeText = await this.client.eval(expr)
         result.nodeText = nodeText.result.value
@@ -384,16 +390,16 @@ class VBot extends EventEmitter {
           }
         }
       }
-      if (log.assertInnerText) {
-        this._log(`>>>> assertInnerText`, 'data')
-        if(log.assertInnerText.result.compareResult) {
-          this._log(`>>>> matched`, 'data')
-          this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'data')
-        } else {
-          this._log(`>>>> no match`, 'warn')
-          this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'warn')
-        }
-      }
+      // if (log.assertInnerText) {
+      //   this._log(`>>>> assertInnerText`, 'data')
+      //   if(log.assertInnerText.result.compareResult) {
+      //     this._log(`>>>> matched`, 'data')
+      //     this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'data')
+      //   } else {
+      //     this._log(`>>>> no match`, 'warn')
+      //     this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'warn')
+      //   }
+      // }
     })
 
     this.on('action.fail', (log) => {
