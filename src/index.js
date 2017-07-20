@@ -346,6 +346,7 @@ class VBot extends EventEmitter {
     }catch(ex) {
       this._onError(ex)
     }
+    return this
   }
 
   async close () {
