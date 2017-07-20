@@ -336,7 +336,10 @@ class VBot extends EventEmitter {
     }
   }
 
-  async start () {
+  async start (playbook) {
+    if (playbook) {
+      this.options.schema = playbook
+    }
     try {
       this._onStart()
       this.startTime = new Date()
