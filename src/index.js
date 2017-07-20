@@ -31,7 +31,7 @@ class VBot extends EventEmitter {
   setOptions (options = {
     mismatchThreshold: 0,
     waitAnimation: true,
-    waitBeforeClose: 1000
+    waitBeforeEnd: 1000
   }) {
     this.options = options
     this.options.imgdir = options.imgdir || `${process.cwd()}/vbot/${this.options.projectFile}`
@@ -183,6 +183,9 @@ class VBot extends EventEmitter {
       await this.runActions(scenario, this.options.rebase).catch((e) => {
         return e
       })
+      if (this.options.waitBeforeEnd) {
+        await this.timeout(this.options.waitBeforeEnd)
+      }
       this.emit('scenario.end')
     }
   }
@@ -362,9 +365,6 @@ class VBot extends EventEmitter {
       return
     }
     return new Promise(async (resolve) => {
-      if (this.options.waitBeforeClose) {
-        await this.timeout(this.options.waitBeforeClose)
-      }
       this.client && await this.client.close()
       resolve()
     })
