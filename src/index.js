@@ -111,18 +111,13 @@ class VBot extends EventEmitter {
           action: action
         }
         if (action.type === 'assertInnerText') {
-          let result = {}
-          result = await this.assertInnerText(action).catch((e) => {
+          await this.assertInnerText(action).catch((e) => {
             this.emit('action.fail', {
               index: i,
               action: action,
               details: e
             })
           })
-          actionLog.assertInnerText = {
-            result: result,
-            match: action.match
-          }
         }
         if (action.shot || action.screenshot) {
           await this.waitAnimation()
@@ -314,7 +309,7 @@ class VBot extends EventEmitter {
         result.nodeText = nodeText.result.value
         result.compareResult = regx.exec(nodeText.result.value)
         if(result.compareResult) {
-          resolve(result)
+          return resolve(result)
         }
       }
     })
@@ -386,16 +381,6 @@ class VBot extends EventEmitter {
           }
         }
       }
-      // if (log.assertInnerText) {
-      //   this._log(`>>>> assertInnerText`, 'data')
-      //   if(log.assertInnerText.result.compareResult) {
-      //     this._log(`>>>> matched`, 'data')
-      //     this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'data')
-      //   } else {
-      //     this._log(`>>>> no match`, 'warn')
-      //     this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'warn')
-      //   }
-      // }
     })
 
     this.on('action.fail', (log) => {
