@@ -27,7 +27,7 @@ class VBot extends EventEmitter {
     this.setOptions(options)
   }
 
-  setOptions (options = { mismatchThreshold: 0 }) {
+  setOptions (options = { mismatchThreshold: 0, waitAnimation: true}) {
     this.options = options
     this.options.imgdir = options.imgdir || `${process.cwd()}/vbot/${this.options.projectFile}`
   }
@@ -183,6 +183,9 @@ class VBot extends EventEmitter {
   }
 
   async waitAnimation () {
+    if (!this.options.waitAnimation) {
+      return
+    }
     let wait = true
     return new Promise(async (resolve) => {
       if (!this.animationStartTime || !this.expectedAnimationDuration) {
