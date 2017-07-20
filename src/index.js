@@ -360,8 +360,8 @@ class VBot extends EventEmitter {
     return this
   }
 
-  async close () {
-    if (this.options.showWindow) {
+  async close (force) {
+    if (this.options.showWindow && !force) {
       return
     }
     return new Promise(async (resolve) => {
