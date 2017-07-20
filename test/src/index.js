@@ -331,7 +331,10 @@ describe('vbot tests', async () => {
         });
       });
       describe('assertInnerText', async () => {
-        beforeEach(async () => {
+        afterEach(() => {
+          vbot.close()
+        });
+        it('should match innerText of an element using regular expression', (done) => {
           vbot = new VBot({
             host: `http://localhost:${serverPort}`,
             imgdir: `${testPath}/tmp/screenshots`,
@@ -359,11 +362,6 @@ describe('vbot tests', async () => {
                               type: "assertInnerText",
                               selector: ".p1",
                               match: "[0-9]{1,}",
-                            },{
-                              type: "assertInnerText",
-                              selector: ".p1",
-                              match: "[0-9]{1,}",
-                              waitTimeout: 6000
                             }
                         ]
                     }
@@ -372,24 +370,61 @@ describe('vbot tests', async () => {
             //showWindow: true
           });
           vbot.start()
-        });
-        afterEach(() => {
-          vbot.close()
-        });
-        it('should match innerText of an element using regular expression', (done) => {
+          vbot.on('scenario.start', async () => {
+            let cmd = "document.getElementsByClassName('p1')[0].innerText"
+            let evalResponse = await vbot.client.eval(cmd)
+            assert.equal('vbot', evalResponse.result.value)
+          })
           vbot.on('action.fail', (log) => {
             assert.equal(3, log.index)
           })
-          vbot.on('action.executed', async (log) => {
-            if (log.index === 3) {
-              let cmd = "document.getElementsByClassName('p1')[0].dispatchEvent(new Event('innerTextChange'))"
-              await vbot.client.eval(cmd)
-            }
-          });
           vbot.on('end', () => {
-            assert.equal(counter, 4)
-            done()
+            done();
+          })
+
+        });
+        it('should match innerText of an element after timeout', (done) => {
+          vbot = new VBot({
+            host: `http://localhost:${serverPort}`,
+            imgdir: `${__dirname}/tmp/screenshots`,
+            schema:{
+                viewWidth: 375,
+                viewHeight: 677,
+                captureSelector: "html",
+                scenarios: [
+                    {
+                        name: "view1",
+                        path: "/",
+                        actions: [
+                          {
+                            type: "assertInnerText",
+                            selector: ".p2",
+                            match: "[0-9]{1,}",
+                            waitTimeout: 6000
+                          }
+                        ]
+                    }
+                ]
+            }
+            //showWindow: true
           });
+          vbot.start()
+          vbot.on('scenario.start', async () => {
+            let cmd = "document.getElementsByClassName('p2')[0].innerText"
+            let evalResponse = await vbot.client.eval(cmd)
+            assert.equal('vbot', evalResponse.result.value)
+          })
+          vbot.on('action.fail', () => {
+            assert(false)
+          })
+          vbot.on('action.executed', async () => {
+            let cmd = "document.getElementsByClassName('p2')[0].innerText"
+            let evalResponse = await vbot.client.eval(cmd)
+            assert.equal('123', evalResponse.result.value)
+          })
+          vbot.on('end', () => {
+            done();
+          })
         });
       });
     });

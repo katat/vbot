@@ -1,6 +1,4 @@
 'use strict';
-require('source-map-support').install()
-
 const ChromeJS     = require('chromejs')
 const EventEmitter = require('events')
 const fs           = require('fs-extra')
@@ -115,6 +113,10 @@ class VBot extends EventEmitter {
         if (action.type === 'select') {
           await this.selectDropdown(action)
         }
+        let actionLog = {
+          index: i,
+          action: action
+        }
         if (action.type === 'assertInnerText') {
           let result = {}
           result = await this.assertInnerText(action).catch((e) => {
@@ -124,10 +126,10 @@ class VBot extends EventEmitter {
               details: e
             })
           })
-        }
-        let actionLog = {
-          index: i,
-          action: action
+          actionLog.assertInnerText = {
+            result: result,
+            match: action.match
+          }
         }
         if (action.shot || action.screenshot) {
           await this.waitAnimation()
@@ -327,7 +329,7 @@ class VBot extends EventEmitter {
         result.nodeText = nodeText.result.value
         result.compareResult = regx.exec(nodeText.result.value)
         if(result.compareResult) {
-          return resolve(result)
+          resolve(result)
         }
       }
     })
@@ -405,19 +407,6 @@ class VBot extends EventEmitter {
           }
         }
       }
-<<<<<<< a378ebe7dce1dc8eddf2b11135f0b588f48b68b7
-=======
-      // if (log.assertInnerText) {
-      //   this._log(`>>>> assertInnerText`, 'data')
-      //   if(log.assertInnerText.result.compareResult) {
-      //     this._log(`>>>> matched`, 'data')
-      //     this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'data')
-      //   } else {
-      //     this._log(`>>>> no match`, 'warn')
-      //     this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'warn')
-      //   }
-      // }
->>>>>>> alter assertInnerText failure output method
     })
 
     this.on('_action.fail', (log) => {
