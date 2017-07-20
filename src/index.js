@@ -7,6 +7,7 @@ const Jimp         = require('jimp')
 const jsonlint     = require("jsonlint")
 const getPort      = require('get-port')
 const colors       = require('colors/safe')
+const _            = require('lodash')
 
 colors.setTheme({
   silly: 'rainbow',
@@ -27,7 +28,11 @@ class VBot extends EventEmitter {
     this.setOptions(options)
   }
 
-  setOptions (options = { mismatchThreshold: 0, waitAnimation: true}) {
+  setOptions (options = {
+    mismatchThreshold: 0,
+    waitAnimation: true,
+    waitBeforeClose: 1000
+  }) {
     this.options = options
     this.options.imgdir = options.imgdir || `${process.cwd()}/vbot/${this.options.projectFile}`
   }
@@ -336,9 +341,9 @@ class VBot extends EventEmitter {
     }
   }
 
-  async start (playbook) {
-    if (playbook) {
-      this.options.schema = playbook
+  async start (options) {
+    if (options) {
+      this.options = _.extend(this.options, options)
     }
     try {
       this._onStart()
@@ -357,6 +362,9 @@ class VBot extends EventEmitter {
       return
     }
     return new Promise(async (resolve) => {
+      if (this.options.waitBeforeClose) {
+        await this.timeout(this.options.waitBeforeClose)
+      }
       this.client && await this.client.close()
       resolve()
     })
