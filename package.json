@@ -1,6 +1,6 @@
 {
   "name": "vbot",
-  "version": "2.0.18",
+  "version": "2.0.19",
   "description": "A visual regression testing tool, aims to help developers quickly create tests with minimum overhead, avoid repeated clicks and typings in testings, particularly helpful for single page applications or complicated web app. Automate the testings `headlessly` at local dev environment or on a continuous integration server.",
   "main": "dist/index.js",
   "scripts": {
@@ -13,12 +13,14 @@
   "author": "kata.choi@gmail.com",
   "license": "MIT License",
   "dependencies": {
+    "babel-runtime": "^6.23.0",
     "chromejs": "^0.4.0",
     "colors": "^1.1.2",
     "fs-extra": "^3.0.1",
     "get-port": "^3.1.0",
     "jimp": "^0.2.28",
     "jsonlint": "^1.6.2",
+    "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",
     "shelljs": "^0.7.5",
     "yargs": "^3.21.0"

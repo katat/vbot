@@ -191,7 +191,20 @@ After re-run the command line above, it should report there is test result misma
 
 ------------------
 
-## Test options
+## Configurations
+```js
+//turn off wait animation. default : true
+vbot.start({waitAnimation: false})
+```
+
+
+Supported options:
+
+Option                | Description| Example
+----------------------- | -----------------------
+waitAnimation    | set if to wait for animation before executing action| true or false
+
+## Playbook Options
 **viewHeight**
 height of the browser view
 
