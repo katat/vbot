@@ -1,4 +1,6 @@
 'use strict';
+require('source-map-support').install()
+
 const ChromeJS     = require('chromejs')
 const EventEmitter = require('events')
 const fs           = require('fs-extra')
@@ -7,6 +9,7 @@ const Jimp         = require('jimp')
 const jsonlint     = require("jsonlint")
 const getPort      = require('get-port')
 const colors       = require('colors/safe')
+const _            = require('lodash')
 
 colors.setTheme({
   silly: 'rainbow',
@@ -27,7 +30,11 @@ class VBot extends EventEmitter {
     this.setOptions(options)
   }
 
-  setOptions (options = { mismatchThreshold: 0, waitAnimation: true}) {
+  setOptions (options = {
+    mismatchThreshold: 0,
+    waitAnimation: true,
+    waitBeforeEnd: 1000
+  }) {
     this.options = options
     this.options.imgdir = options.imgdir || `${process.cwd()}/vbot/${this.options.projectFile}`
   }
@@ -106,10 +113,6 @@ class VBot extends EventEmitter {
         if (action.type === 'select') {
           await this.selectDropdown(action)
         }
-        let actionLog = {
-          index: i,
-          action: action
-        }
         if (action.type === 'assertInnerText') {
           let result = {}
           result = await this.assertInnerText(action).catch((e) => {
@@ -119,10 +122,10 @@ class VBot extends EventEmitter {
               details: e
             })
           })
-          actionLog.assertInnerText = {
-            result: result,
-            match: action.match
-          }
+        }
+        let actionLog = {
+          index: i,
+          action: action
         }
         if (action.shot || action.screenshot) {
           await this.waitAnimation()
@@ -184,6 +187,9 @@ class VBot extends EventEmitter {
       await this.runActions(scenario, this.options.rebase).catch((e) => {
         return e
       })
+      if (this.options.waitBeforeEnd) {
+        await this.timeout(this.options.waitBeforeEnd)
+      }
       this.emit('scenario.end')
     }
   }
@@ -317,7 +323,7 @@ class VBot extends EventEmitter {
         result.nodeText = nodeText.result.value
         result.compareResult = regx.exec(nodeText.result.value)
         if(result.compareResult) {
-          resolve(result)
+          return resolve(result)
         }
       }
     })
@@ -342,7 +348,10 @@ class VBot extends EventEmitter {
     }
   }
 
-  async start () {
+  async start (options) {
+    if (options) {
+      this.options = _.extend(this.options, options)
+    }
     try {
       this._onStart()
       this.startTime = new Date()
@@ -355,8 +364,8 @@ class VBot extends EventEmitter {
     return this
   }
 
-  async close () {
-    if (this.options.showWindow) {
+  async close (force) {
+    if (this.options.showWindow && !force) {
       return
     }
     return new Promise(async (resolve) => {
