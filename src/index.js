@@ -1,4 +1,6 @@
 'use strict';
+require('source-map-support').install()
+
 const ChromeJS     = require('chromejs')
 const EventEmitter = require('events')
 const fs           = require('fs-extra')
@@ -7,6 +9,7 @@ const Jimp         = require('jimp')
 const jsonlint     = require("jsonlint")
 const getPort      = require('get-port')
 const colors       = require('colors/safe')
+const _            = require('lodash')
 
 colors.setTheme({
   silly: 'rainbow',
@@ -27,7 +30,11 @@ class VBot extends EventEmitter {
     this.setOptions(options)
   }
 
-  setOptions (options = { mismatchThreshold: 0 }) {
+  setOptions (options = {
+    mismatchThreshold: 0,
+    waitAnimation: true,
+    waitBeforeEnd: 1000
+  }) {
     this.options = options
     this.options.imgdir = options.imgdir || `${process.cwd()}/vbot/${this.options.projectFile}`
   }
@@ -106,10 +113,6 @@ class VBot extends EventEmitter {
         if (action.type === 'select') {
           await this.selectDropdown(action)
         }
-        let actionLog = {
-          index: i,
-          action: action
-        }
         if (action.type === 'assertInnerText') {
           await this.assertInnerText(action).catch((e) => {
             this.emit('action.fail', {
@@ -118,6 +121,13 @@ class VBot extends EventEmitter {
               details: e
             })
           })
+<<<<<<< HEAD
+=======
+        }
+        let actionLog = {
+          index: i,
+          action: action
+>>>>>>> kata/master
         }
         if (action.shot || action.screenshot) {
           await this.waitAnimation()
@@ -179,11 +189,17 @@ class VBot extends EventEmitter {
       await this.runActions(scenario, this.options.rebase).catch((e) => {
         return e
       })
+      if (this.options.waitBeforeEnd) {
+        await this.timeout(this.options.waitBeforeEnd)
+      }
       this.emit('scenario.end')
     }
   }
 
   async waitAnimation () {
+    if (!this.options.waitAnimation) {
+      return
+    }
     let wait = true
     return new Promise(async (resolve) => {
       if (!this.animationStartTime || !this.expectedAnimationDuration) {
@@ -334,7 +350,10 @@ class VBot extends EventEmitter {
     }
   }
 
-  async start () {
+  async start (options) {
+    if (options) {
+      this.options = _.extend(this.options, options)
+    }
     try {
       this._onStart()
       this.startTime = new Date()
@@ -344,10 +363,11 @@ class VBot extends EventEmitter {
     }catch(ex) {
       this._onError(ex)
     }
+    return this
   }
 
-  async close () {
-    if (this.options.showWindow) {
+  async close (force) {
+    if (this.options.showWindow && !force) {
       return
     }
     return new Promise(async (resolve) => {

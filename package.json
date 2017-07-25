@@ -1,26 +1,27 @@
 {
   "name": "vbot",
-  "version": "2.0.18",
+  "version": "2.0.20",
   "description": "A visual regression testing tool, aims to help developers quickly create tests with minimum overhead, avoid repeated clicks and typings in testings, particularly helpful for single page applications or complicated web app. Automate the testings `headlessly` at local dev environment or on a continuous integration server.",
   "main": "dist/index.js",
   "scripts": {
     "lint:staged": "lint-staged",
     "lint:js": "eslint bin src||true",
-    "pretest": "babel src --source-maps --out-dir dist --ignore 'test/**/*.js'",
-    "test": "mocha -t 15000 --full-trace --require babel-register",
+    "pretest": "babel src --source-maps --out-dir dist --ignore 'test/**/*.js'&&babel test/src --source-maps --out-dir test/dist",
+    "test": "mocha test/dist -t 15000",
     "build": "babel src --source-maps --out-dir dist --ignore 'test/**/*.js'"
   },
   "author": "kata.choi@gmail.com",
   "license": "MIT License",
   "dependencies": {
+    "babel-runtime": "^6.23.0",
     "chromejs": "^0.4.0",
     "colors": "^1.1.2",
     "fs-extra": "^3.0.1",
     "get-port": "^3.1.0",
     "jimp": "^0.2.28",
     "jsonlint": "^1.6.2",
+    "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",
-    "babel-runtime": "^6.23.0",
     "shelljs": "^0.7.5",
     "yargs": "^3.21.0"
   },
@@ -29,10 +30,12 @@
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
+    "babel-runtime": "^6.23.0",
     "babel-eslint": "^7.2.0",
     "babel-plugin-syntax-async-functions": "^6.13.0",
     "babel-plugin-transform-builtin-extend": "^1.1.2",
     "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-register": "^6.24.1",
     "eslint": "^3.15.0",
@@ -43,6 +46,7 @@
     "inert": "^4.2.0",
     "lint-staged": "^3.3.0",
     "mocha": "^3.3.0",
+    "source-map-support": "^0.4.15",
     "pre-commit": "^1.2.2"
   },
   "eslintConfig": {
