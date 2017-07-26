@@ -381,7 +381,6 @@ describe('vbot tests', async () => {
           vbot.on('end', () => {
             done();
           })
-
         });
         it('should match innerText of an element after timeout', (done) => {
           vbot = new VBot({

@@ -126,10 +126,10 @@ class VBot extends EventEmitter {
               details: e
             })
           })
-          actionLog.assertInnerText = {
-            result: result,
-            match: action.match
-          }
+        }
+        let actionLog = {
+          index: i,
+          action: action
         }
         if (action.shot || action.screenshot) {
           await this.waitAnimation()
