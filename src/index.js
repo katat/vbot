@@ -123,10 +123,25 @@ class VBot extends EventEmitter {
           }
         }
         if (action.type === 'select') {
-          await this.selectDropdown(action)
+          await this.selectDropdown(action).catch((e) => {
+            this.emit('action.fail', {
+              index: i,
+              action: action,
+              details: e
+            })
+          })
         }
         if (action.type === 'assertInnerText') {
           await this.assertInnerText(action).catch((e) => {
+            this.emit('action.fail', {
+              index: i,
+              action: action,
+              details: e
+            })
+          })
+        }
+        if (action.type === 'fill') {
+          await this.fill(action).catch((e) => {
             this.emit('action.fail', {
               index: i,
               action: action,
@@ -313,11 +328,11 @@ class VBot extends EventEmitter {
     await this.client.click(action.selector)
   }
 
-  async selectDropdown(action) {
+  async selectDropdown (action) {
     await this.client.select(action.selector, action.selectIndex)
   }
 
-  async assertInnerText(action) {
+  async assertInnerText (action) {
     let expr = `document.querySelector('${action.selector}').innerText`
     let regx = new RegExp(action.match)
     let nodeText = await this.client.eval(expr)
@@ -338,6 +353,10 @@ class VBot extends EventEmitter {
         }
       }
     })
+  }
+
+  async fill (action) {
+    await this.client.setAttributeValue (action.selector, "value", action.value)
   }
 
   async wait (action) {

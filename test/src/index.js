@@ -283,40 +283,43 @@ describe('vbot tests', async () => {
       });
     });
     describe('single action test', async () => {
+      let vbotOpt
+      beforeEach(async () => {
+        vbotOpt = {
+        	host: `http://localhost:${serverPort}`,
+        	imgdir: `${testPath}/tmp/screenshots`,
+        	schema: {
+        		viewWidth: 375,
+        		viewHeight: 677,
+        		captureSelector: "html",
+        		scenarios: [
+        			{
+        				name: "view1",
+        				path: "/",
+        				actions: []
+        			}
+        		]
+        	}
+        	//showWindow: true
+        }
+      });
       describe('select', async () =>{
-        beforeEach(async () => {
-          vbot = new VBot({
-            host: `http://localhost:${serverPort}`,
-            imgdir: `${testPath}/tmp/screenshots`,
-            schema:{
-                viewWidth: 375,
-                viewHeight: 677,
-                captureSelector: "html",
-                scenarios: [
-                    {
-                        name: "view1",
-                        path: "/",
-                        actions: [
-                            {
-                              type: "exist",
-                              selector: ".box"
-                            },{
-                              type:"select",
-                              selector:"select",
-                              selectIndex:3
-                            }
-                        ]
-                    }
-                ]
-            }
-            //showWindow: true
-          });
-          vbot.start()
-        });
         afterEach(() => {
           vbot.close()
         });
         it('should select a option', (done) => {
+          vbotOpt.schema.scenarios[0].actions = [
+            {
+              type: "exist",
+              selector: ".box"
+            },{
+              type:"select",
+              selector:"select",
+              selectIndex:3
+            }
+          ]
+          vbot = new VBot(vbotOpt)
+          vbot.start()
           vbot.on('scenario.start', async () => {
             let evalResponse = await vbot.client.eval('document.querySelector("select").value')
             assert.equal('1', evalResponse.result.value)
@@ -335,40 +338,25 @@ describe('vbot tests', async () => {
           vbot.close()
         });
         it('should match innerText of an element using regular expression', (done) => {
-          vbot = new VBot({
-            host: `http://localhost:${serverPort}`,
-            imgdir: `${testPath}/tmp/screenshots`,
-            schema:{
-                viewWidth: 375,
-                viewHeight: 677,
-                captureSelector: "html",
-                scenarios: [
-                    {
-                        name: "view1",
-                        path: "/",
-                        actions: [
-                            {
-                              type: "exist",
-                              selector: ".box"
-                            },{
-                              type: "assertInnerText",
-                              selector: ".p1",
-                              match: "vbot"
-                            },{
-                              type: "assertInnerText",
-                              selector: ".p1",
-                              match: "[a-z]{1,}",
-                            },{
-                              type: "assertInnerText",
-                              selector: ".p1",
-                              match: "[0-9]{1,}",
-                            }
-                        ]
-                    }
-                ]
+          vbotOpt.schema.scenarios[0].actions = [
+            {
+              type: "exist",
+              selector: ".box"
+            },{
+              type: "assertInnerText",
+              selector: ".p1",
+              match: "vbot"
+            },{
+              type: "assertInnerText",
+              selector: ".p1",
+              match: "[a-z]{1,}",
+            },{
+              type: "assertInnerText",
+              selector: ".p1",
+              match: "[0-9]{1,}",
             }
-            //showWindow: true
-          });
+          ]
+          vbot = new VBot(vbotOpt);
           vbot.start()
           vbot.on('scenario.start', async () => {
             let cmd = "document.getElementsByClassName('p1')[0].innerText"
@@ -383,30 +371,15 @@ describe('vbot tests', async () => {
           })
         });
         it('should match innerText of an element after timeout', (done) => {
-          vbot = new VBot({
-            host: `http://localhost:${serverPort}`,
-            imgdir: `${__dirname}/tmp/screenshots`,
-            schema:{
-                viewWidth: 375,
-                viewHeight: 677,
-                captureSelector: "html",
-                scenarios: [
-                    {
-                        name: "view1",
-                        path: "/",
-                        actions: [
-                          {
-                            type: "assertInnerText",
-                            selector: ".p2",
-                            match: "[0-9]{1,}",
-                            waitTimeout: 6000
-                          }
-                        ]
-                    }
-                ]
+          vbotOpt.schema.scenarios[0].actions = [
+            {
+              type: "assertInnerText",
+              selector: ".p2",
+              match: "[0-9]{1,}",
+              waitTimeout: 6000
             }
-            //showWindow: true
-          });
+          ]
+          vbot = new VBot(vbotOpt);
           vbot.start()
           vbot.on('scenario.start', async () => {
             let cmd = "document.getElementsByClassName('p2')[0].innerText"
@@ -424,6 +397,33 @@ describe('vbot tests', async () => {
           vbot.on('end', () => {
             done();
           })
+        });
+      });
+      describe('fill', async () =>{
+        afterEach(() => {
+          vbot.close()
+        });
+        it('should fill in the input value', (done) => {
+          vbotOpt.schema.scenarios[0].actions = [
+            {
+              type:"select",
+              selector:".text",
+              value: "vbot"
+            }
+          ]
+          vbot = new VBot(vbotOpt)
+          vbot.start()
+          vbot.on('scenario.start', async () => {
+            let evalResponse = await vbot.client.eval('document.querySelector(".text").value')
+            assert.equal('', evalResponse.result.value)
+          })
+          vbot.on('scenario.end', async () => {
+            let evalResponse = await vbot.client.eval('document.querySelector("select").value')
+            assert.equal('vbot', evalResponse.result.value)
+          });
+          vbot.on('end', () => {
+            done()
+          });
         });
       });
     });
