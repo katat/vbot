@@ -1,4 +1,6 @@
 'use strict';
+require('source-map-support').install()
+
 const ChromeJS     = require('chromejs')
 const EventEmitter = require('events')
 const fs           = require('fs-extra')
@@ -112,7 +114,6 @@ class VBot extends EventEmitter {
           if (action.tab) {
             const presses = ['rawKeyDown', 'char', 'keyUp']
             for (let i = 0; i < presses.length; i++) {
-              console.log('tab action')
               await this.client.client.Input.dispatchKeyEvent({
                 "type" : presses[i],
                 "windowsVirtualKeyCode" : 9,
@@ -127,8 +128,7 @@ class VBot extends EventEmitter {
           await this.selectDropdown(action)
         }
         if (action.type === 'assertInnerText') {
-          let result = {}
-          result = await this.assertInnerText(action).catch((e) => {
+          await this.assertInnerText(action).catch((e) => {
             this.emit('action.fail', {
               index: i,
               action: action,
