@@ -370,7 +370,7 @@ class VBot extends EventEmitter {
     })
   }
 
-  _onStart () {
+  _initLogEvents () {
     this._log('> Starting', 'prompt')
 
     this.on('scenario.start', (scenario) => {
@@ -395,16 +395,6 @@ class VBot extends EventEmitter {
           }
         }
       }
-      if (log.assertInnerText) {
-        this._log(`>>>> assertInnerText`, 'data')
-        if(log.assertInnerText.result.compareResult) {
-          this._log(`>>>> matched`, 'data')
-          this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'data')
-        } else {
-          this._log(`>>>> no match`, 'warn')
-          this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'warn')
-        }
-      }
     })
 
     this.on('action.fail', (log) => {
@@ -416,6 +406,13 @@ class VBot extends EventEmitter {
     this.on('end', async (result) => {
       this._log(`> DONE. duration: ${result.duration/1000}s`, 'prompt')
     })
+  }
+
+  _onStart () {
+    if (!this.initedLogEvents) {
+      this._initLogEvents()
+      this.initedLogEvents = true
+    }
   }
 
   _onError(err) {
