@@ -1,4 +1,6 @@
 'use strict';
+require('source-map-support').install()
+
 const ChromeJS     = require('chromejs')
 const EventEmitter = require('events')
 const fs           = require('fs-extra')
@@ -109,21 +111,34 @@ class VBot extends EventEmitter {
               })
             }
           }
+          if (action.tab) {
+            const presses = ['rawKeyDown', 'char', 'keyUp']
+            for (let i = 0; i < presses.length; i++) {
+              await this.client.client.Input.dispatchKeyEvent({
+                "type" : presses[i],
+                "windowsVirtualKeyCode" : 9,
+                "key": "Tab",
+                "unmodifiedText" : "\t",
+                "text" : "\t"
+              })
+            }
+          }
         }
         if (action.type === 'select') {
           await this.selectDropdown(action)
         }
+        if (action.type === 'assertInnerText') {
+          await this.assertInnerText(action).catch((e) => {
+            this.emit('action.fail', {
+              index: i,
+              action: action,
+              details: e
+            })
+          })
+        }
         let actionLog = {
           index: i,
           action: action
-        }
-        if (action.type === 'assertInnerText') {
-          let result = {}
-          result = await this.assertInnerText(action).catch((rejected) => rejected)
-          actionLog.assertInnerText = {
-            result: result,
-            match: action.match
-          }
         }
         if (action.shot || action.screenshot) {
           await this.waitAnimation()
@@ -317,13 +332,13 @@ class VBot extends EventEmitter {
       while (true) {
         await this.timeout(10)
         if (new Date() - start >= timeout) {
-          return reject(result)
+          return reject(new Error('timeout'))
         }
         nodeText = await this.client.eval(expr)
         result.nodeText = nodeText.result.value
         result.compareResult = regx.exec(nodeText.result.value)
         if(result.compareResult) {
-          resolve(result)
+          return resolve(result)
         }
       }
     })
