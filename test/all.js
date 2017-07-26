@@ -375,29 +375,17 @@ describe('vbot tests', async () => {
           vbot.close()
         });
         it('should match innerText of an element using regular expression', (done) => {
-          let counter = 0
+          vbot.on('action.fail', (log) => {
+            assert.equal(3, log.index)
+          })
           vbot.on('action.executed', async (log) => {
-            switch (counter) {
-              case 1: {
-                assert(log.assertInnerText.result.compareResult)
-                break
-              }
-              case 2: {
-                assert(log.assertInnerText.result.compareResult)
-                break
-              }
-              case 3: {
-                assert(!log.assertInnerText.result.compareResult)
-                let cmd = "document.getElementsByClassName('p1')[0].dispatchEvent(new Event('innerTextChange'))"
-                await vbot.client.eval(cmd)
-                break
-              }
-              case 4: {
-                assert(log.assertInnerText.result.compareResult)
-                break
-              }
+            if (log.index === 3) {
+              let cmd = "document.getElementsByClassName('p1')[0].dispatchEvent(new Event('innerTextChange'))"
+              await vbot.client.eval(cmd)
             }
-            counter ++
+            if (log.index != 0 && log.index != 3) {
+              assert(log.assertInnerText.result.compareResult)
+            }
           });
           vbot.on('end', () => {
             assert.equal(counter, 4)
