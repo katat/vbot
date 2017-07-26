@@ -378,11 +378,9 @@ describe('vbot tests', async () => {
           vbot.on('action.fail', (log) => {
             assert.equal(3, log.index)
           })
-<<<<<<< HEAD:test/all.js
           vbot.on('end', () => {
             done();
           })
-
         });
         it('should match innerText of an element after timeout', (done) => {
           vbot = new VBot({
@@ -408,14 +406,6 @@ describe('vbot tests', async () => {
                 ]
             }
             //showWindow: true
-=======
-          vbot.on('action.executed', async (log) => {
-            count ++
-            if (log.index === 3) {
-              let cmd = "document.getElementsByClassName('p1')[0].dispatchEvent(new Event('innerTextChange'))"
-              await vbot.client.eval(cmd)
-            }
->>>>>>> kata/master:test/src/index.js
           });
           vbot.start()
           vbot.on('scenario.start', async () => {

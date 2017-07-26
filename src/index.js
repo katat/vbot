@@ -121,13 +121,10 @@ class VBot extends EventEmitter {
               details: e
             })
           })
-<<<<<<< HEAD
-=======
         }
         let actionLog = {
           index: i,
           action: action
->>>>>>> kata/master
         }
         if (action.shot || action.screenshot) {
           await this.waitAnimation()
