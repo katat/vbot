@@ -109,6 +109,19 @@ class VBot extends EventEmitter {
               })
             }
           }
+          if (action.tab) {
+            const presses = ['rawKeyDown', 'char', 'keyUp']
+            for (let i = 0; i < presses.length; i++) {
+              console.log('tab action')
+              await this.client.client.Input.dispatchKeyEvent({
+                "type" : presses[i],
+                "windowsVirtualKeyCode" : 9,
+                "key": "Tab",
+                "unmodifiedText" : "\t",
+                "text" : "\t"
+              })
+            }
+          }
         }
         if (action.type === 'select') {
           await this.selectDropdown(action)
