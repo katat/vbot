@@ -68,11 +68,13 @@ class VBot extends EventEmitter {
         }
         if (action.selector) {
           let waitResult = await this.wait(action).catch((e) => {
-            this.emit('action.fail', {
+            let log = {
               index: i,
               action: action,
               details: e
-            })
+            }
+            this.emit('_action.fail', log)
+            this.emit('action.fail', log)
             return e
           })
           if (waitResult) {
@@ -135,6 +137,7 @@ class VBot extends EventEmitter {
           }
         }
         actionLog.duration = new Date() - startTime
+        this.emit('_action.executed', actionLog)
         this.emit('action.executed', actionLog)
       }
       resolve()
@@ -165,6 +168,7 @@ class VBot extends EventEmitter {
         console.error('no url specified by scenario %s', scenario.name);
       }
       await this.client.goto(scenario.url)
+      this.emit('_scenario.start', scenario)
       this.emit('scenario.start', scenario)
       this.client.client.Animation.animationStarted((e) => {
         if (this.animationStartTime) {
@@ -353,7 +357,9 @@ class VBot extends EventEmitter {
       this.startTime = new Date()
       let schema = this.options.schema || await this.parseSchema(this.options.projectFile)
       await this.runSchema(schema);
-      this.emit('end', {duration: new Date() - this.startTime})
+      let timeSpan = {duration: new Date() - this.startTime}
+      this.emit('_end', timeSpan)
+      this.emit('end', timeSpan)
     }catch(ex) {
       this._onError(ex)
     }
@@ -373,11 +379,11 @@ class VBot extends EventEmitter {
   _initLogEvents () {
     this._log('> Starting', 'prompt')
 
-    this.on('scenario.start', (scenario) => {
+    this.on('_scenario.start', (scenario) => {
       this._log(`> started scenario ${scenario.name}`, 'section')
     })
 
-    this.on('action.executed', (log) => {
+    this.on('_action.executed', (log) => {
       this._log(`>> #${log.index+1} executed type:${log.action.type} selector:${log.action.selector}`, 'info')
       this._log(`>>> duration:${log.duration/1000}s`, 'data')
       if (log.screenshot) {
@@ -397,13 +403,13 @@ class VBot extends EventEmitter {
       }
     })
 
-    this.on('action.fail', (log) => {
+    this.on('_action.fail', (log) => {
       const details = log.details
       delete log.details
       this._log(details + '\n' + JSON.stringify(log, undefined, 2), 'error')
     })
 
-    this.on('end', async (result) => {
+    this.on('_end', async (result) => {
       this._log(`> DONE. duration: ${result.duration/1000}s`, 'prompt')
     })
   }
