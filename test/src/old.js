@@ -285,11 +285,11 @@ describe('vbot tests', async () => {
       describe('select', async () =>{
         beforeEach(async () => {
           vbot = new VBot({
-            host: `http://localhost:${serverPort}`,
             imgdir: `${testPath}/tmp/screenshots`,
             schema:{
                 viewWidth: 375,
                 viewHeight: 677,
+                host: `http://localhost:${serverPort}`,
                 captureSelector: "html",
                 scenarios: [
                     {
@@ -335,11 +335,11 @@ describe('vbot tests', async () => {
         });
         it('should match innerText of an element using regular expression', (done) => {
           vbot = new VBot({
-            host: `http://localhost:${serverPort}`,
             imgdir: `${testPath}/tmp/screenshots`,
             schema:{
                 viewWidth: 375,
                 viewHeight: 677,
+                host: `http://localhost:${serverPort}`,
                 captureSelector: "html",
                 scenarios: [
                     {
@@ -383,11 +383,11 @@ describe('vbot tests', async () => {
         });
         it('should match innerText of an element after timeout', (done) => {
           vbot = new VBot({
-            host: `http://localhost:${serverPort}`,
             imgdir: `${__dirname}/tmp/screenshots`,
             schema:{
                 viewWidth: 375,
                 viewHeight: 677,
+                host: `http://localhost:${serverPort}`,
                 captureSelector: "html",
                 scenarios: [
                     {

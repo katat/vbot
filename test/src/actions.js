@@ -15,11 +15,12 @@ describe('actions', async () => {
   afterEach(function (done) {
     vbot.close().then(done)
   });
-  describe('click', () => {
-    it('should click an element', (done) => {
+  describe('click', function () {
+    it('should click an element', function (done) {
       let playbookOpts = _.assign(basePlaybookOpts, {
         url: `${fixturePath}/click.html`,
         scenarios:[{
+          name: this.test.title,
           actions: [
             {type: 'click', selector: 'button'}
           ]
@@ -41,6 +42,7 @@ describe('actions', async () => {
       let playbookOpts = _.assign(basePlaybookOpts, {
         url: `${fixturePath}/typing.html`,
         scenarios:[{
+          name: this.test.title,
           actions: [
             {type: 'click', selector: 'input'},
             {type: 'typing', value: 'hello', enter: true}
@@ -68,6 +70,7 @@ describe('actions', async () => {
       let playbookOpts = _.assign(basePlaybookOpts, {
         url: `${fixturePath}/select.html`,
         scenarios:[{
+          name: this.test.title,
           actions: [
             {type: 'select', selector: 'select', selectIndex: 2},
           ]
@@ -89,6 +92,7 @@ describe('actions', async () => {
       let playbookOpts = _.assign(basePlaybookOpts, {
         url: `${fixturePath}/assertInnerText.html`,
         scenarios:[{
+          name: this.test.title,
           actions: [
             {type: 'assertInnerText', selector: '#demo', match: 'see', waitTimeout: 2000}
           ]
@@ -113,6 +117,7 @@ describe('actions', async () => {
       let playbookOpts = _.assign(basePlaybookOpts, {
         url: `${fixturePath}/scroll.html`,
         scenarios:[{
+          name: this.test.title,
           actions: [
             {type: 'scroll', selector: '.box', position: [0, 1000], delay: 1000},
           ]
@@ -140,10 +145,14 @@ describe('actions', async () => {
       let playbookOpts = _.assign(basePlaybookOpts, {
         url: `${fixturePath}/assertInnerText.html`,
         scenarios:[{
+          name: this.test.title,
           actions: [
             {type: 'exist', selector: '#nofound', waitTimeout: 2000}
           ]
         }]
+      })
+      process.on('unhandledRejection', (e) => {
+        // console.log(e)
       })
       vbot.start({
         playbook: playbookOpts

@@ -355,15 +355,19 @@ class VBot extends EventEmitter {
     let start = new Date()
     let cond = true
     while (cond) {
-      await this.client.wait(action.selector, action.waitTimeout)
+      // await this.client.wait(action.selector, action.waitTimeout).catch((ex) => {
+      //   console.log('', ex)
+      // })
       try {
-        let box = await this.client.box(action.selector)
+        let box = await this.client.box(action.selector).catch((ex) => {
+          throw new Error('not found dom element')
+        })
         if (box) {
           break
         }
       }catch(e) {
         if (new Date() - start >= (action.waitTimeout || 5000)) {
-          throw e
+          throw new Error('timeout')
         }
         await this.client.wait(10)
       }
@@ -412,7 +416,7 @@ class VBot extends EventEmitter {
     this._log('> Starting', 'prompt')
 
     this.on('_scenario.start', (scenario) => {
-      this._log(`> started scenario ${scenario.name}`, 'section')
+      this._log(`> started scenario: ${scenario.name}`, 'section')
     })
 
     this.on('_action.executed', (log) => {
