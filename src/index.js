@@ -33,7 +33,9 @@ class VBot extends EventEmitter {
   setOptions (options = {
     mismatchThreshold: 0,
     waitAnimation: true,
-    waitBeforeEnd: 1000
+    waitBeforeEnd: 1000,
+    verbose: true,
+    showWindow: process.env.WIN
   }) {
     this.options = options
     this.options.imgdir = options.imgdir || `${process.cwd()}/vbot/${this.options.projectFile}`
@@ -370,8 +372,14 @@ class VBot extends EventEmitter {
     try {
       this._onStart()
       this.startTime = new Date()
-      let schema = this.options.schema || await this.parseSchema(this.options.projectFile)
-      await this.runSchema(schema);
+      let playbook = this.options.schema || await this.parseSchema(this.options.projectFile).catch(() => {
+        return null
+      })
+      if (!playbook) {
+        console.log('test')
+        throw new Error('no playbook found in the options')
+      }
+      await this.runSchema(playbook);
       let timeSpan = {duration: new Date() - this.startTime}
       this.emit('_end', timeSpan)
       this.emit('end', timeSpan)
