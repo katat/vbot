@@ -1,0 +1,22 @@
+<html>
+<head>
+  <title>typing tests</title>
+</head>
+<body>
+
+  <input id="input" type="text">
+  <div id="demo"></div>
+  <script type="text/javascript">
+  (function() {
+    var input = document.querySelector('input');
+    input.addEventListener('keyup', function(event) {
+      if(event.keyCode === 13) {
+        var node = document.getElementById('demo');
+        node.innerHTML = "pressed enter";
+      }
+    });
+  })
+  </script>
+
+</body>
+</html>
