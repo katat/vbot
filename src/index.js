@@ -166,6 +166,9 @@ class VBot extends EventEmitter {
   }
 
   async runSchema (schema) {
+    if (!schema.scenarios) {
+      throw new Error('scenarios array should be defined')
+    }
     for (let i = 0; i < schema.scenarios.length; i ++) {
       let scenario = schema.scenarios[i]
       if (this.options.include && scenario.name.indexOf(this.options.include) === -1) {
@@ -180,11 +183,13 @@ class VBot extends EventEmitter {
         }
       })
       await this.client.start()
-      scenario.url = (this.options.host || schema.host) + scenario.path;
-      if (!scenario.url) {
-        console.error('no url specified by scenario %s', scenario.name);
+      scenario.url = (this.options.host || this.options.url || schema.url || schema.host)
+      if (scenario.path) {
+        scenario.url = scenario.url + scenario.path;
       }
-      await this.client.goto(scenario.url)
+      await this.client.goto(scenario.url).catch((ex) => {
+        throw new Error(ex.message + '; URL: ' + scenario.url)
+      })
       this.emit('_scenario.start', scenario)
       this.emit('scenario.start', scenario)
       this.client.client.Animation.animationStarted((e) => {
@@ -372,14 +377,18 @@ class VBot extends EventEmitter {
     try {
       this._onStart()
       this.startTime = new Date()
-      let playbook = this.options.schema || await this.parseSchema(this.options.projectFile).catch(() => {
+      let playbook = this.options.playbook || this.options.schema || await this.parseSchema(this.options.projectFile).catch(() => {
         return null
       })
       if (!playbook) {
-        console.log('test')
         throw new Error('no playbook found in the options')
       }
-      await this.runSchema(playbook);
+      if (!playbook.host && !playbook.url) {
+        throw new Error('no host value found in the playbook')
+      }
+      await this.runSchema(playbook).catch((ex) => {
+        throw ex
+      })
       let timeSpan = {duration: new Date() - this.startTime}
       this.emit('_end', timeSpan)
       this.emit('end', timeSpan)
@@ -445,7 +454,11 @@ class VBot extends EventEmitter {
   }
 
   _onError(err) {
-    this._log(err.message || err.stack, 'error')
+    let msg = err.message
+    if (process.env.DEBUG) {
+      msg += '\n' + err.stack
+    }
+    this._log(msg, 'error')
   }
 
   _onFinish (cb) {
@@ -453,7 +466,7 @@ class VBot extends EventEmitter {
   }
 
   _log (text, type) {
-    if(!this.options.verbose) {
+    if(!this.options.verbose && type !== 'error') {
       return
     }
     console.log(colors[type](text))
