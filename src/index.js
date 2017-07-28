@@ -414,7 +414,7 @@ class VBot extends EventEmitter {
     })
   }
 
-  _initLogEvents () {
+  _handleEvents () {
     this._log('> Starting', 'prompt')
 
     this.on('scenario.start', (scenario) => {
@@ -462,7 +462,7 @@ class VBot extends EventEmitter {
 
   _onStart () {
     if (!this.initedLogEvents) {
-      this._initLogEvents()
+      this._handleEvents()
       this.initedLogEvents = true
     }
   }
