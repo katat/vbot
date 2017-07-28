@@ -150,6 +150,9 @@ class VBot extends EventEmitter {
           })
           if (screenshot) {
             actionLog.screenshot = screenshot
+            if (_.get(screenshot, 'analysis.misMatchPercentage') > 0) {
+              this.emit('screenshot.diff', actionLog)
+            }
           }
         }
         actionLog.duration = new Date() - startTime

@@ -193,26 +193,36 @@ describe('vbot tests', async () => {
             await initDiffVbot()
           });
           it('should generate diff file and related analysis', function (done) {
-            let count = 0
+            let count = 0, diff = false
             vbot.on('action.executed', (log) => {
               if (!log.screenshot) {
                 return
               }
               assert([0, 2, 4, 6].indexOf(log.index) >= 0)
               if (log.index === 2) {
-                assert(log.screenshot.files.base)
-                assert(log.screenshot.files.test)
-                assert(log.screenshot.files.diff)
-                assert(log.screenshot.analysis.isSameDimensions)
-                assert(log.screenshot.analysis.misMatchPercentage)
-                assert(!log.screenshot.analysis.passThreshold)
+                // assert(log.screenshot.files.base)
+                // assert(log.screenshot.files.test)
+                // assert(log.screenshot.files.diff)
+                // assert(log.screenshot.analysis.isSameDimensions)
+                // assert(log.screenshot.analysis.misMatchPercentage)
+                // assert(!log.screenshot.analysis.passThreshold)
                 return
               }
               assert(!log.screenshot.files.diff)
               assert(!log.screenshot.files.test)
               assert(log.screenshot.files.base)
             })
+            vbot.on('screenshot.diff', (log) => {
+              assert(log.screenshot.files.base)
+              assert(log.screenshot.files.test)
+              assert(log.screenshot.files.diff)
+              assert(log.screenshot.analysis.isSameDimensions)
+              assert(log.screenshot.analysis.misMatchPercentage)
+              assert(!log.screenshot.analysis.passThreshold)
+              diff =true
+            })
             vbot.on('end', () => {
+              assert(diff)
               done();
             })
           });
