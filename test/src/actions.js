@@ -2,22 +2,27 @@ const assert      = require('assert')
 const VBot        = require('../../dist')
 const _ = require('lodash')
 describe('actions', async () => {
-  const vbot = new VBot()
+  let vbot
   const fixturePath = `file:///${__dirname}/../fixtures/html`
-  let basePlaybookOpts = {
-    "viewWidth": 375,
-    "viewHeight": 677,
-    "showWindow": process.env.WIN,
+  let opts = {
+    showWindow: process.env.WIN,
+    verbose: false,
+    playbook: {
+      viewWidth: 375,
+      viewHeight: 677
+    }
   }
-  beforeEach(function () {
-    vbot.removeAllListeners('end')
-  });
+  // beforeEach(function () {
+  //   vbot.removeAllListeners('end')
+  //   vbot.removeAllListeners('action.fail')
+  // });
   afterEach(function (done) {
     vbot.close().then(done)
   });
   describe('click', function () {
     it('should click an element', function (done) {
-      let playbookOpts = _.assign(basePlaybookOpts, {
+      let options = _.clone(opts)
+      _.assign(options.playbook, {
         url: `${fixturePath}/click.html`,
         scenarios:[{
           name: this.test.title,
@@ -26,9 +31,8 @@ describe('actions', async () => {
           ]
         }]
       })
-      vbot.start({
-        playbook: playbookOpts
-      })
+      vbot = new VBot(options)
+      vbot.start()
       vbot.on('end', () => {
         vbot.client.eval(`document.querySelector('button').innerText`).then((data) => {
           assert.equal(data.result.value, 'Clicked')
@@ -39,7 +43,8 @@ describe('actions', async () => {
   });
   describe('typing', function () {
     it('should type strings in an element', function (done) {
-      let playbookOpts = _.assign(basePlaybookOpts, {
+      let options = _.clone(opts)
+      _.assign(options.playbook, {
         url: `${fixturePath}/typing.html`,
         scenarios:[{
           name: this.test.title,
@@ -49,9 +54,8 @@ describe('actions', async () => {
           ]
         }]
       })
-      vbot.start({
-        playbook: playbookOpts
-      })
+      vbot = new VBot(options)
+      vbot.start()
       vbot.on('end', () => {
         let promise = vbot.client.eval(`document.querySelector('input').value`).then((data) => {
           assert.equal(data.result.value, 'hello')
@@ -67,7 +71,8 @@ describe('actions', async () => {
   });
   describe('select', function () {
     it('should select an option in a select input', function (done) {
-      let playbookOpts = _.assign(basePlaybookOpts, {
+      let options = _.clone(opts)
+      _.assign(options.playbook, {
         url: `${fixturePath}/select.html`,
         scenarios:[{
           name: this.test.title,
@@ -76,9 +81,8 @@ describe('actions', async () => {
           ]
         }]
       })
-      vbot.start({
-        playbook: playbookOpts
-      })
+      vbot = new VBot(options)
+      vbot.start()
       vbot.on('end', () => {
         vbot.client.eval(`document.querySelector('select').value`).then((data) => {
           assert.equal(data.result.value, 'selected_2')
@@ -89,7 +93,8 @@ describe('actions', async () => {
   });
   describe('assert inner text', function () {
     it('should be able to wait and assert if an element has a inner text', function (done) {
-      let playbookOpts = _.assign(basePlaybookOpts, {
+      let options = _.clone(opts)
+      _.assign(options.playbook, {
         url: `${fixturePath}/assertInnerText.html`,
         scenarios:[{
           name: this.test.title,
@@ -98,9 +103,8 @@ describe('actions', async () => {
           ]
         }]
       })
-      vbot.start({
-        playbook: playbookOpts
-      })
+      vbot = new VBot(options)
+      vbot.start()
       vbot.on('action.fail', (log) => {
         assert.fail(log)
       })
@@ -114,7 +118,8 @@ describe('actions', async () => {
   });
   describe('scroll', function () {
     it('should scroll using position', function (done) {
-      let playbookOpts = _.assign(basePlaybookOpts, {
+      let options = _.clone(opts)
+      _.assign(options.playbook, {
         url: `${fixturePath}/scroll.html`,
         scenarios:[{
           name: this.test.title,
@@ -123,9 +128,8 @@ describe('actions', async () => {
           ]
         }]
       })
-      vbot.start({
-        playbook: playbookOpts
-      })
+      vbot = new VBot(options)
+      vbot.start()
       let top
       vbot.on('scenario.start', () => {
         vbot.client.box('#test').then((box) => {
@@ -142,7 +146,8 @@ describe('actions', async () => {
   });
   describe('action failed', function () {
     it('should emit action.fail when element not found', function (done) {
-      let playbookOpts = _.assign(basePlaybookOpts, {
+      let options = _.clone(opts)
+      _.assign(options.playbook, {
         url: `${fixturePath}/assertInnerText.html`,
         scenarios:[{
           name: this.test.title,
@@ -154,9 +159,8 @@ describe('actions', async () => {
       process.on('unhandledRejection', (e) => {
         // console.log(e)
       })
-      vbot.start({
-        playbook: playbookOpts
-      })
+      vbot = new VBot(options)
+      vbot.start()
       let failed = false
       vbot.on('action.fail', (log) => {
         failed = true
