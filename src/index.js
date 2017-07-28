@@ -56,11 +56,13 @@ class VBot extends EventEmitter {
 
   async runActions (scenario, rebase) {
     let imgFolder = `${this.options.imgdir}/${scenario.name}`
+    this.imgFolder = imgFolder
     if (rebase) {
       fs.removeSync(imgFolder)
     } else {
       fs.removeSync(`${imgFolder}/diff`)
       fs.removeSync(`${imgFolder}/test`)
+      fs.removeSync(`${imgFolder}/fail`)
     }
     return new Promise(async (resolve, reject) => {
       for (let i = 0; i < scenario.actions.length; i++) {
@@ -207,7 +209,7 @@ class VBot extends EventEmitter {
       })
 
       await this.runActions(scenario, this.options.rebase).catch((e) => {
-        return e
+        throw e
       })
       if (this.options.waitBeforeEnd) {
         await this.timeout(this.options.waitBeforeEnd)
@@ -439,10 +441,18 @@ class VBot extends EventEmitter {
       }
     })
 
-    this.on('action.fail', (log) => {
+    this.on('action.fail', async (log) => {
       const details = log.details
       delete log.details
       this._log(details + '\n' + JSON.stringify(log, undefined, 2), 'error')
+
+      let failFolder = `${this.imgFolder}/fail`
+      mkdirp(failFolder, async () => {
+        await this.client.screenshot(
+          `${failFolder}/${this.getScreenshotFileName(log.action, log.index)}.png`,
+          this.client.options.windowSize
+        );
+      })
     })
 
     this.on('end', async (result) => {

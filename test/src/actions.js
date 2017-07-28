@@ -4,9 +4,11 @@ const _ = require('lodash')
 describe('actions', async () => {
   let vbot
   const fixturePath = `file:///${__dirname}/../fixtures/html`
+  const testPath = `${__dirname}`
   let opts = {
     showWindow: process.env.WIN,
     verbose: false,
+    imgdir: `${testPath}/../tmp/screenshots`,
     playbook: {
       viewWidth: 375,
       viewHeight: 677
@@ -161,13 +163,8 @@ describe('actions', async () => {
       })
       vbot = new VBot(options)
       vbot.start()
-      let failed = false
       vbot.on('action.fail', (log) => {
-        failed = true
         assert(log)
-      })
-      vbot.on('end', () => {
-        assert(failed)
         done()
       })
     });
