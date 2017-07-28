@@ -387,7 +387,7 @@ class VBot extends EventEmitter {
       if (!playbook) {
         throw new Error('no playbook found in the options')
       }
-      if (!playbook.host && !playbook.url) {
+      if (!playbook.host && !playbook.url && !this.options.host && !this.options.url) {
         throw new Error('no host value found in the playbook')
       }
       await this.runSchema(playbook).catch((ex) => {
