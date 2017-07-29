@@ -28,7 +28,7 @@ class VBot extends EventEmitter {
   constructor (options) {
     super()
     this.setOptions(options)
-    this.clientList = []
+    this.idleClientList = []
   }
 
   setOptions (options) {
@@ -211,7 +211,7 @@ class VBot extends EventEmitter {
       if (this.options.waitBeforeEnd) {
         await this.timeout(this.options.waitBeforeEnd)
       }
-      this.clientList.push(this.client)
+      this.idleClientList.push(this.client)
       this.emit('scenario.end', scenario)
     }
   }
@@ -393,8 +393,8 @@ class VBot extends EventEmitter {
       await this.runSchema(playbook).catch((ex) => {
         throw ex
       })
-    }catch(ex) {
-      this._onError(ex)
+    } catch (ex) {
+      await this._onError(ex)
     }
     this.emit('end', {duration: new Date() - this.startTime})
     return this
@@ -405,10 +405,9 @@ class VBot extends EventEmitter {
       return
     }
     return new Promise(async (resolve) => {
-      for (var i = 0; i < this.clientList.length; i++) {
-        await this.clientList[i].close()
+      for (var i = 0; i < this.idleClientList.length; i++) {
+        await this.idleClientList[i].close()
       }
-      await this.client.close()
       resolve()
     })
   }
@@ -444,14 +443,6 @@ class VBot extends EventEmitter {
       const details = log.details
       delete log.details
       this._log(details + '\n' + JSON.stringify(log, undefined, 2), 'error')
-
-      let failFolder = `${this.imgFolder}/fail`
-      mkdirp(failFolder, async () => {
-        await this.client.screenshot(
-          `${failFolder}/${this.getScreenshotFileName(log.action, log.index)}.png`,
-          this.client.options.windowSize
-        );
-      })
     })
 
     this.on('end', async (result) => {
@@ -466,12 +457,15 @@ class VBot extends EventEmitter {
     }
   }
 
-  _onError(err) {
+  async _onError(err) {
     let msg = err.message
     if (process.env.DEBUG) {
       msg += '\n' + err.stack
       this._log(msg, 'error')
     }
+
+    await this._failSnapshot()
+    this.idleClientList.push(this.client)
   }
 
   _onFinish (cb) {
@@ -483,6 +477,19 @@ class VBot extends EventEmitter {
       return
     }
     console.log(colors[type](text))
+  }
+
+  async _failSnapshot () {
+    return new Promise((resolve) => {
+      let failFolder = `${this.imgFolder}/fail`
+      mkdirp(failFolder, async () => {
+        await this.client.screenshot(
+          `${failFolder}/snapshot.png`,
+          this.client.options.windowSize
+        );
+        resolve()
+      })
+    })
   }
 }
 
