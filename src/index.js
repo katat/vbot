@@ -76,14 +76,16 @@ class VBot extends EventEmitter {
           if (action.delay) {
             await this.chromejs.wait(action.delay)
           }
+          if (action.type === 'reload') {
+            await this.reload()
+            //need to delay to avoid error from chrome remote interface
+            await this.chromejs.wait(100)
+          }
           if (action.selector) {
             let waitResult = await this.wait(action).catch((e) => {
               log = {index: i, action: action, details: e}
               throw e
             })
-            // if (waitResult) {
-            //   return reject(waitResult)
-            // }
           }
           if (['scroll', 'scrollTo'].indexOf(action.type) !== -1) {
             await this.scroll(action)
@@ -349,6 +351,10 @@ class VBot extends EventEmitter {
         }
       }
     })
+  }
+
+  async reload() {
+    await this.chromejs.client.Page.reload({ignoreCache: true})
   }
 
   async wait (action) {

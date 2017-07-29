@@ -176,6 +176,35 @@ describe('actions', async () => {
       })
     });
   });
+  describe('reload', function () {
+    it('should reload the page', function (done) {
+      let options = _.clone(opts)
+      _.assign(options.playbook, {
+        url: `${fixturePath}/typing.html`,
+        scenarios:[{
+          name: this.test.title,
+          actions: [
+            {type: 'click', selector: 'input'},
+            {type: 'typing', value: 'hello', enter: true},
+            {type: 'reload'}
+          ]
+        }]
+      })
+      vbot = new VBot(options)
+      vbot.start()
+      vbot.on('end', () => {
+        let promise = vbot.chromejs.eval(`document.querySelector('input').value`).then((data) => {
+          assert.equal(data.result.value, '')
+        })
+        promise = promise.then(() => {
+          return vbot.chromejs.eval(`document.querySelector('#demo').innerHTML`).then((data) => {
+            assert.equal(data.result.value, '')
+          })
+        })
+        promise.then(done)
+      })
+    });
+  });
   describe('action failed', function () {
     it('action [exist] should emit action.fail when element not found', function (done) {
       let options = _.clone(opts)
