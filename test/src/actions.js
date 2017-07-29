@@ -14,6 +14,9 @@ describe('actions', async () => {
       viewHeight: 677
     }
   }
+  process.on('unhandledRejection', (e) => {
+    console.log(e)
+  })
   // beforeEach(function () {
   //   vbot.removeAllListeners('end')
   //   vbot.removeAllListeners('action.fail')
@@ -85,12 +88,17 @@ describe('actions', async () => {
       })
       vbot = new VBot(options)
       vbot.start()
-      vbot.on('end', () => {
-        vbot.client.eval(`document.querySelector('select').value`).then((data) => {
-          assert.equal(data.result.value, 'selected_2')
-          done()
+      vbot.on('scenario.start', async () => {
+        vbot.client.eval('document.querySelector("select").value').then((evalResponse) => {
+          assert.equal(evalResponse.result.value, 'selected_1')
         })
       })
+      vbot.on('scenario.end', async () => {
+        vbot.client.eval('document.querySelector("select").value').then((evalResponse) => {
+          assert.equal(evalResponse.result.value, 'selected_2')
+          done()
+        })
+      });
     });
   });
   describe('assert inner text', function () {
@@ -110,7 +118,7 @@ describe('actions', async () => {
       vbot.on('action.fail', (log) => {
         assert.fail(log)
       })
-      vbot.on('end', () => {
+      vbot.on('scenario.end', () => {
         vbot.client.eval(`document.querySelector('#demo').innerHTML`).then((data) => {
           assert.equal(data.result.value, 'can you see me?')
           done()
@@ -147,7 +155,7 @@ describe('actions', async () => {
     });
   });
   describe('action failed', function () {
-    it('should emit action.fail when element not found', function (done) {
+    it('action [exist] should emit action.fail when element not found', function (done) {
       let options = _.clone(opts)
       _.assign(options.playbook, {
         url: `${fixturePath}/assertInnerText.html`,
@@ -158,13 +166,46 @@ describe('actions', async () => {
           ]
         }]
       })
-      process.on('unhandledRejection', (e) => {
-        // console.log(e)
+      vbot = new VBot(options)
+      vbot.start()
+      let failed = false
+      let executed = false
+      vbot.on('action.executed', () => {
+        executed = true
+      })
+      vbot.on('action.fail', (log) => {
+        failed = true
+      })
+      vbot.on('end', () => {
+        assert(failed)
+        assert(!executed)
+        done()
+      })
+    });
+    it('action [assertInnerText] should emit action.fail when element not found', function (done) {
+      let options = _.clone(opts)
+      _.assign(options.playbook, {
+        url: `${fixturePath}/assertInnerText.html`,
+        scenarios:[{
+          name: this.test.title,
+          actions: [
+            {type: 'assertInnerText', selector: '#demo', match: 'no', waitTimeout: 2000}
+          ]
+        }]
       })
       vbot = new VBot(options)
       vbot.start()
+      let failed = false
+      let executed = false
+      vbot.on('action.executed', () => {
+        executed = true
+      })
       vbot.on('action.fail', (log) => {
-        assert(log)
+        failed = true
+      })
+      vbot.on('end', () => {
+        assert(failed)
+        assert(!executed)
         done()
       })
     });

@@ -30,15 +30,16 @@ class VBot extends EventEmitter {
     this.setOptions(options)
   }
 
-  setOptions (options = {
-    mismatchThreshold: 0,
-    waitAnimation: true,
-    waitBeforeEnd: 1000,
-    verbose: true,
-    showWindow: process.env.WIN
-  }) {
-    this.options = options
-    this.options.imgdir = options.imgdir || `${process.cwd()}/vbot/${this.options.projectFile}`
+  setOptions (options) {
+    let defaultOpts = {
+      mismatchThreshold : 0,
+      waitAnimation : true,
+      waitBeforeEnd : 1000,
+      imgdir : `${process.cwd()}/vbot/${options.projectFile}`,
+      verbose : true,
+      showWindow : process.env.WIN
+    }
+    this.options = _.assign(defaultOpts, options)
   }
 
   async parseSchema (filePath) {
@@ -65,100 +66,95 @@ class VBot extends EventEmitter {
       fs.removeSync(`${imgFolder}/fail`)
     }
     return new Promise(async (resolve, reject) => {
-      for (let i = 0; i < scenario.actions.length; i++) {
-        let startTime = new Date()
-        let action = scenario.actions[i]
-        await this.waitAnimation()
-        if (action.delay) {
-          await this.client.wait(action.delay)
-        }
-        if (action.selector) {
-          let waitResult = await this.wait(action).catch((e) => {
-            let log = {
-              index: i,
-              action: action,
-              details: e
-            }
-            this.emit('action.fail', log)
-            return e
-          })
-          if (waitResult) {
-            return reject(waitResult)
-          }
-        }
-        if (['scroll', 'scrollTo'].indexOf(action.type) !== -1) {
-          await this.scroll(action)
-        }
-        if (action.scrollTo) {
-          await this.client.eval(`document.querySelector("${action.selector}").scrollIntoView(true)`)
-        }
-        if (action.type === 'click') {
-          await this.click(action).catch((e) => {
-            this.emit('action.fail', {
-              index: i,
-              action: action,
-              details: e
-            })
-          })
-        }
-        if (['enter', 'typing'].indexOf(action.type) !== -1) {
-          await this.type(action)
-          if (action.enter) {
-            const presses = ['rawKeyDown', 'char', 'keyUp']
-            for (let i = 0; i < presses.length; i++) {
-              await this.client.client.Input.dispatchKeyEvent({
-                "type" : presses[i],
-                "windowsVirtualKeyCode" : 13,
-                "unmodifiedText" : "\r",
-                "text" : "\r"
-              })
-            }
-          }
-          if (action.tab) {
-            const presses = ['rawKeyDown', 'char', 'keyUp']
-            for (let i = 0; i < presses.length; i++) {
-              await this.client.client.Input.dispatchKeyEvent({
-                "type" : presses[i],
-                "windowsVirtualKeyCode" : 9,
-                "key": "Tab",
-                "unmodifiedText" : "\t",
-                "text" : "\t"
-              })
-            }
-          }
-        }
-        if (action.type === 'select') {
-          await this.selectDropdown(action)
-        }
-        if (action.type === 'assertInnerText') {
-          await this.assertInnerText(action).catch((e) => {
-            this.emit('action.fail', {
-              index: i,
-              action: action,
-              details: e
-            })
-          })
-        }
-        let actionLog = {
-          index: i,
-          action: action
-        }
-        if (action.shot || action.screenshot) {
+      let log
+      try {
+        for (let i = 0; i < scenario.actions.length; i++) {
+          let startTime = new Date()
+          let action = scenario.actions[i]
           await this.waitAnimation()
-          action.captureDelay && await this.client.wait(action.captureDelay)
-          let screenshot = await this.capture(action, i, imgFolder).catch((err) => {
-            actionLog.screenshot = (typeof err === 'string') ? {err: err} : err
-            return
-          })
-          if (screenshot) {
-            actionLog.screenshot = screenshot
-            if (_.get(screenshot, 'analysis.misMatchPercentage') > 0) {
-              this.emit('screenshot.diff', actionLog)
+          if (action.delay) {
+            await this.client.wait(action.delay)
+          }
+          if (action.selector) {
+            let waitResult = await this.wait(action).catch((e) => {
+              log = {index: i, action: action, details: e}
+              throw e
+            })
+            // if (waitResult) {
+            //   return reject(waitResult)
+            // }
+          }
+          if (['scroll', 'scrollTo'].indexOf(action.type) !== -1) {
+            await this.scroll(action)
+          }
+          if (action.scrollTo) {
+            await this.client.eval(`document.querySelector("${action.selector}").scrollIntoView(true)`)
+          }
+          if (action.type === 'click') {
+            await this.click(action).catch((e) => {
+              log = {index: i, action: action, details: e}
+              throw e
+            })
+          }
+          if (['enter', 'typing'].indexOf(action.type) !== -1) {
+            await this.type(action)
+            if (action.enter) {
+              const presses = ['rawKeyDown', 'char', 'keyUp']
+              for (let i = 0; i < presses.length; i++) {
+                await this.client.client.Input.dispatchKeyEvent({
+                  "type" : presses[i],
+                  "windowsVirtualKeyCode" : 13,
+                  "unmodifiedText" : "\r",
+                  "text" : "\r"
+                })
+              }
+            }
+            if (action.tab) {
+              const presses = ['rawKeyDown', 'char', 'keyUp']
+              for (let i = 0; i < presses.length; i++) {
+                await this.client.client.Input.dispatchKeyEvent({
+                  "type" : presses[i],
+                  "windowsVirtualKeyCode" : 9,
+                  "key": "Tab",
+                  "unmodifiedText" : "\t",
+                  "text" : "\t"
+                })
+              }
             }
           }
+          if (action.type === 'select') {
+            await this.selectDropdown(action)
+          }
+          if (action.type === 'assertInnerText') {
+            await this.assertInnerText(action).catch((e) => {
+              log = {index: i, action: action, details: e}
+              throw e
+            })
+          }
+          let actionLog = {
+            index: i,
+            action: action
+          }
+          if (action.shot || action.screenshot) {
+            await this.waitAnimation()
+            action.captureDelay && await this.client.wait(action.captureDelay)
+            let screenshot = await this.capture(action, i, imgFolder).catch((err) => {
+              actionLog.screenshot = (typeof err === 'string') ? {err: err} : err
+              return
+            })
+            if (screenshot) {
+              actionLog.screenshot = screenshot
+              if (_.get(screenshot, 'analysis.misMatchPercentage') > 0) {
+                this.emit('screenshot.diff', actionLog)
+              }
+            }
+          }
+          actionLog.duration = new Date() - startTime
+          this.emit('action.executed', actionLog)
         }
-        actionLog.duration = new Date() - startTime
-        this.emit('action.executed', actionLog)
+      } catch (ex) {
+        this.emit('action.fail', log)
+        reject(ex)
       }
       resolve()
     })
@@ -379,11 +375,10 @@ class VBot extends EventEmitter {
   async start (playbook) {
     if (playbook) {
       this.options.playbook = playbook
-      // this.setOptions(_.extend(this.options.playbook, playbook))
     }
+    this.startTime = new Date()
     try {
       this._onStart()
-      this.startTime = new Date()
       let playbook = this.options.playbook || this.options.schema || await this.parseSchema(this.options.projectFile).catch(() => {
         return null
       })
@@ -396,11 +391,10 @@ class VBot extends EventEmitter {
       await this.runSchema(playbook).catch((ex) => {
         throw ex
       })
-      let timeSpan = {duration: new Date() - this.startTime}
-      this.emit('end', timeSpan)
     }catch(ex) {
       this._onError(ex)
     }
+    this.emit('end', {duration: new Date() - this.startTime})
     return this
   }
 
@@ -471,8 +465,8 @@ class VBot extends EventEmitter {
     let msg = err.message
     if (process.env.DEBUG) {
       msg += '\n' + err.stack
+      this._log(msg, 'error')
     }
-    this._log(msg, 'error')
   }
 
   _onFinish (cb) {

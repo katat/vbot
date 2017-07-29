@@ -33,71 +33,38 @@ describe('vbot tests', async () => {
     })
   });
   describe('window size', async () => {
-    beforeEach(() => {
-      vbot.start()
-    });
     it('should resize window', (done) => {
+      vbot = new VBot({
+        playbook: {
+          viewWidth: 375,
+          viewHeight: 677,
+          url: `file:///${testPath}fixtures/html/click.html`,
+          scenarios: [
+            {
+              name: 'window size',
+              actions: [
+                {type:'exist', selector:'button'}
+              ]
+            }
+          ]
+        }
+      })
+      vbot.start()
+      let asserted = false
       vbot.on('scenario.start', async () => {
         let evalResponse = await vbot.client.eval('JSON.stringify({width: window.innerWidth, height: window.innerHeight})')
         let size = JSON.parse(evalResponse.result.value)
         assert.equal(375, size.width)
         assert.equal(677, size.height)
+        asserted = true
       })
       vbot.on('end', () => {
+        assert(asserted)
         done()
       })
     });
   });
-  describe('pass or fail', async () => {
-    describe('pass', async () => {
-      beforeEach(async () => {
-        vbot.start()
-      });
-      it('pass', (done) => {
-        let project = require(`${testPath}/fixtures/project.json`)
-        let count = 0
-        vbot.on('action.executed', async (log) => {
-          assert.deepEqual(project.scenarios[0].actions[count], log.action)
-          assert.equal(count ++, log.index)
-        })
-        vbot.on('action.fail', (log) => {
-          assert.fail(log)
-        })
-        vbot.on('end', async () => {
-          assert.equal(8, count)
-          let data = await vbot.client.querySelector('.entered-text')
-          assert.equal(data.result.subtype, 'node')
-          done();
-        })
-      });
-    });
-    describe('fail', function () {
-      beforeEach(async () => {
-        vbot = new VBot({
-          projectFile: `${testPath}/fixtures/failtoassert.json`,
-          host: `http://localhost:${serverPort}`,
-          imgdir: `${testPath}/tmp/screenshots`
-        })
-        vbot.start()
-      });
-      it('fail', (done) => {
-        let count = 0
-        vbot.on('action.executed', (log) => {
-          count ++
-          assert.equal(0, log.index)
-        })
-        vbot.on('action.fail', (log) => {
-          count ++
-          assert.equal(1, log.index)
-          done()
-        })
-        // vbot.on('end', () => {
-        //   assert.equal(2, count)
-        //   done();
-        // })
-      });
-    });
-    describe('compare screenshots', function () {
+  describe('compare screenshots', function () {
       describe('base', function () {
         beforeEach(async () => {
           let imgdir = `${testPath}/tmp/compare_imgs`
@@ -292,7 +259,7 @@ describe('vbot tests', async () => {
         });
       });
     });
-    describe('single action test', async () => {
+  describe('single action test', async () => {
       describe('select', async () =>{
         beforeEach(async () => {
           vbot = new VBot({
@@ -437,5 +404,4 @@ describe('vbot tests', async () => {
         });
       });
     });
-  });
 });
