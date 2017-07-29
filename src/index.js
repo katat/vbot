@@ -28,6 +28,7 @@ class VBot extends EventEmitter {
   constructor (options) {
     super()
     this.setOptions(options)
+    this.clientList = []
   }
 
   setOptions (options) {
@@ -210,7 +211,8 @@ class VBot extends EventEmitter {
       if (this.options.waitBeforeEnd) {
         await this.timeout(this.options.waitBeforeEnd)
       }
-      this.emit('scenario.end')
+      this.clientList.push(this.client)
+      this.emit('scenario.end', scenario)
     }
   }
 
@@ -403,7 +405,10 @@ class VBot extends EventEmitter {
       return
     }
     return new Promise(async (resolve) => {
-      this.client && await this.client.close()
+      for (var i = 0; i < this.clientList.length; i++) {
+        await this.clientList[i].close()
+      }
+      await this.client.close()
       resolve()
     })
   }
