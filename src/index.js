@@ -154,7 +154,7 @@ class VBot extends EventEmitter {
         }
       } catch (ex) {
         this.emit('action.fail', log)
-        reject(ex)
+        return reject(ex)
       }
       resolve()
     })

@@ -3,7 +3,7 @@ const assert      = require('assert')
 const fs          = require('fs-extra')
 const VBot        = require('../../dist')
 const testPath = `${__dirname}/../`
-describe('vbot tests', async () => {
+describe('screenshot', async () => {
   let serverPort, vbot
   before((done) => {
     localServer(undefined, (err, instance) => {
@@ -20,6 +20,7 @@ describe('vbot tests', async () => {
   after(localServer.stop)
   beforeEach(async () => {
     vbot = new VBot({
+      verbose: false,
       projectFile: `${testPath}/fixtures/project.json`,
       host: `http://localhost:${serverPort}`,
       imgdir: `${testPath}/tmp/screenshots`,
@@ -35,6 +36,7 @@ describe('vbot tests', async () => {
   describe('window size', async () => {
     it('should resize window', (done) => {
       vbot = new VBot({
+        verbose: false,
         playbook: {
           viewWidth: 375,
           viewHeight: 677,
@@ -69,6 +71,7 @@ describe('vbot tests', async () => {
         beforeEach(async () => {
           let imgdir = `${testPath}/tmp/compare_imgs`
           vbot = new VBot({
+            verbose: false,
             projectFile: `${testPath}/fixtures/screenshot_test.json`,
             host: `http://localhost:${serverPort}`,
             imgdir: imgdir
@@ -102,6 +105,7 @@ describe('vbot tests', async () => {
           return new Promise(async (resolve) => {
             let imgdir = `${testPath}/tmp/compare_imgs`
             vbot = new VBot({
+              verbose: false,
               projectFile: `${testPath}/fixtures/screenshot_test.json`,
               host: `http://localhost:${serverPort}`,
               imgdir: imgdir,
@@ -113,6 +117,7 @@ describe('vbot tests', async () => {
             vbot.on('end', async () => {
               await vbot.close()
               vbot = new VBot({
+                verbose: false,
                 projectFile: `${testPath}/fixtures/screenshot_test.json`,
                 host: `http://localhost:${serverPort}`,
                 imgdir: imgdir,
@@ -146,6 +151,7 @@ describe('vbot tests', async () => {
         let initDiffVbot = async (threshold) => {
           let imgdir = `${testPath}/tmp/compare_imgs`
           vbot = new VBot({
+            verbose: false,
             projectFile: `${testPath}/fixtures/screenshot_test.json`,
             host: `http://localhost:${serverPort}`,
             imgdir: imgdir,
@@ -229,6 +235,7 @@ describe('vbot tests', async () => {
         beforeEach(async () => {
           let imgdir = `${testPath}/tmp/compare_imgs`
           vbot = new VBot({
+            verbose: false,
             projectFile: `${testPath}/fixtures/screenshot_test.json`,
             host: `http://localhost:${serverPort}`,
             imgdir: imgdir,
@@ -252,151 +259,6 @@ describe('vbot tests', async () => {
             assert(fs.existsSync(log.screenshot.files.base))
             assert(!fs.existsSync(`${testPath}/fixtures/compare_imgs/view1/diff`))
             assert(!fs.existsSync(`${testPath}/fixtures/compare_imgs/view1/test`))
-          })
-          vbot.on('end', () => {
-            done();
-          })
-        });
-      });
-    });
-  describe('single action test', async () => {
-      describe('select', async () =>{
-        beforeEach(async () => {
-          vbot = new VBot({
-            imgdir: `${testPath}/tmp/screenshots`,
-            schema:{
-                viewWidth: 375,
-                viewHeight: 677,
-                host: `http://localhost:${serverPort}`,
-                captureSelector: "html",
-                scenarios: [
-                    {
-                        name: "view1",
-                        path: "/",
-                        actions: [
-                            {
-                              type: "exist",
-                              selector: ".box"
-                            },{
-                              type:"select",
-                              selector:"select",
-                              selectIndex:3
-                            }
-                        ]
-                    }
-                ]
-            }
-            //showWindow: true
-          });
-          vbot.start()
-        });
-        afterEach(() => {
-          vbot.close()
-        });
-        it('should select a option', (done) => {
-          vbot.on('scenario.start', async () => {
-            let evalResponse = await vbot.client.eval('document.querySelector("select").value')
-            assert.equal('1', evalResponse.result.value)
-          })
-          vbot.on('scenario.end', async () => {
-            let evalResponse = await vbot.client.eval('document.querySelector("select").value')
-            assert.equal('3', evalResponse.result.value)
-          });
-          vbot.on('end', () => {
-            done()
-          });
-        });
-      });
-      describe('assertInnerText', async () => {
-        afterEach(() => {
-          vbot.close()
-        });
-        it('should match innerText of an element using regular expression', (done) => {
-          vbot = new VBot({
-            imgdir: `${testPath}/tmp/screenshots`,
-            schema:{
-                viewWidth: 375,
-                viewHeight: 677,
-                host: `http://localhost:${serverPort}`,
-                captureSelector: "html",
-                scenarios: [
-                    {
-                        name: "view1",
-                        path: "/",
-                        actions: [
-                            {
-                              type: "exist",
-                              selector: ".box"
-                            },{
-                              type: "assertInnerText",
-                              selector: ".p1",
-                              match: "vbot"
-                            },{
-                              type: "assertInnerText",
-                              selector: ".p1",
-                              match: "[a-z]{1,}",
-                            },{
-                              type: "assertInnerText",
-                              selector: ".p1",
-                              match: "[0-9]{1,}",
-                            }
-                        ]
-                    }
-                ]
-            }
-            //showWindow: true
-          });
-          vbot.start()
-          vbot.on('scenario.start', async () => {
-            let cmd = "document.getElementsByClassName('p1')[0].innerText"
-            let evalResponse = await vbot.client.eval(cmd)
-            assert.equal('vbot', evalResponse.result.value)
-          })
-          vbot.on('action.fail', (log) => {
-            assert.equal(3, log.index)
-          })
-          vbot.on('end', () => {
-            done();
-          })
-        });
-        it('should match innerText of an element after timeout', (done) => {
-          vbot = new VBot({
-            imgdir: `${__dirname}/tmp/screenshots`,
-            schema:{
-                viewWidth: 375,
-                viewHeight: 677,
-                host: `http://localhost:${serverPort}`,
-                captureSelector: "html",
-                scenarios: [
-                    {
-                        name: "view1",
-                        path: "/",
-                        actions: [
-                          {
-                            type: "assertInnerText",
-                            selector: ".p2",
-                            match: "[0-9]{1,}",
-                            waitTimeout: 6000
-                          }
-                        ]
-                    }
-                ]
-            }
-            //showWindow: true
-          });
-          vbot.start()
-          vbot.on('scenario.start', async () => {
-            let cmd = "document.getElementsByClassName('p2')[0].innerText"
-            let evalResponse = await vbot.client.eval(cmd)
-            assert.equal('vbot', evalResponse.result.value)
-          })
-          vbot.on('action.fail', () => {
-            assert(false)
-          })
-          vbot.on('action.executed', async () => {
-            let cmd = "document.getElementsByClassName('p2')[0].innerText"
-            let evalResponse = await vbot.client.eval(cmd)
-            assert.equal('123', evalResponse.result.value)
           })
           vbot.on('end', () => {
             done();

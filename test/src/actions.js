@@ -125,6 +125,28 @@ describe('actions', async () => {
         })
       })
     });
+    it('timeout assert inner text', function (done) {
+      let options = _.clone(opts)
+      _.assign(options.playbook, {
+        url: `${fixturePath}/assertInnerText.html`,
+        scenarios:[{
+          name: this.test.title,
+          actions: [
+            {type: 'assertInnerText', selector: '#demo', match: 'see', waitTimeout: 500}
+          ]
+        }]
+      })
+      vbot = new VBot(options)
+      vbot.start()
+      let failed = false
+      vbot.on('action.fail', () => {
+        failed = true
+      })
+      vbot.on('end', () => {
+        assert(failed)
+        done()
+      })
+    });
   });
   describe('scroll', function () {
     it('should scroll using position', function (done) {
