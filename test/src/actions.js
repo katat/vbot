@@ -39,7 +39,7 @@ describe('actions', async () => {
       vbot = new VBot(options)
       vbot.start()
       vbot.on('end', () => {
-        vbot.client.eval(`document.querySelector('button').innerText`).then((data) => {
+        vbot.chromejs.eval(`document.querySelector('button').innerText`).then((data) => {
           assert.equal(data.result.value, 'Clicked')
           done()
         })
@@ -62,11 +62,11 @@ describe('actions', async () => {
       vbot = new VBot(options)
       vbot.start()
       vbot.on('end', () => {
-        let promise = vbot.client.eval(`document.querySelector('input').value`).then((data) => {
+        let promise = vbot.chromejs.eval(`document.querySelector('input').value`).then((data) => {
           assert.equal(data.result.value, 'hello')
         })
         promise = promise.then(() => {
-          return vbot.client.eval(`document.querySelector('#demo').innerHTML`).then((data) => {
+          return vbot.chromejs.eval(`document.querySelector('#demo').innerHTML`).then((data) => {
             assert.equal(data.result.value, 'pressed enter')
           })
         })
@@ -89,12 +89,12 @@ describe('actions', async () => {
       vbot = new VBot(options)
       vbot.start()
       vbot.on('scenario.start', async () => {
-        vbot.client.eval('document.querySelector("select").value').then((evalResponse) => {
+        vbot.chromejs.eval('document.querySelector("select").value').then((evalResponse) => {
           assert.equal(evalResponse.result.value, 'selected_1')
         })
       })
       vbot.on('scenario.end', async () => {
-        vbot.client.eval('document.querySelector("select").value').then((evalResponse) => {
+        vbot.chromejs.eval('document.querySelector("select").value').then((evalResponse) => {
           assert.equal(evalResponse.result.value, 'selected_2')
           done()
         })
@@ -119,7 +119,7 @@ describe('actions', async () => {
         assert.fail(log)
       })
       vbot.on('scenario.end', () => {
-        vbot.client.eval(`document.querySelector('#demo').innerHTML`).then((data) => {
+        vbot.chromejs.eval(`document.querySelector('#demo').innerHTML`).then((data) => {
           assert.equal(data.result.value, 'can you see me?')
           done()
         })
@@ -164,12 +164,12 @@ describe('actions', async () => {
       vbot.start()
       let top
       vbot.on('scenario.start', () => {
-        vbot.client.box('#test').then((box) => {
+        vbot.chromejs.box('#test').then((box) => {
           top = box.model.content[1]
         })
       })
       vbot.on('end', () => {
-        vbot.client.box('#test').then((box) => {
+        vbot.chromejs.box('#test').then((box) => {
           assert.notEqual(box.model.content[1], top)
           done()
         })

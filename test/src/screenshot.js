@@ -54,7 +54,7 @@ describe('screenshot', async () => {
       vbot.start()
       let asserted = false
       vbot.on('scenario.start', async () => {
-        let evalResponse = await vbot.client.eval('JSON.stringify({width: window.innerWidth, height: window.innerHeight})')
+        let evalResponse = await vbot.chromejs.eval('JSON.stringify({width: window.innerWidth, height: window.innerHeight})')
         let size = JSON.parse(evalResponse.result.value)
         assert.equal(375, size.width)
         assert.equal(677, size.height)

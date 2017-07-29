@@ -74,7 +74,7 @@ class VBot extends EventEmitter {
           let action = scenario.actions[i]
           await this.waitAnimation()
           if (action.delay) {
-            await this.client.wait(action.delay)
+            await this.chromejs.wait(action.delay)
           }
           if (action.selector) {
             let waitResult = await this.wait(action).catch((e) => {
@@ -89,7 +89,7 @@ class VBot extends EventEmitter {
             await this.scroll(action)
           }
           if (action.scrollTo) {
-            await this.client.eval(`document.querySelector("${action.selector}").scrollIntoView(true)`)
+            await this.chromejs.eval(`document.querySelector("${action.selector}").scrollIntoView(true)`)
           }
           if (action.type === 'click') {
             await this.click(action).catch((e) => {
@@ -102,7 +102,7 @@ class VBot extends EventEmitter {
             if (action.enter) {
               const presses = ['rawKeyDown', 'char', 'keyUp']
               for (let i = 0; i < presses.length; i++) {
-                await this.client.client.Input.dispatchKeyEvent({
+                await this.chromejs.client.Input.dispatchKeyEvent({
                   "type" : presses[i],
                   "windowsVirtualKeyCode" : 13,
                   "unmodifiedText" : "\r",
@@ -113,7 +113,7 @@ class VBot extends EventEmitter {
             if (action.tab) {
               const presses = ['rawKeyDown', 'char', 'keyUp']
               for (let i = 0; i < presses.length; i++) {
-                await this.client.client.Input.dispatchKeyEvent({
+                await this.chromejs.client.Input.dispatchKeyEvent({
                   "type" : presses[i],
                   "windowsVirtualKeyCode" : 9,
                   "key": "Tab",
@@ -138,7 +138,7 @@ class VBot extends EventEmitter {
           }
           if (action.shot || action.screenshot) {
             await this.waitAnimation()
-            action.captureDelay && await this.client.wait(action.captureDelay)
+            action.captureDelay && await this.chromejs.wait(action.captureDelay)
             let screenshot = await this.capture(action, i, imgFolder).catch((err) => {
               actionLog.screenshot = (typeof err === 'string') ? {err: err} : err
               return
@@ -174,7 +174,7 @@ class VBot extends EventEmitter {
       if (this.options.include && scenario.name.indexOf(this.options.include) === -1) {
         continue
       }
-      this.client = new ChromeJS({
+      this.chromejs = new ChromeJS({
         headless: !this.options.showWindow,
         port: await getPort(),
         windowSize: {
@@ -182,16 +182,16 @@ class VBot extends EventEmitter {
           height: schema.viewHeight
         }
       })
-      await this.client.start()
+      await this.chromejs.start()
       scenario.url = (this.options.host || this.options.url || schema.url || schema.host)
       if (scenario.path) {
         scenario.url = scenario.url + scenario.path;
       }
-      await this.client.goto(scenario.url).catch((ex) => {
+      await this.chromejs.goto(scenario.url).catch((ex) => {
         throw new Error(ex.message + '; URL: ' + scenario.url)
       })
       this.emit('scenario.start', scenario)
-      this.client.client.Animation.animationStarted((e) => {
+      this.chromejs.client.Animation.animationStarted((e) => {
         if (this.animationStartTime) {
           let elapse = new Date() - this.animationStartTime
           let _expectedAnimationDuration = elapse + e.animation.source.duration
@@ -211,7 +211,7 @@ class VBot extends EventEmitter {
       if (this.options.waitBeforeEnd) {
         await this.timeout(this.options.waitBeforeEnd)
       }
-      this.idleClientList.push(this.client)
+      this.idleClientList.push(this.chromejs)
       this.emit('scenario.end', scenario)
     }
   }
@@ -226,7 +226,7 @@ class VBot extends EventEmitter {
         return resolve()
       }
       while (wait) {
-        await this.client.wait(100)
+        await this.chromejs.wait(100)
         let duration = new Date() - this.animationStartTime
         wait = duration - this.expectedAnimationDuration >= 0 ? false : true
       }
@@ -264,7 +264,7 @@ class VBot extends EventEmitter {
         let testFolder = `${folder}/test`
         let testFilePath = `${testFolder}/${filename}.png`
         mkdirp(testFolder, async () => {
-          await this.client.screenshot(testFilePath, this.client.options.windowSize);
+          await this.chromejs.screenshot(testFilePath, this.chromejs.options.windowSize);
           let diffFolder = `${folder}/diff`
           let diffFilePath = `${diffFolder}/${filename}.png`
           mkdirp(diffFolder, async () => {
@@ -283,7 +283,7 @@ class VBot extends EventEmitter {
         return
       }
       mkdirp(baseFolder, async () => {
-        await this.client.screenshot(baseFilePath, this.client.options.windowSize);
+        await this.chromejs.screenshot(baseFilePath, this.chromejs.options.windowSize);
         let files = {
           base: baseFilePath
         }
@@ -313,25 +313,25 @@ class VBot extends EventEmitter {
   }
 
   async scroll (action) {
-    await this.client.scroll(action.selector, action.position[1], action.position[0])
+    await this.chromejs.scroll(action.selector, action.position[1], action.position[0])
   }
 
   async type (action) {
-    await this.client.type(action.value)
+    await this.chromejs.type(action.value)
   }
 
   async click(action) {
-    await this.client.click(action.selector)
+    await this.chromejs.click(action.selector)
   }
 
   async selectDropdown(action) {
-    await this.client.select(action.selector, action.selectIndex)
+    await this.chromejs.select(action.selector, action.selectIndex)
   }
 
   async assertInnerText(action) {
     let expr = `document.querySelector('${action.selector}').innerText`
     let regx = new RegExp(action.match)
-    let nodeText = await this.client.eval(expr)
+    let nodeText = await this.chromejs.eval(expr)
     let result = {}
     let start = new Date()
     let timeout = action.waitTimeout || 5000
@@ -341,7 +341,7 @@ class VBot extends EventEmitter {
         if (new Date() - start >= timeout) {
           return reject(new Error('timeout'))
         }
-        nodeText = await this.client.eval(expr)
+        nodeText = await this.chromejs.eval(expr)
         result.nodeText = nodeText.result.value
         result.compareResult = regx.exec(nodeText.result.value)
         if(result.compareResult) {
@@ -355,11 +355,11 @@ class VBot extends EventEmitter {
     let start = new Date()
     let cond = true
     while (cond) {
-      // await this.client.wait(action.selector, action.waitTimeout).catch((ex) => {
+      // await this.chromejs.wait(action.selector, action.waitTimeout).catch((ex) => {
       //   console.log('', ex)
       // })
       try {
-        let box = await this.client.box(action.selector).catch((ex) => {
+        let box = await this.chromejs.box(action.selector).catch((ex) => {
           throw new Error('not found dom element')
         })
         if (box) {
@@ -369,7 +369,7 @@ class VBot extends EventEmitter {
         if (new Date() - start >= (action.waitTimeout || 5000)) {
           throw new Error('timeout')
         }
-        await this.client.wait(10)
+        await this.chromejs.wait(10)
       }
     }
   }
@@ -465,7 +465,7 @@ class VBot extends EventEmitter {
     }
 
     await this._failSnapshot()
-    this.idleClientList.push(this.client)
+    this.idleClientList.push(this.chromejs)
   }
 
   _onFinish (cb) {
@@ -483,9 +483,9 @@ class VBot extends EventEmitter {
     return new Promise((resolve) => {
       let failFolder = `${this.imgFolder}/fail`
       mkdirp(failFolder, async () => {
-        await this.client.screenshot(
+        await this.chromejs.screenshot(
           `${failFolder}/snapshot.png`,
-          this.client.options.windowSize
+          this.chromejs.options.windowSize
         );
         resolve()
       })

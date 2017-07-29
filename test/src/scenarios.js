@@ -50,17 +50,17 @@ describe('scenarios', async () => {
     vbot.on('scenario.end', (scenario) => {
       if (scenario.name === 'scenario one') {
         scenarioOneEnded = true
-        vbot.client.eval(`document.querySelector('button').innerText`).then((data) => {
+        vbot.chromejs.eval(`document.querySelector('button').innerText`).then((data) => {
           assert.equal(data.result.value, 'Clicked')
           vbot.close()
         })
       }
       if (scenario.name === 'scenario two') {
         scenarioTwoEnded = true
-        vbot.client.eval(`document.querySelector('input').value`).then((data) => {
+        vbot.chromejs.eval(`document.querySelector('input').value`).then((data) => {
           assert.equal(data.result.value, 'hello')
         }).then(() => {
-          return vbot.client.eval(`document.querySelector('#demo').innerHTML`).then((data) => {
+          return vbot.chromejs.eval(`document.querySelector('#demo').innerHTML`).then((data) => {
             assert.equal(data.result.value, 'pressed enter')
             vbot.close()
             done()
