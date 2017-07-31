@@ -36,23 +36,23 @@ class VBot extends EventEmitter {
       mismatchThreshold : 0,
       waitAnimation : true,
       waitBeforeEnd : 1000,
-      imgdir : `${process.cwd()}/vbot/${options.projectFile}`,
+      imgdir : `${process.cwd()}/vbot/${options.playbookFile}`,
       verbose : true,
       showWindow : process.env.WIN
     }
     this.options = _.assign(defaultOpts, options)
   }
 
-  async parseSchema (filePath) {
+  async parsePlaybook (filePath) {
     return new Promise(async (resolve, reject) => {
-      let schema;
+      let playbook;
       try {
         let json = fs.readFileSync(filePath).toString('utf-8')
-        schema = jsonlint.parse(json);
+        playbook = jsonlint.parse(json);
       } catch (ex) {
         return reject(ex)
       }
-      resolve(schema);
+      resolve(playbook);
     })
   }
 
@@ -167,12 +167,12 @@ class VBot extends EventEmitter {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 
-  async runSchema (schema) {
-    if (!schema.scenarios) {
+  async runPlaybook (playbook) {
+    if (!playbook.scenarios) {
       throw new Error('scenarios array should be defined')
     }
-    for (let i = 0; i < schema.scenarios.length; i ++) {
-      let scenario = schema.scenarios[i]
+    for (let i = 0; i < playbook.scenarios.length; i ++) {
+      let scenario = playbook.scenarios[i]
       if (this.options.include && scenario.name.indexOf(this.options.include) === -1) {
         continue
       }
@@ -180,12 +180,12 @@ class VBot extends EventEmitter {
         headless: !this.options.showWindow,
         port: await getPort(),
         windowSize: {
-          width: schema.viewWidth,
-          height: schema.viewHeight
+          width: playbook.viewWidth,
+          height: playbook.viewHeight
         }
       })
       await this.chromejs.start()
-      scenario.url = (this.options.host || this.options.url || schema.url || schema.host)
+      scenario.url = (this.options.host || this.options.url || playbook.url || playbook.host)
       if (scenario.path) {
         scenario.url = scenario.url + scenario.path;
       }
@@ -387,7 +387,7 @@ class VBot extends EventEmitter {
     this.startTime = new Date()
     try {
       this._onStart()
-      let playbook = this.options.playbook || this.options.schema || await this.parseSchema(this.options.projectFile).catch(() => {
+      let playbook = this.options.playbook || this.options.schema || await this.parsePlaybook(this.options.playbookFile).catch(() => {
         return null
       })
       if (!playbook) {
@@ -396,7 +396,7 @@ class VBot extends EventEmitter {
       if (!playbook.host && !playbook.url && !this.options.host && !this.options.url) {
         throw new Error('no host value found in the playbook')
       }
-      await this.runSchema(playbook).catch((ex) => {
+      await this.runPlaybook(playbook).catch((ex) => {
         throw ex
       })
     } catch (ex) {

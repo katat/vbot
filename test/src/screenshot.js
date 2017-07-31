@@ -21,7 +21,7 @@ describe('screenshot', async () => {
   beforeEach(async () => {
     vbot = new VBot({
       verbose: false,
-      projectFile: `${testPath}/fixtures/project.json`,
+      playbookFile: `${testPath}/fixtures/project.json`,
       host: `http://localhost:${serverPort}`,
       imgdir: `${testPath}/tmp/screenshots`,
       // showWindow: true
@@ -72,7 +72,7 @@ describe('screenshot', async () => {
           let imgdir = `${testPath}/tmp/compare_imgs`
           vbot = new VBot({
             verbose: false,
-            projectFile: `${testPath}/fixtures/screenshot_test.json`,
+            playbookFile: `${testPath}/fixtures/screenshot_test.json`,
             host: `http://localhost:${serverPort}`,
             imgdir: imgdir
           })
@@ -106,7 +106,7 @@ describe('screenshot', async () => {
             let imgdir = `${testPath}/tmp/compare_imgs`
             vbot = new VBot({
               verbose: false,
-              projectFile: `${testPath}/fixtures/screenshot_test.json`,
+              playbookFile: `${testPath}/fixtures/screenshot_test.json`,
               host: `http://localhost:${serverPort}`,
               imgdir: imgdir,
               mismatchThreshold: threshold
@@ -118,7 +118,7 @@ describe('screenshot', async () => {
               await vbot.close()
               vbot = new VBot({
                 verbose: false,
-                projectFile: `${testPath}/fixtures/screenshot_test.json`,
+                playbookFile: `${testPath}/fixtures/screenshot_test.json`,
                 host: `http://localhost:${serverPort}`,
                 imgdir: imgdir,
                 mismatchThreshold: threshold
@@ -152,7 +152,7 @@ describe('screenshot', async () => {
           let imgdir = `${testPath}/tmp/compare_imgs`
           vbot = new VBot({
             verbose: false,
-            projectFile: `${testPath}/fixtures/screenshot_test.json`,
+            playbookFile: `${testPath}/fixtures/screenshot_test.json`,
             host: `http://localhost:${serverPort}`,
             imgdir: imgdir,
             mismatchThreshold: threshold
@@ -236,7 +236,7 @@ describe('screenshot', async () => {
           let imgdir = `${testPath}/tmp/compare_imgs`
           vbot = new VBot({
             verbose: false,
-            projectFile: `${testPath}/fixtures/screenshot_test.json`,
+            playbookFile: `${testPath}/fixtures/screenshot_test.json`,
             host: `http://localhost:${serverPort}`,
             imgdir: imgdir,
             rebase: true

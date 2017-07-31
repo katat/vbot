@@ -20,7 +20,7 @@ Suppose the test definition is store in `test.json` file. To execute the tests, 
 vbot -f=test.json
 ```
 
-vbot will execute the actions defined in the test.json, the schema file,  taking screenshots which will be compared in the end. All the screenshot taken will be in default folder `vbot`.
+vbot will execute the actions defined in the test.json, the playbook file, taking screenshots which will be compared in the end. All the screenshot taken will be in default folder `vbot`.
 
 The `base` is the based image folder and `test` is the newly generated images, while the `diff` have the comparison result images. To rebase the images, use `rebase` flag, such as `vbot -f=test.json --rebase`, the images in the `base` folder will be refreshed.
 
