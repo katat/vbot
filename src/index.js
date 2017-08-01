@@ -176,6 +176,10 @@ class VBot extends EventEmitter {
       if (this.options.include && scenario.name.indexOf(this.options.include) === -1) {
         continue
       }
+      scenario.url = (this.options.host || this.options.url || playbook.url || playbook.host)
+      if (scenario.path) {
+        scenario.url = scenario.url + scenario.path;
+      }
       this.chromejs = new ChromeJS({
         headless: !this.options.showWindow,
         port: await getPort(),
@@ -185,10 +189,6 @@ class VBot extends EventEmitter {
         }
       })
       await this.chromejs.start()
-      scenario.url = (this.options.host || this.options.url || playbook.url || playbook.host)
-      if (scenario.path) {
-        scenario.url = scenario.url + scenario.path;
-      }
       await this.chromejs.goto(scenario.url).catch((ex) => {
         throw new Error(ex.message + '; URL: ' + scenario.url)
       })
@@ -210,9 +210,9 @@ class VBot extends EventEmitter {
       await this.runActions(scenario, this.options.rebase).catch((e) => {
         throw e
       })
-      if (this.options.waitBeforeEnd) {
-        await this.timeout(this.options.waitBeforeEnd)
-      }
+      // if (this.options.waitBeforeEnd) {
+      //   await this.timeout(this.options.waitBeforeEnd)
+      // }
       this.idleClientList.push(this.chromejs)
       this.emit('scenario.end', scenario)
     }
