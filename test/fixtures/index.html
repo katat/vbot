@@ -8,6 +8,7 @@
 <body>
     <div class="box" style="width: 500px; height: 500px; overflow:scroll; background-color: white;">
         <p class="p1">vbot</p>
+        <p class="p2">vbot</p>
         <button class="btn" style="display:block">click me</button>
         <div class="msg"></div>
         <button class="btn-2" style="display:block;margin-top:1000px">bottom button</button>
@@ -40,11 +41,11 @@
                     document.getElementsByClassName('input-msg')[0].appendChild(node);
                 }
             });
-            document.getElementsByClassName('p1')[0].addEventListener('innerTextChange', function (e) {
-              setTimeout(() => {
-                e.target.innerText = '123'
-              }, 5000)
-            })
+            var p = document.getElementsByClassName('p2')[0];
+            setTimeout(() => {
+              p.innerText = '123'
+            }, 5000)
+
         })();
     </script>
 </body>

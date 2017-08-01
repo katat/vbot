@@ -20,7 +20,7 @@ Suppose the test definition is store in `test.json` file. To execute the tests, 
 vbot -f=test.json
 ```
 
-vbot will execute the actions defined in the test.json, the schema file,  taking screenshots which will be compared in the end. All the screenshot taken will be in default folder `vbot`.
+vbot will execute the actions defined in the test.json, the playbook file, taking screenshots which will be compared in the end. All the screenshot taken will be in default folder `vbot`.
 
 The `base` is the based image folder and `test` is the newly generated images, while the `diff` have the comparison result images. To rebase the images, use `rebase` flag, such as `vbot -f=test.json --rebase`, the images in the `base` folder will be refreshed.
 
@@ -38,7 +38,7 @@ By default, it runs all the scenarios in a test suit defined in the JSON file. A
 vbot -f=test.json -s todo
 ```
 
-Let's take a look at how vbot can ease the VRT process. Suppose we want to test this [TODO](http://todomvc.com/examples/react) web app using vbot. We define the interaction flow in a JSON file as below:
+Let's take a look at how vbot can ease the VRT process. Suppose we want to test this [TODO](http://todomvc.com/examples/react) web app using vbot. We define the interaction flow in a playbook JSON file as below:
 
 ```json
 {
@@ -190,19 +190,6 @@ After re-run the command line above, it should report there is test result misma
 ![2_assert-ul.todo-list_li:nth-child(1).fail.png](img/2_step.fail.png)
 
 ------------------
-
-## Configurations
-```js
-//turn off wait animation. default : true
-vbot.start({waitAnimation: false})
-```
-
-
-Supported options:
-
-Option                | Description| Example
------------------------ | -----------------------
-waitAnimation    | set if to wait for animation before executing action| true or false
 
 ## Playbook Options
 **viewHeight**

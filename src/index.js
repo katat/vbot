@@ -28,118 +28,136 @@ class VBot extends EventEmitter {
   constructor (options) {
     super()
     this.setOptions(options)
+    this.idleClientList = []
   }
 
-  setOptions (options = {
-    mismatchThreshold: 0,
-    waitAnimation: true,
-    waitBeforeEnd: 1000
-  }) {
-    this.options = options
-    this.options.imgdir = options.imgdir || `${process.cwd()}/vbot/${this.options.projectFile}`
+  setOptions (options) {
+    let defaultOpts = {
+      mismatchThreshold : 0,
+      waitAnimation : true,
+      waitBeforeEnd : 1000,
+      imgdir : `${process.cwd()}/vbot/${options.playbookFile}`,
+      verbose : true,
+      showWindow : process.env.WIN
+    }
+    this.options = _.assign(defaultOpts, options)
   }
 
-  async parseSchema (filePath) {
+  async parsePlaybook (filePath) {
     return new Promise(async (resolve, reject) => {
-      let schema;
+      let playbook;
       try {
         let json = fs.readFileSync(filePath).toString('utf-8')
-        schema = jsonlint.parse(json);
+        playbook = jsonlint.parse(json);
       } catch (ex) {
         return reject(ex)
       }
-      resolve(schema);
+      resolve(playbook);
     })
   }
 
   async runActions (scenario, rebase) {
     let imgFolder = `${this.options.imgdir}/${scenario.name}`
+    this.imgFolder = imgFolder
     if (rebase) {
       fs.removeSync(imgFolder)
     } else {
       fs.removeSync(`${imgFolder}/diff`)
       fs.removeSync(`${imgFolder}/test`)
+      fs.removeSync(`${imgFolder}/fail`)
     }
     return new Promise(async (resolve, reject) => {
-      for (let i = 0; i < scenario.actions.length; i++) {
-        let startTime = new Date()
-        let action = scenario.actions[i]
-        await this.waitAnimation()
-        if (action.delay) {
-          await this.client.wait(action.delay)
-        }
-        if (action.selector) {
-          let waitResult = await this.wait(action).catch((e) => {
-            this.emit('action.fail', {
-              index: i,
-              action: action,
-              details: e
-            })
-            return e
-          })
-          if (waitResult) {
-            return reject(waitResult)
+      let log
+      try {
+        for (let i = 0; i < scenario.actions.length; i++) {
+          let startTime = new Date()
+          let action = scenario.actions[i]
+          await this.waitAnimation()
+          if (action.delay) {
+            await this.chromejs.wait(action.delay)
           }
-        }
-        if (['scroll', 'scrollTo'].indexOf(action.type) !== -1) {
-          await this.scroll(action)
-        }
-        if (action.scrollTo) {
-          await this.client.eval(`document.querySelector("${action.selector}").scrollIntoView(true)`)
-        }
-        if (action.type === 'click') {
-          await this.click(action).catch((e) => {
-            this.emit('action.fail', {
-              index: i,
-              action: action,
-              details: e
+          if (action.type === 'reload') {
+            await this.reload()
+            //need to delay to avoid error from chrome remote interface
+            await this.chromejs.wait(100)
+          }
+          if (action.selector) {
+            let waitResult = await this.wait(action).catch((e) => {
+              log = {index: i, action: action, details: e}
+              throw e
             })
-          })
-        }
-        if (['enter', 'typing'].indexOf(action.type) !== -1) {
-          await this.type(action)
-          if (action.enter) {
-            const presses = ['rawKeyDown', 'char', 'keyUp']
-            for (let i = 0; i < presses.length; i++) {
-              await this.client.client.Input.dispatchKeyEvent({
-                "type" : presses[i],
-                "windowsVirtualKeyCode" : 13,
-                "unmodifiedText" : "\r",
-                "text" : "\r"
-              })
+          }
+          if (['scroll', 'scrollTo'].indexOf(action.type) !== -1) {
+            await this.scroll(action)
+          }
+          if (action.scrollTo) {
+            await this.chromejs.eval(`document.querySelector("${action.selector}").scrollIntoView(true)`)
+          }
+          if (action.type === 'click') {
+            await this.click(action).catch((e) => {
+              log = {index: i, action: action, details: e}
+              throw e
+            })
+          }
+          if (['enter', 'typing'].indexOf(action.type) !== -1) {
+            await this.type(action)
+            if (action.enter) {
+              const presses = ['rawKeyDown', 'char', 'keyUp']
+              for (let i = 0; i < presses.length; i++) {
+                await this.chromejs.client.Input.dispatchKeyEvent({
+                  "type" : presses[i],
+                  "windowsVirtualKeyCode" : 13,
+                  "unmodifiedText" : "\r",
+                  "text" : "\r"
+                })
+              }
+            }
+            if (action.tab) {
+              const presses = ['rawKeyDown', 'char', 'keyUp']
+              for (let i = 0; i < presses.length; i++) {
+                await this.chromejs.client.Input.dispatchKeyEvent({
+                  "type" : presses[i],
+                  "windowsVirtualKeyCode" : 9,
+                  "key": "Tab",
+                  "unmodifiedText" : "\t",
+                  "text" : "\t"
+                })
+              }
             }
           }
-        }
-        if (action.type === 'select') {
-          await this.selectDropdown(action)
-        }
-        if (action.type === 'assertInnerText') {
-          let result = {}
-          result = await this.assertInnerText(action).catch((e) => {
-            this.emit('action.fail', {
-              index: i,
-              action: action,
-              details: e
-            })
-          })
-        }
-        let actionLog = {
-          index: i,
-          action: action
-        }
-        if (action.shot || action.screenshot) {
-          await this.waitAnimation()
-          action.captureDelay && await this.client.wait(action.captureDelay)
-          let screenshot = await this.capture(action, i, imgFolder).catch((err) => {
-            actionLog.screenshot = (typeof err === 'string') ? {err: err} : err
-            return
-          })
-          if (screenshot) {
-            actionLog.screenshot = screenshot
+          if (action.type === 'select') {
+            await this.selectDropdown(action)
           }
+          if (action.type === 'assertInnerText') {
+            await this.assertInnerText(action).catch((e) => {
+              log = {index: i, action: action, details: e}
+              throw e
+            })
+          }
+          let actionLog = {
+            index: i,
+            action: action
+          }
+          if (action.shot || action.screenshot) {
+            await this.waitAnimation()
+            action.captureDelay && await this.chromejs.wait(action.captureDelay)
+            let screenshot = await this.capture(action, i, imgFolder).catch((err) => {
+              actionLog.screenshot = (typeof err === 'string') ? {err: err} : err
+              return
+            })
+            if (screenshot) {
+              actionLog.screenshot = screenshot
+              if (_.get(screenshot, 'analysis.misMatchPercentage') > 0) {
+                this.emit('screenshot.diff', actionLog)
+              }
+            }
+          }
+          actionLog.duration = new Date() - startTime
+          this.emit('action.executed', actionLog)
         }
-        actionLog.duration = new Date() - startTime
-        this.emit('action.executed', actionLog)
+      } catch (ex) {
+        this.emit('action.fail', log)
+        return reject(ex)
       }
       resolve()
     })
@@ -149,28 +167,33 @@ class VBot extends EventEmitter {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 
-  async runSchema (schema) {
-    for (let i = 0; i < schema.scenarios.length; i ++) {
-      let scenario = schema.scenarios[i]
+  async runPlaybook (playbook) {
+    if (!playbook.scenarios) {
+      throw new Error('scenarios array should be defined')
+    }
+    for (let i = 0; i < playbook.scenarios.length; i ++) {
+      let scenario = playbook.scenarios[i]
       if (this.options.include && scenario.name.indexOf(this.options.include) === -1) {
         continue
       }
-      this.client = new ChromeJS({
+      this.chromejs = new ChromeJS({
         headless: !this.options.showWindow,
         port: await getPort(),
         windowSize: {
-          width: schema.viewWidth,
-          height: schema.viewHeight
+          width: playbook.viewWidth,
+          height: playbook.viewHeight
         }
       })
-      await this.client.start()
-      scenario.url = (this.options.host || schema.host) + scenario.path;
-      if (!scenario.url) {
-        console.error('no url specified by scenario %s', scenario.name);
+      await this.chromejs.start()
+      scenario.url = (this.options.host || this.options.url || playbook.url || playbook.host)
+      if (scenario.path) {
+        scenario.url = scenario.url + scenario.path;
       }
-      await this.client.goto(scenario.url)
+      await this.chromejs.goto(scenario.url).catch((ex) => {
+        throw new Error(ex.message + '; URL: ' + scenario.url)
+      })
       this.emit('scenario.start', scenario)
-      this.client.client.Animation.animationStarted((e) => {
+      this.chromejs.client.Animation.animationStarted((e) => {
         if (this.animationStartTime) {
           let elapse = new Date() - this.animationStartTime
           let _expectedAnimationDuration = elapse + e.animation.source.duration
@@ -185,12 +208,13 @@ class VBot extends EventEmitter {
       })
 
       await this.runActions(scenario, this.options.rebase).catch((e) => {
-        return e
+        throw e
       })
       if (this.options.waitBeforeEnd) {
         await this.timeout(this.options.waitBeforeEnd)
       }
-      this.emit('scenario.end')
+      this.idleClientList.push(this.chromejs)
+      this.emit('scenario.end', scenario)
     }
   }
 
@@ -204,7 +228,7 @@ class VBot extends EventEmitter {
         return resolve()
       }
       while (wait) {
-        await this.client.wait(100)
+        await this.chromejs.wait(100)
         let duration = new Date() - this.animationStartTime
         wait = duration - this.expectedAnimationDuration >= 0 ? false : true
       }
@@ -242,7 +266,7 @@ class VBot extends EventEmitter {
         let testFolder = `${folder}/test`
         let testFilePath = `${testFolder}/${filename}.png`
         mkdirp(testFolder, async () => {
-          await this.client.screenshot(testFilePath, this.client.options.windowSize);
+          await this.chromejs.screenshot(testFilePath, this.chromejs.options.windowSize);
           let diffFolder = `${folder}/diff`
           let diffFilePath = `${diffFolder}/${filename}.png`
           mkdirp(diffFolder, async () => {
@@ -261,7 +285,7 @@ class VBot extends EventEmitter {
         return
       }
       mkdirp(baseFolder, async () => {
-        await this.client.screenshot(baseFilePath, this.client.options.windowSize);
+        await this.chromejs.screenshot(baseFilePath, this.chromejs.options.windowSize);
         let files = {
           base: baseFilePath
         }
@@ -291,25 +315,25 @@ class VBot extends EventEmitter {
   }
 
   async scroll (action) {
-    await this.client.scroll(action.selector, action.position[1], action.position[0])
+    await this.chromejs.scroll(action.selector, action.position[1], action.position[0])
   }
 
   async type (action) {
-    await this.client.type(action.value)
+    await this.chromejs.type(action.value)
   }
 
   async click(action) {
-    await this.client.click(action.selector)
+    await this.chromejs.click(action.selector)
   }
 
   async selectDropdown(action) {
-    await this.client.select(action.selector, action.selectIndex)
+    await this.chromejs.select(action.selector, action.selectIndex)
   }
 
   async assertInnerText(action) {
     let expr = `document.querySelector('${action.selector}').innerText`
     let regx = new RegExp(action.match)
-    let nodeText = await this.client.eval(expr)
+    let nodeText = await this.chromejs.eval(expr)
     let result = {}
     let start = new Date()
     let timeout = action.waitTimeout || 5000
@@ -319,7 +343,7 @@ class VBot extends EventEmitter {
         if (new Date() - start >= timeout) {
           return reject(new Error('timeout'))
         }
-        nodeText = await this.client.eval(expr)
+        nodeText = await this.chromejs.eval(expr)
         result.nodeText = nodeText.result.value
         result.compareResult = regx.exec(nodeText.result.value)
         if(result.compareResult) {
@@ -329,38 +353,56 @@ class VBot extends EventEmitter {
     })
   }
 
+  async reload() {
+    await this.chromejs.client.Page.reload({ignoreCache: true})
+  }
+
   async wait (action) {
     let start = new Date()
     let cond = true
     while (cond) {
-      await this.client.wait(action.selector, action.waitTimeout)
+      // await this.chromejs.wait(action.selector, action.waitTimeout).catch((ex) => {
+      //   console.log('', ex)
+      // })
       try {
-        let box = await this.client.box(action.selector)
+        let box = await this.chromejs.box(action.selector).catch((ex) => {
+          throw new Error('not found dom element')
+        })
         if (box) {
           break
         }
       }catch(e) {
         if (new Date() - start >= (action.waitTimeout || 5000)) {
-          throw e
+          throw new Error('timeout')
         }
-        await this.client.wait(10)
+        await this.chromejs.wait(10)
       }
     }
   }
 
-  async start (options) {
-    if (options) {
-      this.options = _.extend(this.options, options)
+  async start (playbook) {
+    if (playbook) {
+      this.options.playbook = playbook
     }
+    this.startTime = new Date()
     try {
       this._onStart()
-      this.startTime = new Date()
-      let schema = this.options.schema || await this.parseSchema(this.options.projectFile)
-      await this.runSchema(schema);
-      this.emit('end', {duration: new Date() - this.startTime})
-    }catch(ex) {
-      this._onError(ex)
+      let playbook = this.options.playbook || this.options.schema || await this.parsePlaybook(this.options.playbookFile).catch(() => {
+        return null
+      })
+      if (!playbook) {
+        throw new Error('no playbook found in the options')
+      }
+      if (!playbook.host && !playbook.url && !this.options.host && !this.options.url) {
+        throw new Error('no host value found in the playbook')
+      }
+      await this.runPlaybook(playbook).catch((ex) => {
+        throw ex
+      })
+    } catch (ex) {
+      await this._onError(ex)
     }
+    this.emit('end', {duration: new Date() - this.startTime})
     return this
   }
 
@@ -369,16 +411,18 @@ class VBot extends EventEmitter {
       return
     }
     return new Promise(async (resolve) => {
-      this.client && await this.client.close()
+      for (var i = 0; i < this.idleClientList.length; i++) {
+        await this.idleClientList[i].close()
+      }
       resolve()
     })
   }
 
-  _onStart () {
+  _handleEvents () {
     this._log('> Starting', 'prompt')
 
     this.on('scenario.start', (scenario) => {
-      this._log(`> started scenario ${scenario.name}`, 'section')
+      this._log(`> started scenario: ${scenario.name}`, 'section')
     })
 
     this.on('action.executed', (log) => {
@@ -399,19 +443,9 @@ class VBot extends EventEmitter {
           }
         }
       }
-      // if (log.assertInnerText) {
-      //   this._log(`>>>> assertInnerText`, 'data')
-      //   if(log.assertInnerText.result.compareResult) {
-      //     this._log(`>>>> matched`, 'data')
-      //     this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'data')
-      //   } else {
-      //     this._log(`>>>> no match`, 'warn')
-      //     this._log(`>>>> regExp: ${log.assertInnerText.match}, nodeText: ${log.assertInnerText.result.nodeText}`, 'warn')
-      //   }
-      // }
     })
 
-    this.on('action.fail', (log) => {
+    this.on('action.fail', async (log) => {
       const details = log.details
       delete log.details
       this._log(details + '\n' + JSON.stringify(log, undefined, 2), 'error')
@@ -422,8 +456,22 @@ class VBot extends EventEmitter {
     })
   }
 
-  _onError(err) {
-    this._log(err.message || err.stack, 'error')
+  _onStart () {
+    if (!this.initedLogEvents) {
+      this._handleEvents()
+      this.initedLogEvents = true
+    }
+  }
+
+  async _onError(err) {
+    let msg = err.message
+    if (process.env.DEBUG) {
+      msg += '\n' + err.stack
+      this._log(msg, 'error')
+    }
+
+    await this._failSnapshot()
+    this.idleClientList.push(this.chromejs)
   }
 
   _onFinish (cb) {
@@ -435,6 +483,19 @@ class VBot extends EventEmitter {
       return
     }
     console.log(colors[type](text))
+  }
+
+  async _failSnapshot () {
+    return new Promise((resolve) => {
+      let failFolder = `${this.imgFolder}/fail`
+      mkdirp(failFolder, async () => {
+        await this.chromejs.screenshot(
+          `${failFolder}/snapshot.png`,
+          this.chromejs.options.windowSize
+        );
+        resolve()
+      })
+    })
   }
 }
 
