@@ -31,7 +31,7 @@ class VBot extends EventEmitter {
     this.idleClientList = []
   }
 
-  setOptions (options) {
+  setOptions (options = {}) {
     let defaultOpts = {
       mismatchThreshold : 0,
       waitAnimation : true,
