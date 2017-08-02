@@ -184,8 +184,8 @@ class VBot extends EventEmitter {
         headless: !this.options.showWindow,
         port: await getPort(),
         windowSize: {
-          width: playbook.viewWidth,
-          height: playbook.viewHeight
+          width: parseInt(playbook.viewWidth),
+          height: parseInt(playbook.viewHeight)
         }
       })
       await this.chromejs.start()
