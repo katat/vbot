@@ -323,6 +323,9 @@ class VBot extends EventEmitter {
   }
 
   async click(action) {
+    if (!action.selector) {
+      throw new Error('click action should have selector attribute')
+    }
     await this.chromejs.click(action.selector)
   }
 
