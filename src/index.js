@@ -186,7 +186,8 @@ class VBot extends EventEmitter {
         windowSize: {
           width: parseInt(playbook.viewWidth),
           height: parseInt(playbook.viewHeight)
-        }
+        },
+        proxy: this.options.proxy
       })
       await this.chromejs.start()
       await this.chromejs.goto(scenario.url).catch((ex) => {
@@ -365,7 +366,6 @@ class VBot extends EventEmitter {
     let cond = true
     while (cond) {
       // await this.chromejs.wait(action.selector, action.waitTimeout).catch((ex) => {
-      //   console.log('', ex)
       // })
       try {
         let box = await this.chromejs.box(action.selector).catch((ex) => {

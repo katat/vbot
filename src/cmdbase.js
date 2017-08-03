@@ -81,8 +81,9 @@ module.exports = function() {
       await vbot.close()
       process.exit(0)
     })
-    process.on('SIGINT', () => {
-      vbot.close(true)
+    process.on('SIGINT', async () => {
+      await vbot.close(true)
+      process.exit(1)
     })
     process.on('uncaughtException', function(error) {
       console.log(error)
