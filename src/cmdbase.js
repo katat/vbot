@@ -5,7 +5,7 @@ const VBot   = require('./')
 
 module.exports = function() {
   this.cmdOptions = {
-    "project": {
+    "playbook": {
       alias: 'f',
       describe: 'file path for test definitions',
       show: true,
@@ -21,10 +21,6 @@ module.exports = function() {
       describe: 'rebase the screenshots',
       show: true
     },
-    // nf: {
-    //   alias: 'nf',
-    //   describe: 'a new schema to run tests and compare screenshot results with original schema'
-    // },
     search: {
       alias: 's',
       describe: 'search and only test matched scenarios',
@@ -55,8 +51,8 @@ module.exports = function() {
       if (!val) {
         return;
       }
-      if (opt === 'project') {
-        vbotOpts.projectFile = val
+      if (opt === 'playbook') {
+        vbotOpts.playbookFile = val
       }
       if (opt === 'host') {
         vbotOpts.host = val
