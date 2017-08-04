@@ -74,7 +74,10 @@ class VBot extends EventEmitter {
           let action = scenario.actions[i]
           await this.waitAnimation()
           if (action.delay) {
-            await this.chromejs.wait(action.delay)
+            await this.chromejs.wait(action.delay).catch((e) => {
+              log = {index: i, action: action, details: e}
+              throw e
+            })
           }
           if (action.type === 'reload') {
             await this.reload()
@@ -383,9 +386,12 @@ class VBot extends EventEmitter {
     }
   }
 
-  async start (playbook) {
+  async start (playbook, opts) {
     if (playbook) {
       this.options.playbook = playbook
+    }
+    if (opts) {
+      this.options = _.assign(this.options, opts)
     }
     this.startTime = new Date()
     try {
