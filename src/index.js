@@ -109,6 +109,7 @@ class VBot extends EventEmitter {
               for (let i = 0; i < presses.length; i++) {
                 await this.chromejs.client.Input.dispatchKeyEvent({
                   "type" : presses[i],
+                  "code": "Enter",
                   "windowsVirtualKeyCode" : 13,
                   "unmodifiedText" : "\r",
                   "text" : "\r"
