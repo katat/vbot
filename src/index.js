@@ -256,24 +256,32 @@ class VBot extends EventEmitter {
     return filename
   }
 
+  getFolderPath (folder, type) {
+    return `${folder}/${type}`
+  }
+
+  getFilePath (folder, filename) {
+    return `${folder}/${filename}.png`
+  }
+
   async capture (action, stepIndex, folder) {
     return new Promise((resolve, reject) => {
       if (this.options.showWindow) {
         return reject({err: 'Screenshot is disabled when running the tests with a visible Chrome window -- showWindow:true'})
       }
       let filename = this.getScreenshotFileName(action, stepIndex)
-      let baseFolder = `${folder}/base`
-      let baseFilePath = `${baseFolder}/${filename}.png`
+      let baseFolder = this.getFolderPath(folder, 'base')
+      let baseFilePath = this.getFilePath(baseFolder, filename)
       let files = {
         base: baseFilePath
       }
       if (fs.existsSync(baseFilePath)) {
-        let testFolder = `${folder}/test`
-        let testFilePath = `${testFolder}/${filename}.png`
+        let testFolder = this.getFolderPath(folder, 'test')
+        let testFilePath = this.getFilePath(testFolder, filename)
         mkdirp(testFolder, async () => {
           await this.chromejs.screenshot(testFilePath, this.chromejs.options.windowSize);
-          let diffFolder = `${folder}/diff`
-          let diffFilePath = `${diffFolder}/${filename}.png`
+          let diffFolder = this.getFolderPath(folder, 'diff')
+          let diffFilePath = this.getFilePath(diffFolder, filename)
           mkdirp(diffFolder, async () => {
             let result = await this.compareImages({baseFilePath, testFilePath, diffFilePath}).catch((err) => {
               console.log(err)
