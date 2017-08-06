@@ -57,7 +57,7 @@ class VBot extends EventEmitter {
   }
 
   async runActions (scenario, rebase) {
-    let imgFolder = `${this.options.imgdir}/${scenario.name}`
+    let imgFolder = this.getImgFolder(scenario.name)
     this.imgFolder = imgFolder
     if (rebase) {
       fs.removeSync(imgFolder)
@@ -264,8 +264,35 @@ class VBot extends EventEmitter {
     return `${folder}/${filename}.png`
   }
 
+  getImgFolder (scenarioName) {
+    return `${this.options.imgdir}/${scenarioName}`
+  }
+
+  async createBaseImg(baseFolder, baseFilePath) {
+    return new Promise((resolve) => {
+      mkdirp(baseFolder, async () => {
+        await this.chromejs.screenshot(baseFilePath, this.chromejs.options.windowSize);
+        let files = {
+          base: baseFilePath
+        }
+        let screenshotResult = {
+          files: files
+        }
+        resolve(screenshotResult)
+      })
+    })
+  }
+
+  async screenshotBaseImg(rootFolder, action, stepIndex) {
+    let filename = this.getScreenshotFileName(action, stepIndex)
+    let baseFolder = this.getFolderPath(rootFolder, 'base')
+    let baseFilePath = this.getFilePath(baseFolder, filename)
+
+    return this.createBaseImg(baseFolder, baseFilePath)
+  }
+
   async capture (action, stepIndex, folder) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (this.options.showWindow) {
         return reject({err: 'Screenshot is disabled when running the tests with a visible Chrome window -- showWindow:true'})
       }
@@ -297,16 +324,8 @@ class VBot extends EventEmitter {
         })
         return
       }
-      mkdirp(baseFolder, async () => {
-        await this.chromejs.screenshot(baseFilePath, this.chromejs.options.windowSize);
-        let files = {
-          base: baseFilePath
-        }
-        let screenshotResult = {
-          files: files
-        }
-        resolve(screenshotResult)
-      })
+      let screenshotResult = await this.screenshotBaseImg(folder, action, stepIndex)
+      resolve(screenshotResult)
     })
   }
 
