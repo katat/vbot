@@ -268,18 +268,25 @@ class VBot extends EventEmitter {
     return `${this.options.imgdir}/${scenarioName}`
   }
 
-  async createBaseImg(baseFolder, baseFilePath) {
+  async createFolder (path) {
     return new Promise((resolve) => {
-      mkdirp(baseFolder, async () => {
-        await this.chromejs.screenshot(baseFilePath, this.chromejs.options.windowSize);
-        let files = {
-          base: baseFilePath
-        }
-        let screenshotResult = {
-          files: files
-        }
-        resolve(screenshotResult)
+      mkdirp(path, () => {
+        return resolve()
       })
+    })
+  }
+
+  async createBaseImg(baseFolder, baseFilePath) {
+    return new Promise(async (resolve) => {
+      await this.createFolder(baseFolder)
+      await this.chromejs.screenshot(baseFilePath, this.chromejs.options.windowSize);
+      let files = {
+        base: baseFilePath
+      }
+      let screenshotResult = {
+        files: files
+      }
+      resolve(screenshotResult)
     })
   }
 
@@ -305,23 +312,28 @@ class VBot extends EventEmitter {
       if (fs.existsSync(baseFilePath)) {
         let testFolder = this.getFolderPath(folder, 'test')
         let testFilePath = this.getFilePath(testFolder, filename)
-        mkdirp(testFolder, async () => {
-          await this.chromejs.screenshot(testFilePath, this.chromejs.options.windowSize);
-          let diffFolder = this.getFolderPath(folder, 'diff')
-          let diffFilePath = this.getFilePath(diffFolder, filename)
-          mkdirp(diffFolder, async () => {
-            let result = await this.compareImages({baseFilePath, testFilePath, diffFilePath}).catch((err) => {
-              console.log(err)
-            })
-            files.test = testFilePath
-            let percentage = parseFloat(result.data.misMatchPercentage)
-            if (percentage) {
-              files.diff = diffFilePath
-            }
-            let screenshotResult = {files, analysis: result.data}
-            resolve(screenshotResult)
-          })
+        await this.createFolder(testFolder)
+        await this.chromejs.screenshot(testFilePath, this.chromejs.options.windowSize);
+        let diffFolder = this.getFolderPath(folder, 'diff')
+        let diffFilePath = this.getFilePath(diffFolder, filename)
+
+        await this.createFolder(diffFolder)
+        let result = await this.compareImages({baseFilePath, testFilePath, diffFilePath}).catch((err) => {
+          console.log(err)
         })
+        files.test = testFilePath
+        let percentage = parseFloat(result.data.misMatchPercentage)
+        if (percentage) {
+          files.diff = diffFilePath
+        }
+        let screenshotResult = {files, analysis: result.data}
+        resolve(screenshotResult)
+
+        // mkdirp(diffFolder, async () => {
+        // })
+
+        // mkdirp(testFolder, async () => {
+        // })
         return
       }
       let screenshotResult = await this.screenshotBaseImg(folder, action, stepIndex)
@@ -523,16 +535,15 @@ class VBot extends EventEmitter {
   }
 
   async _failSnapshot () {
-    return new Promise((resolve) => {
-      let failFolder = `${this.imgFolder}/fail`
-      mkdirp(failFolder, async () => {
-        await this.chromejs.screenshot(
-          `${failFolder}/snapshot.png`,
-          this.chromejs.options.windowSize
-        );
-        resolve()
-      })
-    })
+    let failFolder = `${this.imgFolder}/fail`
+    await this.createFolder(failFolder)
+    await this.chromejs.screenshot(`${failFolder}/snapshot.png`, this.chromejs.options.windowSize);
+
+    // return new Promise((resolve) => {
+    //   mkdirp(failFolder, async () => {
+    //     resolve()
+    //   })
+    // })
   }
 }
 
