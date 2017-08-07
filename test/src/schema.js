@@ -30,8 +30,9 @@ describe('schema validation', async () => {
             "type": "string",
             "format": 'url'
           },
-          "suit": { "type": "string" },
-          "scenario": { "type": "string" }
+          "suit": { "type": "string" },//default to url domain
+          "scenario": { "type": "string" }//default to url path
+          "actions": {"type": "array"}
         },
         "oneOf": [
           {"required": ['suit']},
