@@ -208,7 +208,7 @@ Each scenario can comprise of a set of actions in the page view. It groups a set
  - **actions**  
  A set of test steps
    - **type**  
-   Action Type: `exist`, `click`, `typing`, `select`, `scroll`, `assertInnerText`
+   Action Type: `exist`, `click`, `typing`, `select`, `scroll`, `assertInnerText`, `fill`
      - `typing`.`enter`
      Set to `true` will press the `enter` key, when using action type `typing`
      - `scroll`.`position`

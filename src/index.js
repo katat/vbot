@@ -31,7 +31,7 @@ class VBot extends EventEmitter {
     this.idleClientList = []
   }
 
-  setOptions (options) {
+  setOptions (options = {}) {
     let defaultOpts = {
       mismatchThreshold : 0,
       waitAnimation : true,
@@ -176,19 +176,19 @@ class VBot extends EventEmitter {
       if (this.options.include && scenario.name.indexOf(this.options.include) === -1) {
         continue
       }
-      this.chromejs = new ChromeJS({
-        headless: !this.options.showWindow,
-        port: await getPort(),
-        windowSize: {
-          width: playbook.viewWidth,
-          height: playbook.viewHeight
-        }
-      })
-      await this.chromejs.start()
       scenario.url = (this.options.host || this.options.url || playbook.url || playbook.host)
       if (scenario.path) {
         scenario.url = scenario.url + scenario.path;
       }
+      this.chromejs = new ChromeJS({
+        headless: !this.options.showWindow,
+        port: await getPort(),
+        windowSize: {
+          width: parseInt(playbook.viewWidth),
+          height: parseInt(playbook.viewHeight)
+        }
+      })
+      await this.chromejs.start()
       await this.chromejs.goto(scenario.url).catch((ex) => {
         throw new Error(ex.message + '; URL: ' + scenario.url)
       })
@@ -210,9 +210,9 @@ class VBot extends EventEmitter {
       await this.runActions(scenario, this.options.rebase).catch((e) => {
         throw e
       })
-      if (this.options.waitBeforeEnd) {
-        await this.timeout(this.options.waitBeforeEnd)
-      }
+      // if (this.options.waitBeforeEnd) {
+      //   await this.timeout(this.options.waitBeforeEnd)
+      // }
       this.idleClientList.push(this.chromejs)
       this.emit('scenario.end', scenario)
     }
@@ -323,6 +323,9 @@ class VBot extends EventEmitter {
   }
 
   async click(action) {
+    if (!action.selector) {
+      throw new Error('click action should have selector attribute')
+    }
     await this.chromejs.click(action.selector)
   }
 
@@ -330,7 +333,7 @@ class VBot extends EventEmitter {
     await this.chromejs.select(action.selector, action.selectIndex)
   }
 
-  async assertInnerText(action) {
+  async assertInnerText (action) {
     let expr = `document.querySelector('${action.selector}').innerText`
     let regx = new RegExp(action.match)
     let nodeText = await this.chromejs.eval(expr)
@@ -352,6 +355,7 @@ class VBot extends EventEmitter {
       }
     })
   }
+
 
   async reload() {
     await this.chromejs.client.Page.reload({ignoreCache: true})
