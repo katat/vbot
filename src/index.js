@@ -2,7 +2,6 @@
 require('source-map-support').install()
 
 const ChromeJS     = require('chromejs')
-const EventEmitter = require('events')
 const fs           = require('fs-extra')
 const mkdirp       = require('mkdirp')
 const Jimp         = require('jimp')
@@ -10,6 +9,9 @@ const jsonlint     = require("jsonlint")
 const getPort      = require('get-port')
 const colors       = require('colors/safe')
 const _            = require('lodash')
+const Ajv          = require('ajv')
+const {URL}        = require('url')
+const EventEmitter = require('events')
 
 colors.setTheme({
   silly: 'rainbow',
@@ -41,6 +43,39 @@ class VBot extends EventEmitter {
       showWindow : process.env.WIN
     }
     this.options = _.assign(defaultOpts, options)
+  }
+
+  getSchema (schema) {
+    return require(`../src/schema/${schema}.json`)
+  }
+
+  validatePlaybookSchema(json) {
+    var schemas = {
+      playbook: this.getSchema('playbook')
+    }
+
+    let ajv = new Ajv({useDefaults: true, allErrors: true, $data: true});
+    require('ajv-keywords')(ajv, 'select')
+    let valid = ajv.validate(schemas.playbook, json)
+    return {valid, errors: ajv.errors}
+  }
+
+  convertPlaybookSchema(playbook) {
+    let url = new URL(playbook.url)
+    let host = `${url.protocol}//${url.auth?url.auth:''}${url.host}`
+    return {
+      host: host,
+      name: host,
+      viewWidth: playbook.size.width,
+      viewHeight: playbook.size.height,
+      scenarios: [
+        {
+          name: playbook.scenario,
+          path: playbook.url.replace(host, ''),
+          actions: playbook.actions
+        }
+      ]
+    }
   }
 
   async parsePlaybook (filePath) {
@@ -428,6 +463,15 @@ class VBot extends EventEmitter {
 
   async start (playbook, opts) {
     if (playbook) {
+      //if not using scenario-list based schema, then validate the playbook
+      if (!playbook.scenarios) {
+        let validation = this.validatePlaybookSchema(playbook)
+        if (!validation.valid) {
+          throw new Error(validation.errors)
+        }
+        //convert individual scenario playbook schema to scenario-list based schema
+        playbook = this.convertPlaybookSchema(playbook)
+      }
       this.options.playbook = playbook
     }
     if (opts) {

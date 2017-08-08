@@ -25,6 +25,8 @@
   "license": "MIT License",
   "dependencies": {
     "ajv": "^5.2.2",
+    "ajv-errors": "^1.0.0",
+    "ajv-keywords": "^2.1.0",
     "babel-runtime": "^6.23.0",
     "chromejs": "^0.4.0",
     "colors": "^1.1.2",
