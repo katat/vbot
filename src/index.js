@@ -38,7 +38,7 @@ class VBot extends EventEmitter {
       mismatchThreshold : 0,
       waitAnimation : true,
       waitBeforeEnd : 1000,
-      imgdir : `${process.cwd()}/vbot/${options.playbookFile}`,
+      // imgdir : `${process.cwd()}/vbot/${options.playbookFile}`,
       verbose : true,
       showWindow : process.env.WIN
     }
@@ -65,7 +65,7 @@ class VBot extends EventEmitter {
     let host = `${url.protocol}//${url.auth?url.auth:''}${url.host}`
     return {
       host: host,
-      name: host,
+      name: url.host,
       viewWidth: playbook.size.width,
       viewHeight: playbook.size.height,
       scenarios: [
@@ -462,30 +462,36 @@ class VBot extends EventEmitter {
   }
 
   async start (playbook, opts) {
-    if (playbook) {
-      //if not using scenario-list based schema, then validate the playbook
-      if (!playbook.scenarios) {
-        let validation = this.validatePlaybookSchema(playbook)
-        if (!validation.valid) {
-          throw new Error(validation.errors)
-        }
-        //convert individual scenario playbook schema to scenario-list based schema
-        playbook = this.convertPlaybookSchema(playbook)
-      }
-      this.options.playbook = playbook
-    }
-    if (opts) {
-      this.options = _.assign(this.options, opts)
-    }
-    this.startTime = new Date()
     try {
-      this._onStart()
-      let playbook = this.options.playbook || this.options.schema || await this.parsePlaybook(this.options.playbookFile).catch(() => {
+      if (playbook) {
+        //if not using scenario-list based schema, then validate the playbook
+        if (!playbook.scenarios) {
+          let validation = this.validatePlaybookSchema(playbook)
+          if (!validation.valid) {
+            let errText = ''
+            validation.errors.forEach((err) => {
+              errText += `\n${err.dataPath} ${err.message}: ${JSON.stringify(err.params)}\n`
+            })
+            throw new Error(errText)
+          }
+          //convert individual scenario playbook schema to scenario-list based schema
+          playbook = this.convertPlaybookSchema(playbook)
+        }
+        this.options.playbook = playbook
+      }
+      playbook = this.options.playbook || this.options.schema || await this.parsePlaybook(this.options.playbookFile).catch(() => {
         return null
       })
       if (!playbook) {
         throw new Error('no playbook found in the options')
       }
+      if (opts) {
+        this.options = _.assign(this.options, opts)
+      }
+      this.options.imgdir = this.options.imgdir || `${process.cwd()}/vbot/${playbook.name}`
+
+      this.startTime = new Date()
+      this._onStart()
       if (!playbook.host && !playbook.url && !this.options.host && !this.options.url) {
         throw new Error('no host value found in the playbook')
       }
@@ -560,8 +566,8 @@ class VBot extends EventEmitter {
     let msg = err.message
     if (process.env.DEBUG) {
       msg += '\n' + err.stack
-      this._log(msg, 'error')
     }
+    this._log(msg, 'error')
 
     await this._failSnapshot()
     this.idleClientList.push(this.chromejs)
@@ -572,13 +578,16 @@ class VBot extends EventEmitter {
   }
 
   _log (text, type) {
-    if(!this.options.verbose) {
+    if(!this.options.verbose && type !== 'error') {
       return
     }
     console.log(colors[type](text))
   }
 
   async _failSnapshot () {
+    if (!this.chromejs) {
+      return
+    }
     let failFolder = `${this.imgFolder}/fail`
     await this.createFolder(failFolder)
     await this.chromejs.screenshot(`${failFolder}/snapshot.png`, this.chromejs.options.windowSize);

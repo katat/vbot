@@ -97,7 +97,7 @@ describe('schema validation', async () => {
         assert.equal(converted.scenarios[0].path, '/path/subpath?query=123#hash/')
         assert.deepEqual(converted, {
           host: 'http://test.com',
-          name: 'http://test.com',
+          name: 'test.com',
           viewWidth: 100,
           viewHeight: 200,
           scenarios: [
