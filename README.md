@@ -100,7 +100,7 @@ To rebase screenshots:
 `REBASE=true npm test -- -g "todo"`
 
 #### Screenshot directory
-```bash
+```
 ├── scenario name
       ├── base //baseline screenshots
       ├── test //screenshots from last test
