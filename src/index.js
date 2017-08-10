@@ -472,8 +472,8 @@ class VBot extends EventEmitter {
       if (!playbook) {
         throw new Error('no playbook found in the options')
       }
+      //if not using scenario-list based schema, then validate the playbook
       if (!playbook.scenarios) {
-        //if not using scenario-list based schema, then validate the playbook
         let validation = this.validatePlaybookSchema(playbook)
         if (!validation.valid) {
           let errText = ''
