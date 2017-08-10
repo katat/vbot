@@ -104,7 +104,7 @@ To rebase screenshots:
 ├── scenario name
       ├── base //baseline screenshots
       ├── test //screenshots from last test
-      └── diff //screenshots with differences highlighted, result of comparing screenshots in base and test directory
+      └── diff //screenshots with differences highlighted
 ```
 
 #### Events
