@@ -79,6 +79,9 @@ class VBot extends EventEmitter {
   }
 
   async parsePlaybook (filePath) {
+    if (!filePath) {
+      return
+    }
     return new Promise(async (resolve, reject) => {
       let playbook;
       try {
@@ -463,31 +466,28 @@ class VBot extends EventEmitter {
 
   async start (playbook, opts) {
     try {
-      if (playbook) {
-        //if not using scenario-list based schema, then validate the playbook
-        if (!playbook.scenarios) {
-          let validation = this.validatePlaybookSchema(playbook)
-          if (!validation.valid) {
-            let errText = ''
-            validation.errors.forEach((err) => {
-              errText += `\n${err.dataPath} ${err.message}: ${JSON.stringify(err.params)}\n`
-            })
-            throw new Error(errText)
-          }
-          //convert individual scenario playbook schema to scenario-list based schema
-          playbook = this.convertPlaybookSchema(playbook)
-        }
-        this.options.playbook = playbook
-      }
-      playbook = this.options.playbook || this.options.schema || await this.parsePlaybook(this.options.playbookFile).catch(() => {
-        return null
+      playbook = playbook || this.options.playbook || this.options.schema || await this.parsePlaybook(this.options.playbookFile).catch((ex) => {
+        throw ex
       })
       if (!playbook) {
         throw new Error('no playbook found in the options')
       }
-      if (opts) {
-        this.options = _.assign(this.options, opts)
+      if (!playbook.scenarios) {
+        //if not using scenario-list based schema, then validate the playbook
+        let validation = this.validatePlaybookSchema(playbook)
+        if (!validation.valid) {
+          let errText = ''
+          validation.errors.forEach((err) => {
+            errText += `\n${err.dataPath} ${err.message}: ${JSON.stringify(err.params)}\n`
+          })
+          throw new Error(errText)
+        }
+        //convert individual scenario playbook schema to scenario-list based schema
+        playbook = this.convertPlaybookSchema(playbook)
       }
+
+      this.options.playbook = playbook
+      this.options = _.assign(this.options, opts)
       this.options.imgdir = this.options.imgdir || `${process.cwd()}/vbot/${playbook.name}`
 
       this.startTime = new Date()
