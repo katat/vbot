@@ -1,7 +1,18 @@
 {
   "name": "vbot",
-  "version": "2.0.20",
+  "version": "2.1.0",
   "description": "A visual regression testing tool, aims to help developers quickly create tests with minimum overhead, avoid repeated clicks and typings in testings, particularly helpful for single page applications or complicated web app. Automate the testings `headlessly` at local dev environment or on a continuous integration server.",
+  "keywords": [
+    "automate",
+    "test",
+    "screenshot",
+    "compare",
+    "vst",
+    "visual regression test",
+    "JSON",
+    "E2E",
+    "webapp"
+  ],
   "main": "dist/index.js",
   "scripts": {
     "lint:staged": "lint-staged",
@@ -13,6 +24,9 @@
   "author": "kata.choi@gmail.com",
   "license": "MIT License",
   "dependencies": {
+    "ajv": "^5.2.2",
+    "ajv-errors": "^1.0.0",
+    "ajv-keywords": "^2.1.0",
     "babel-runtime": "^6.23.0",
     "chromejs": "^0.4.0",
     "colors": "^1.1.2",

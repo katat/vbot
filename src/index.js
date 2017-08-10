@@ -2,7 +2,6 @@
 require('source-map-support').install()
 
 const ChromeJS     = require('chromejs')
-const EventEmitter = require('events')
 const fs           = require('fs-extra')
 const mkdirp       = require('mkdirp')
 const Jimp         = require('jimp')
@@ -10,6 +9,9 @@ const jsonlint     = require("jsonlint")
 const getPort      = require('get-port')
 const colors       = require('colors/safe')
 const _            = require('lodash')
+const Ajv          = require('ajv')
+const {URL}        = require('url')
+const EventEmitter = require('events')
 
 colors.setTheme({
   silly: 'rainbow',
@@ -36,11 +38,44 @@ class VBot extends EventEmitter {
       mismatchThreshold : 0,
       waitAnimation : true,
       waitBeforeEnd : 1000,
-      imgdir : `${process.cwd()}/vbot/${options.playbookFile}`,
+      // imgdir : `${process.cwd()}/vbot/${options.playbookFile}`,
       verbose : true,
       showWindow : process.env.WIN
     }
     this.options = _.assign(defaultOpts, options)
+  }
+
+  getSchema (schema) {
+    return require(`../src/schema/${schema}.json`)
+  }
+
+  validatePlaybookSchema(json) {
+    var schemas = {
+      playbook: this.getSchema('playbook')
+    }
+
+    let ajv = new Ajv({useDefaults: true, allErrors: true, $data: true});
+    require('ajv-keywords')(ajv, 'select')
+    let valid = ajv.validate(schemas.playbook, json)
+    return {valid, errors: ajv.errors}
+  }
+
+  convertPlaybookSchema(playbook) {
+    let url = new URL(playbook.url)
+    let host = `${url.protocol}//${url.auth?url.auth:''}${url.host}`
+    return {
+      host: host,
+      name: url.host,
+      viewWidth: playbook.size.width,
+      viewHeight: playbook.size.height,
+      scenarios: [
+        {
+          name: playbook.scenario,
+          path: playbook.url.replace(host, ''),
+          actions: playbook.actions
+        }
+      ]
+    }
   }
 
   async parsePlaybook (filePath) {
@@ -57,7 +92,7 @@ class VBot extends EventEmitter {
   }
 
   async runActions (scenario, rebase) {
-    let imgFolder = `${this.options.imgdir}/${scenario.name}`
+    let imgFolder = this.getImgFolder(scenario.name)
     this.imgFolder = imgFolder
     if (rebase) {
       fs.removeSync(imgFolder)
@@ -74,7 +109,10 @@ class VBot extends EventEmitter {
           let action = scenario.actions[i]
           await this.waitAnimation()
           if (action.delay) {
-            await this.chromejs.wait(action.delay)
+            await this.chromejs.wait(action.delay).catch((e) => {
+              log = {index: i, action: action, details: e}
+              throw e
+            })
           }
           if (action.type === 'reload') {
             await this.reload()
@@ -106,6 +144,7 @@ class VBot extends EventEmitter {
               for (let i = 0; i < presses.length; i++) {
                 await this.chromejs.client.Input.dispatchKeyEvent({
                   "type" : presses[i],
+                  "code": "Enter",
                   "windowsVirtualKeyCode" : 13,
                   "unmodifiedText" : "\r",
                   "text" : "\r"
@@ -186,7 +225,8 @@ class VBot extends EventEmitter {
         windowSize: {
           width: parseInt(playbook.viewWidth),
           height: parseInt(playbook.viewHeight)
-        }
+        },
+        proxy: this.options.proxy
       })
       await this.chromejs.start()
       await this.chromejs.goto(scenario.url).catch((ex) => {
@@ -251,49 +291,88 @@ class VBot extends EventEmitter {
     return filename
   }
 
+  getFolderPath (folder, type) {
+    return `${folder}/${type}`
+  }
+
+  getFilePath (folder, filename) {
+    return `${folder}/${filename}.png`
+  }
+
+  getImgFolder (scenarioName) {
+    return `${this.options.imgdir}/${scenarioName}`
+  }
+
+  async createFolder (path) {
+    return new Promise((resolve) => {
+      mkdirp(path, () => {
+        return resolve()
+      })
+    })
+  }
+
+  async createBaseImg(baseFolder, baseFilePath) {
+    return new Promise(async (resolve) => {
+      await this.createFolder(baseFolder)
+      await this.chromejs.screenshot(baseFilePath, this.chromejs.options.windowSize);
+      let files = {
+        base: baseFilePath
+      }
+      let screenshotResult = {
+        files: files
+      }
+      resolve(screenshotResult)
+    })
+  }
+
+  async screenshotBaseImg(rootFolder, action, stepIndex) {
+    let filename = this.getScreenshotFileName(action, stepIndex)
+    let baseFolder = this.getFolderPath(rootFolder, 'base')
+    let baseFilePath = this.getFilePath(baseFolder, filename)
+
+    return this.createBaseImg(baseFolder, baseFilePath)
+  }
+
   async capture (action, stepIndex, folder) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (this.options.showWindow) {
         return reject({err: 'Screenshot is disabled when running the tests with a visible Chrome window -- showWindow:true'})
       }
       let filename = this.getScreenshotFileName(action, stepIndex)
-      let baseFolder = `${folder}/base`
-      let baseFilePath = `${baseFolder}/${filename}.png`
+      let baseFolder = this.getFolderPath(folder, 'base')
+      let baseFilePath = this.getFilePath(baseFolder, filename)
       let files = {
         base: baseFilePath
       }
       if (fs.existsSync(baseFilePath)) {
-        let testFolder = `${folder}/test`
-        let testFilePath = `${testFolder}/${filename}.png`
-        mkdirp(testFolder, async () => {
-          await this.chromejs.screenshot(testFilePath, this.chromejs.options.windowSize);
-          let diffFolder = `${folder}/diff`
-          let diffFilePath = `${diffFolder}/${filename}.png`
-          mkdirp(diffFolder, async () => {
-            let result = await this.compareImages({baseFilePath, testFilePath, diffFilePath}).catch((err) => {
-              console.log(err)
-            })
-            files.test = testFilePath
-            let percentage = parseFloat(result.data.misMatchPercentage)
-            if (percentage) {
-              files.diff = diffFilePath
-            }
-            let screenshotResult = {files, analysis: result.data}
-            resolve(screenshotResult)
-          })
+        let testFolder = this.getFolderPath(folder, 'test')
+        let testFilePath = this.getFilePath(testFolder, filename)
+        await this.createFolder(testFolder)
+        await this.chromejs.screenshot(testFilePath, this.chromejs.options.windowSize);
+        let diffFolder = this.getFolderPath(folder, 'diff')
+        let diffFilePath = this.getFilePath(diffFolder, filename)
+
+        await this.createFolder(diffFolder)
+        let result = await this.compareImages({baseFilePath, testFilePath, diffFilePath}).catch((err) => {
+          console.log(err)
         })
+        files.test = testFilePath
+        let percentage = parseFloat(result.data.misMatchPercentage)
+        if (percentage) {
+          files.diff = diffFilePath
+        }
+        let screenshotResult = {files, analysis: result.data}
+        resolve(screenshotResult)
+
+        // mkdirp(diffFolder, async () => {
+        // })
+
+        // mkdirp(testFolder, async () => {
+        // })
         return
       }
-      mkdirp(baseFolder, async () => {
-        await this.chromejs.screenshot(baseFilePath, this.chromejs.options.windowSize);
-        let files = {
-          base: baseFilePath
-        }
-        let screenshotResult = {
-          files: files
-        }
-        resolve(screenshotResult)
-      })
+      let screenshotResult = await this.screenshotBaseImg(folder, action, stepIndex)
+      resolve(screenshotResult)
     })
   }
 
@@ -366,7 +445,6 @@ class VBot extends EventEmitter {
     let cond = true
     while (cond) {
       // await this.chromejs.wait(action.selector, action.waitTimeout).catch((ex) => {
-      //   console.log('', ex)
       // })
       try {
         let box = await this.chromejs.box(action.selector).catch((ex) => {
@@ -384,19 +462,37 @@ class VBot extends EventEmitter {
     }
   }
 
-  async start (playbook) {
-    if (playbook) {
-      this.options.playbook = playbook
-    }
-    this.startTime = new Date()
+  async start (playbook, opts) {
     try {
-      this._onStart()
-      let playbook = this.options.playbook || this.options.schema || await this.parsePlaybook(this.options.playbookFile).catch(() => {
+      if (playbook) {
+        //if not using scenario-list based schema, then validate the playbook
+        if (!playbook.scenarios) {
+          let validation = this.validatePlaybookSchema(playbook)
+          if (!validation.valid) {
+            let errText = ''
+            validation.errors.forEach((err) => {
+              errText += `\n${err.dataPath} ${err.message}: ${JSON.stringify(err.params)}\n`
+            })
+            throw new Error(errText)
+          }
+          //convert individual scenario playbook schema to scenario-list based schema
+          playbook = this.convertPlaybookSchema(playbook)
+        }
+        this.options.playbook = playbook
+      }
+      playbook = this.options.playbook || this.options.schema || await this.parsePlaybook(this.options.playbookFile).catch(() => {
         return null
       })
       if (!playbook) {
         throw new Error('no playbook found in the options')
       }
+      if (opts) {
+        this.options = _.assign(this.options, opts)
+      }
+      this.options.imgdir = this.options.imgdir || `${process.cwd()}/vbot/${playbook.name}`
+
+      this.startTime = new Date()
+      this._onStart()
       if (!playbook.host && !playbook.url && !this.options.host && !this.options.url) {
         throw new Error('no host value found in the playbook')
       }
@@ -471,8 +567,8 @@ class VBot extends EventEmitter {
     let msg = err.message
     if (process.env.DEBUG) {
       msg += '\n' + err.stack
-      this._log(msg, 'error')
     }
+    this._log(msg, 'error')
 
     await this._failSnapshot()
     this.idleClientList.push(this.chromejs)
@@ -483,23 +579,25 @@ class VBot extends EventEmitter {
   }
 
   _log (text, type) {
-    if(!this.options.verbose) {
+    if(!this.options.verbose && type !== 'error') {
       return
     }
     console.log(colors[type](text))
   }
 
   async _failSnapshot () {
-    return new Promise((resolve) => {
-      let failFolder = `${this.imgFolder}/fail`
-      mkdirp(failFolder, async () => {
-        await this.chromejs.screenshot(
-          `${failFolder}/snapshot.png`,
-          this.chromejs.options.windowSize
-        );
-        resolve()
-      })
-    })
+    if (!this.chromejs) {
+      return
+    }
+    let failFolder = `${this.imgFolder}/fail`
+    await this.createFolder(failFolder)
+    await this.chromejs.screenshot(`${failFolder}/snapshot.png`, this.chromejs.options.windowSize);
+
+    // return new Promise((resolve) => {
+    //   mkdirp(failFolder, async () => {
+    //     resolve()
+    //   })
+    // })
   }
 }
 
