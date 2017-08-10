@@ -2,6 +2,7 @@
 
 ### a test sample code, showing the basic actions and configurations of playbook
 
+### recommend use with frameworks like mocha or ava
 
 ### on/off headless mode
 #### explain screenshot folder tree
