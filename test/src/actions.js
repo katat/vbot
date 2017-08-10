@@ -180,12 +180,11 @@ describe('actions', async () => {
   });
   describe('action failed', function () {
     it('action [exist] should emit action.fail when element not found', function (done) {
+      let action = {type: 'exist', selector: '#nofound', waitTimeout: 2000}
       _.assign(playbook, {
         url: `${fixturePath}/assertInnerText.html`,
         scenario: this.test.title,
-        actions: [
-          {type: 'exist', selector: '#nofound', waitTimeout: 2000}
-        ]
+        actions: [action]
       })
       vbot.start(playbook)
       let failed = false
@@ -195,6 +194,7 @@ describe('actions', async () => {
       })
       vbot.on('action.fail', (log) => {
         failed = true
+        assert.deepEqual(log.action, action)
       })
       vbot.on('end', () => {
         assert(failed)
