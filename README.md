@@ -3,16 +3,16 @@
 
 ## Features
  - **JSON-based**
- Test steps defined in JSON, clearer to have one to one action mapping to browser interactions
+ *Test steps defined in JSON, clearer to have one to one action mapping to browser interactions*
 
  - **Screenshot Comparison**
- Screenshots can be taken and compared with previous automatically
+ *Screenshots can be taken and compared with previous automatically*
 
  - **Chrome**
- Chrome is used to automate the testings, can run in headless mode or with a visible browser window during testing
+ *Chrome is used to automate the testings, can run in headless mode or with a visible browser window during testing*
 
  - **Programming or CLI mode**
- Support testing with frameworks like mocha, or using VBot's command line tool
+ *Support testing with frameworks like mocha, or using VBot's command line tool*
 
 ## Requirements
  - Node 6 or later
