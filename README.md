@@ -1,238 +1,160 @@
-# vbot
-A visual regression testing tool, aims to help developers quickly create tests with minimum overhead, avoid repeated clicks and typings in testings, particularly helpful for single page applications or complicated web app. Automate the testings using **Chrome** browser with or without `headless` mode at local dev environment or on a continuous integration server.
+# VBot
+> A visual regression testing library/tool, aims to quickly automate browser-based tests with minimum development overhead.
 
-There is a [blog post](http://katat.github.io/2017/01/09/vbot/) discussing about the motivation behind `vbot`.
+The [article](http://katat.me/2017/01/09/vbot/) describes more details behind the motivation.
+
+## Features
+ - **JSON-based**
+ test steps, clearer to have one to one action mapping to browser interactions
+ - **Chrome**
+  is used to automate the testings, can run in headless mode or with a visible browser window during testing
+ - **Programming or CLI mode**
+ support testing with frameworks like mocha, or with VBot's command line tool
+ - **Screenshot Comparison**
+ done automatically by comparing with previous screenshots, no more eye workouts!
+
+ ![diff](img/8_reload_page_diff.png)
+
+## Preview
+![vbot cli](img/vbot-cli.gif)
 
 ## Requirements
-
-Node 6 or later
-
-Install Chrome 59 or later
+ - Node 6 or later
+ - Chrome 59 or later
 
 ## Install
-`npm install -g vbot`
+`npm install vbot`
 
-### Example
+## Test modes
+VBot supports testings in both programming mode or CLI mode.
 
-Suppose the test definition is store in `test.json` file. To execute the tests, run the command below.
-
-```bash
-vbot -f=test.json
-```
-
-vbot will execute the actions defined in the test.json, the playbook file, taking screenshots which will be compared in the end. All the screenshot taken will be in default folder `vbot`.
-
-The `base` is the based image folder and `test` is the newly generated images, while the `diff` have the comparison result images. To rebase the images, use `rebase` flag, such as `vbot -f=test.json --rebase`, the images in the `base` folder will be refreshed.
-
-In addition to the screenshots, it prints out the testings reports at the end of the tests, showing which tests passed or failed with a mismatch percentage compared with the baseline.
-
-Often, there are needs to watch the tests in action in a  browser. The command line tool provides a debug mode to see the tests in action
-
-```bash
-vbot -f=test.json -d
-```
-
-By default, it runs all the scenarios in a test suit defined in the JSON file. A filter can be specified to only run the scenarios with the names matched. Below command will run the scenarios with the names contains `todo`
-
-```bash
-vbot -f=test.json -s todo
-```
-
-Let's take a look at how vbot can ease the VRT process. Suppose we want to test this [TODO](http://todomvc.com/examples/react) web app using vbot. We define the interaction flow in a playbook JSON file as below:
-
-```json
-{
-    "viewWidth": 375,
-    "viewHeight": 677,
-    "captureSelector": "html",
-    "host": "http://todomvc.com",
-    "scenarios": [
-        {
-            "name": "todo test",
-            "path": "/examples/react",
-            "actions": [
-                {
-                    "type": "exist",
-                    "selector": ".new-todo",
-                    "screenshot": true,
-                    "comment": "wait for the input element .new-todo appear and take a screenshot"
-                },{
-                    "type": "typing",
-                    "selector": ".new-todo",
-                    "value": "drink a cup of coffee",
-                    "enter": true,
-                    "comment": "enter task message and press 'enter' key"
-                },{
-                    "type": "exist",
-                    "selector": "ul.todo-list li:nth-child(1)",
-                    "screenshot": true,
-                    "comment": "make sure there is a newly created task in the list and take screenshot"
-                },{
-                    "type": "typing",
-                    "selector": ".new-todo",
-                    "value": "drink another cup of coffee",
-                    "enter": true,
-                    "comment": "create second task"
-                },{
-                    "type": "exist",
-                    "selector": "ul.todo-list li:nth-child(2)",
-                    "screenshot": true,
-                    "comment": "ensure the second task is created"
-                },{
-                    "type": "click",
-                    "selector": "ul.todo-list li:nth-child(1) .toggle",
-                    "comment": "mark the first task as completed"
-                },{
-                    "type": "exist",
-                    "selector": "ul.todo-list li.completed:nth-child(1)",
-                    "screenshot": true,
-                    "commend": "ensure the completed status is reflected in the view and take screenshot"
-                }
-            ]
-        }
-    ]
-}
-
-```
-
-## Screenshots
-Below are the screenshots captured during the interaction flow:
+### Programming mode
+To test flexibly in different testing scenarios, either testing against web UI wired with backends or just static web page, VBot exposes API to be used with testing frameworks like [mocha](https://mochajs.org/) or [ava](https://github.com/avajs/ava) etc. Therefore, the test data variables can be updated according to different conditions, in order to decouple from real backends and avoid false negative results.
 
 ------------
+#### Mocha example
 
-```json
-{
-    "type": "exist",
-    "selector": ".new-todo",
-    "screenshot": true,
-    "comment": "wait for the input element .new-todo appear and take a screenshot"
-}
-```
-![0_assert-.new-todo.png](img/0_assert-.new-todo.png)
-
--------------
-```json
-{
-    "type": "typing",
-    "selector": ".new-todo",
-    "value": "drink a cup of coffee",
-    "enter": true,
-    "comment": "enter task message and press 'enter' key"
-},{
-    "type": "exist",
-    "selector": "ul.todo-list li:nth-child(1)",
-    "screenshot": true,
-    "comment": "make sure there is a newly created task in the list and take screenshot"
-}
-```
-![2_assert-ul.todo-list_li:nth-child(1).png](img/2_step.png)
-
---------------
-```json
-{
-    "type": "typing",
-    "selector": ".new-todo",
-    "value": "drink another cup of coffee",
-    "enter": true,
-    "comment": "create second task"
-},{
-    "type": "exist",
-    "selector": "ul.todo-list li:nth-child(2)",
-    "screenshot": true,
-    "comment": "ensure the second task is created"
-}
-```
-![4_assert-ul.todo-list_li:nth-child(2).png](img/4_step.png)
-
----------------
-```json
-{
-    "type": "click",
-    "selector": "ul.todo-list li:nth-child(1) .toggle",
-    "comment": "mark the first task as completed"
-},{
-    "type": "exist",
-    "selector": "ul.todo-list li.completed:nth-child(1)",
-    "screenshot": true,
-    "comment": "ensure the completed status is reflected in the view and take screenshot"
-}
-```
-![6_assert-ul.todo-list_li.completed:nth-child(1).png](img/6_step.png)
-
-------------
-
-If this is the first time vbot run the tests for this JSON definition file, the images generated are the baselines. The subsequent tests will compare the newly generated image file with the baselines and highlight the differences if it is not 100% match. For example, let's change the action definition below:
-
-```json
-{
-    "type": "typing",
-    "selector": ".new-todo",
-    "value": "drink a cup of coffee",
-    "enter": true
-}
+```javascript
+describe('examples', () => {
+  let vbot
+  afterEach((done) => {
+    //close chrome instance after each test case
+    vbot.close().then(done)
+  });
+  it('todo', function (done) {
+    vbot = new VBot({
+      imgdir    : `${testPath}/tmp/screenshots`,//specify custom screenshots' file paths
+      rebase    : process.env.REBASE,// rebase, default false
+      verbose   : true, //verbose logs, default true
+      showWindow: process.env.WINDOW// show Chrome window, default false
+    })
+    //pass in the playbook JSON
+    vbot.start({
+      //web page url to open in chrome instance before testing
+      url: `file:///${testPath}/fixtures/todo/index.html`,
+      //name for this test case. If imgdir option is not specified, it will use this name as a screenshot folder
+      scenario: "todo",
+      //size for the chrome instance window
+      size: {width: 375, height: 677},
+      //test steps that will be executed in order
+      actions: [
+        //For all the support actions types and related attributes, please refer to the action tests
+        {type: "click", selector:"input#item"},
+        {type: "typing", value: "drink milk", enter:true, tab:false},
+        {type: "typing", value: "drink coffee", enter:true, tab:false},
+        {type: "typing", value: "go to work", enter:false, tab:false},
+        {type: "click", selector:"button#add>svg"},
+        //comment will be used as the screenshot file name, otherwise selectorstring will be used
+        {type: "click", comment: "done milk", selector:"ul#todo>li:nth-child(3)>div>button:nth-child(2)>svg", screenshot:true},
+        {type: "click", comment: "done coffee", selector:"ul#todo>li:nth-child(2)>div>button:nth-child(2)>svg", screenshot:true},
+        {type: "click", comment: "remove work", selector:"ul#todo>li>div>button:nth-child(1)>svg", screenshot:true},
+        {type: "reload", comment: "reload page", screenshot:true}
+      ]
+    })
+    vbot.on('action.executed', (log) => {})//event when an action executed successfully
+    vbot.on('screenshot.diff', (data) => {})//event when there are differences from screenshot comparison
+    vbot.on('action.fail', (log) => {})//event when an action failed to execute
+    vbot.on('end', () => {//event when test case ended
+      done()
+    })
+  });
+});
 ```
 
-to
+The code above is from the [test case](test/src/example-todo.js).
 
-```json
-{
-    "type": "typing",
-    "selector": ".new-todo",
-    "value": "drink a cup of milk",
-    "enter": true
-}
+To see how this example work in action, you can clone code of this repository and go to the folder in command line, install the node modules by `npm install`.
+
+Then you can get a feeling of how it works by running following test commands that runs mocha tests.
+
+##### *Headless mode*
+To run the demo todo app test and take screenshot:
+
+`npm test -- -g "todo"`
+
+It will execute the test with Chrome in headless mode. You should see the verbose logs, and screenshots taken in folder `/test/tmp/screenshots/todo`
+
+##### *Visible mode*
+To see the tests running on Chrome visibly:
+
+`WINDOW=true npm test -- -g "todo"`
+
+##### *Screenshot comparison*
+The result of the screenshot comparison are the screenshots with difference highlighted. Let's modify the [TODO](test/fixtures/todo) app to disable the `localStorage` related logics, and run the example above again in headless mode.
+
+Now there should be one `diff` screenshot created for the last action step, which is the screenshot after reloaded the web page, because of the modified code leading to a different `test` screenshot:
+
+![baseline](img/diff.png)
+
+##### *Rebase*
+Try to update tests or the code in the demo todo app and VBot should automatically highlight the differences of the screenshots between previous and current version.
+
+To rebase screenshots:
+
+`REBASE=true npm test -- -g "todo"`
+
+--------------------
+
+### Playbook schema
+The schema is defined using [ajv](https://github.com/epoberezkin/ajv). For the schema details, please refer to [playbook schema definitions](src/schema/playbook.json)
+
+### Supported actions
+Please refer to respective [mocha tests](test/src/actions.js)
+
+### Screenshot directory
+```
+├── scenario name
+      ├── base //baseline screenshots
+      ├── test //screenshots from last test
+      └── diff //screenshots with differences highlighted
 ```
 
-After re-run the command line above, it should report there is test result mismatch the baseline and generated a image that highlights the difference:
+### Events
 
-------------------
+ - `action.executed` when an action executed successfully
+ - `screenshot.diff` when there are differences from screenshot comparison
+ - `action.fail` when an action failed to execute
+ - `end` when test case ended
 
-![2_assert-ul.todo-list_li:nth-child(1).fail.png](img/2_step.fail.png)
+### CLI mode
+Please see [CLI readme](cli.md)
 
-------------------
+## Chrome extension
+There is a [Chrome extension](https://chrome.google.com/webstore/detail/vbot-recorder/nngcjjhpjbaofdokebbcgcnkeebnidij?utm_source=chrome-ntp-icon) to facilitate recording the interactions in a web page using the [playbook](#playbook-schema) schema. The playbook JSON exported can be run in either the programming mode as shown in above example or in CLI mode.
 
-## Playbook Options
-**viewHeight**
-height of the browser view
+![vbot chrome extension](img/vbot-chrome.gif)
 
-**viewWidth**
-width of the browser view
+To run in CLI mode with the exported JSON file, just run:
 
-**host**
-The global host of for the test url path in the scenarios. It can use `-d` to override the host at the command.
+`vbot -f /path/to/playbook/json/file -d`
 
-**scenarios**
-Each scenario can comprise of a set of actions in the page view. It groups a set of cohesive tests.
- - **path**  
- The url path for the scenario test to begin with
- - **actions**  
- A set of test steps
-   - **type**  
-   Action Type: `exist`, `click`, `typing`, `select`, `scroll`, `assertInnerText`
-     - `typing`.`enter`
-     Set to `true` will press the `enter` key, when using action type `typing`
-     - `scroll`.`position`
-     The [x, y] increment position to scroll to, when using action type `scroll`
-     - `select`.`selectIndex`
-     Set an integer (1 based) as an option index of the native dropdown to simulate selecting an option, when using action type `select`
-     - `assertInnerText`.`match`
-     Set a regular expression to match the text of the selected element, when using action type `assertInnerText`
-   - **selector**  
-   Wait for the element to exist before proceeding to the action type. It is the target element regarding to the action.
-   - **scrollTo**
-   Set to `true` will scroll the element matched with the selector into the view.
-   - **screenshot**  
-   Set to `true` for taking screenshot after this step action is executed.
-   - **captureDelay**  
-   Delay(millisecond) to wait before this step's screenshot is taken.
-   - **waitTimeout**  
-   Maximum time to wait for the element `selector` exists in the DOM. If waited longer than this setting, it throws error of not found the `selector` element.
-   - **comment**
-   Used for references of the action, and as the screenshot file name.
+It will bring up a Chrome browser and you can see the tests in action.
+Or you can run it without the `-d` argument, so that it will execute the tests in headless mode which that will take screenshots and do comparisons with the previous tests:
 
-## Welcome contributions
+`vbot -f /path/to/playbook/json/file`
 
-Fork and make changes. In the tests directory, run `npm test` to make sure all the tests are passed. Welcome pull requests or request new features.
+## Contributions
+Welcome any feedbacks, questions or contributions, just feel free to post issues.
 
 ## License
 MIT

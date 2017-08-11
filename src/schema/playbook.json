@@ -1,0 +1,95 @@
+{
+  "type": "object",
+  "properties": {
+    "url": {
+      "type": "string",
+      "pattern": "^(http|https|file):\/\/[^ \"]+$"
+    },
+    "size": {
+      "type": "object",
+      "properties": {
+        "width": {"type": "integer", "minimum": 100},
+        "height": {"type": "integer", "maximum": 4000}
+      }
+    },
+    "scenario": { "type": "string" },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["exist", "click", "typing", "select", "scroll", "assertInnerText", "reload"]
+          },
+          "comment": {"type": "string"},
+          "screenshot": {"type": "boolean"},
+          "scrollTo": {"type": "boolean"},
+          "delay": {"type": "integer", "minimum": 1},
+          "captureDelay": {"type": "integer", "minimum": 1},
+          "waitTimeout": {"type": "integer", "minimum": 1}
+        },
+        "required": ["type"],
+        "select": { "$data": "0/type" },
+        "selectCases": {
+          "exist": {
+            "required": ["selector"],
+            "properties": {
+              "type": {},
+              "selector": { "type": "string" }
+            }
+          },
+          "click": {
+            "required": ["selector"],
+            "properties": {
+              "type": {},
+              "selector": { "type": "string" }
+            }
+          },
+          "typing": {
+            "required": ["value"],
+            "properties": {
+              "type": {},
+              "value": { "type": "string" },
+              "enter": {"type": "boolean"},
+              "tab": {"type": "boolean"}
+            }
+          },
+          "select": {
+            "required": ["selector", "selectIndex"],
+            "properties": {
+              "type": {},
+              "selector": { "type": "string" },
+              "selectIndex": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "assertInnerText": {
+            "required": ["selector", "match"],
+            "properties": {
+              "type": {},
+              "selector": { "type": "string" },
+              "match": { "type": "string"}
+            }
+          },
+          "scroll": {
+            "required": ["selector", "position"],
+            "properties": {
+              "type": {},
+              "selector": { "type": "string" },
+              "position": {
+                "type": "array",
+                "items": [
+                  {"type": "number", "minimum": 0},
+                  {"type": "number", "minimum": 0}
+                ]
+              }
+            }
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "imgdir": {"type": "string"}
+  },
+  "required": ["url", "scenario", "size", "actions"]
+}
