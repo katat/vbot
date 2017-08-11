@@ -1,18 +1,20 @@
 # VBot
 > A visual regression testing library/tool, aims to quickly automate browser-based tests with minimum development overhead.
 
+[This post](http://katat.me/2017/01/09/vbot/) describe the motivations.
+
 ## Features
  - **JSON-based**
  *Test steps defined in JSON, clearer to have one to one action mapping to browser interactions*
 
  - **Screenshot Comparison**
- *Screenshots can be taken and compared with previous automatically*
+ *Screenshots can be taken and automatically compared with previous, no more eye workouts!*
 
  - **Chrome**
  *Chrome is used to automate the testings, can run in headless mode or with a visible browser window during testing*
 
  - **Programming or CLI mode**
- *Support testing with frameworks like mocha, or using VBot's command line tool*
+ *Support testing with frameworks like mocha, or with VBot's command line tool*
 
 ## Requirements
  - Node 6 or later
@@ -21,13 +23,13 @@
 ## Install
 `npm install vbot`
 
-## Test Modes
+## Test modes
 VBot supports testings in both programming mode or CLI mode.
 
 ### Programming mode
-To avoid false negative result from the tests, it is common to reset backend data before/after each test case execution. VBot exposes programming APIs to be used with testing frameworks like mocha or ava etc.
+To test flexibly in different testing scenarios, either testing against web UI wired with backends or just static web page, VBot exposes API to be used with testing frameworks like [mocha](https://mochajs.org/) or [ava](https://github.com/avajs/ava) etc. Therefore, the test data variables can be updated according to different conditions, in order to decouple from real backends and avoid false negative results.
 
-#### Mocha Example
+#### Mocha example
 
 ```javascript
 describe('examples', () => {
@@ -43,6 +45,7 @@ describe('examples', () => {
       verbose   : true, //verbose logs, default true
       showWindow: process.env.WINDOW// show Chrome window, default false
     })
+    //pass in the playbook JSON
     vbot.start({
       //web page url to open in chrome instance before testing
       url: `file:///${testPath}/fixtures/todo/index.html`,
@@ -74,11 +77,11 @@ describe('examples', () => {
 });
 ```
 
-To see how this example work in action, you can clone code of this repository and go to the folder in command line, run:
+The code above is from the [test case](test/src/example-todo.js).
 
-`npm install`
+To see how this example work in action, you can clone code of this repository and go to the folder in command line, install the node modules by `npm install`.
 
-Then you can get a feeling of how it work by running following test commands that runs mocha tests.
+Then you can get a feeling of how it works by running following test commands that runs mocha tests.
 
 ##### Headless mode
 To run the demo todo app test and take screenshot:
@@ -99,6 +102,12 @@ To rebase screenshots:
 
 `REBASE=true npm test -- -g "todo"`
 
+#### Playbook schema
+The schema is defined using [ajv](https://github.com/epoberezkin/ajv). For the schema details, please refer to [playbook schema definitions](src/schema/playbook.json)
+
+#### Supported actions
+Please refer to respective [mocha tests](test/src/action.js)
+
 #### Screenshot directory
 ```
 ├── scenario name
@@ -114,13 +123,26 @@ To rebase screenshots:
  - `action.fail` when an action failed to execute
  - `end` when test case ended
 
-#### Supported actions
-Please refer to respective mocha test `test/src/action.js`
-
 #### gif demo the console logs
 #### gif demo the browser tests in action
 
-### CLI mode
+### CLI mode (Document outdated)
 Please see [CLI readme](cli.md)
 
-### chrome extension
+## Chrome extension
+There is a Chrome extension helps automatically record the interactions in a web page using the [playbook](#playbook-schema) schema. The playbook JSON exported can be run in either the programming mode as shown in above example or in CLI mode.
+
+To run in CLI mode with the exported JSON file, just run:
+
+`vbot -f /path/to/playbook/json/file -d`
+
+It will bring up a Chrome browser and you can see the tests in action.
+Or you can run it without the `-d` argument, so that it will execute the tests in headless mode which that will take screenshots and do comparisons with the previous tests:
+
+`vbot -f /path/to/playbook/json/file`
+
+## Contributions
+Welcome any feedbacks, questions or contributions, just feel free to post issues.
+
+## License
+MIT
