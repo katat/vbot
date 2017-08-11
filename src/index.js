@@ -415,7 +415,7 @@ class VBot extends EventEmitter {
     await this.chromejs.select(action.selector, action.selectIndex)
   }
 
-  async assertInnerText (action) {
+  async assertInnerText(action) {
     let expr = `document.querySelector('${action.selector}').innerText`
     let regx = new RegExp(action.match)
     let nodeText = await this.chromejs.eval(expr)
