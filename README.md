@@ -1,7 +1,7 @@
 # VBot
 > A visual regression testing library/tool, aims to quickly automate browser-based tests with minimum development overhead.
 
-[This post](http://katat.me/2017/01/09/vbot/) describe the motivations.
+The [article](http://katat.me/2017/01/09/vbot/) describes more details behind the motivation.
 
 ## Features
  - **JSON-based**
