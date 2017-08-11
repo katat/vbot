@@ -15,7 +15,7 @@ describe('actions', async () => {
   }
   let opts = {
     showWindow: process.env.WIN,
-    verbose: true,
+    verbose: false,
     imgdir: `${testPath}/../tmp/screenshots`,
     playbook: playbook
   }
