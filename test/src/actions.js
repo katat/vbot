@@ -1,43 +1,40 @@
 const assert      = require('assert')
 const VBot        = require('../../dist')
 const _ = require('lodash')
+
+process.on('unhandledRejection', (e) => {
+  console.log(e)
+})
+
 describe('actions', async () => {
   let vbot
   const fixturePath = `file:///${__dirname}/../fixtures/html`
   const testPath = `${__dirname}`
+  let playbook = {
+    size: {width: 375, height: 677}
+  }
   let opts = {
     showWindow: process.env.WIN,
     verbose: false,
     imgdir: `${testPath}/../tmp/screenshots`,
-    playbook: {
-      viewWidth: 375,
-      viewHeight: 677
-    }
+    playbook: playbook
   }
-  process.on('unhandledRejection', (e) => {
-    console.log(e)
-  })
-  // beforeEach(function () {
-  //   vbot.removeAllListeners('end')
-  //   vbot.removeAllListeners('action.fail')
-  // });
+  beforeEach(function () {
+    vbot = new VBot(opts)
+  });
   afterEach(function (done) {
     vbot.close().then(done)
   });
   describe('click', function () {
     it('should click an element', function (done) {
-      let options = _.clone(opts)
-      _.assign(options.playbook, {
+      _.assign(playbook, {
         url: `${fixturePath}/click.html`,
-        scenarios:[{
-          name: this.test.title,
-          actions: [
-            {type: 'click', selector: 'button'}
-          ]
-        }]
+        scenario: this.test.title,
+        actions: [
+          {type: 'click', selector: 'button'}
+        ]
       })
-      vbot = new VBot(options)
-      vbot.start()
+      vbot.start(playbook)
       vbot.on('end', () => {
         vbot.chromejs.eval(`document.querySelector('button').innerText`).then((data) => {
           assert.equal(data.result.value, 'Clicked')
@@ -48,19 +45,15 @@ describe('actions', async () => {
   });
   describe('typing', function () {
     it('should type strings in an element', function (done) {
-      let options = _.clone(opts)
-      _.assign(options.playbook, {
+      _.assign(playbook,{
         url: `${fixturePath}/typing.html`,
-        scenarios:[{
-          name: this.test.title,
-          actions: [
-            {type: 'click', selector: 'input'},
-            {type: 'typing', value: 'hello', enter: true}
-          ]
-        }]
+        scenario: this.test.title,
+        actions: [
+          {type: 'click', selector: 'input'},
+          {type: 'typing', value: 'hello', enter: true}
+        ]
       })
-      vbot = new VBot(options)
-      vbot.start()
+      vbot.start(playbook)
       vbot.on('end', () => {
         let promise = vbot.chromejs.eval(`document.querySelector('input').value`).then((data) => {
           assert.equal(data.result.value, 'hello')
@@ -76,18 +69,14 @@ describe('actions', async () => {
   });
   describe('select', function () {
     it('should select an option in a select input', function (done) {
-      let options = _.clone(opts)
-      _.assign(options.playbook, {
+      _.assign(playbook, {
         url: `${fixturePath}/select.html`,
-        scenarios:[{
-          name: this.test.title,
-          actions: [
-            {type: 'select', selector: 'select', selectIndex: 2},
-          ]
-        }]
+        scenario: this.test.title,
+        actions: [
+          {type: 'select', selector: 'select', selectIndex: 2},
+        ]
       })
-      vbot = new VBot(options)
-      vbot.start()
+      vbot.start(playbook)
       vbot.on('scenario.start', async () => {
         vbot.chromejs.eval('document.querySelector("select").value').then((evalResponse) => {
           assert.equal(evalResponse.result.value, 'selected_1')
@@ -103,18 +92,14 @@ describe('actions', async () => {
   });
   describe('assert inner text', function () {
     it('should be able to wait and assert if an element has a inner text', function (done) {
-      let options = _.clone(opts)
-      _.assign(options.playbook, {
+      _.assign(playbook, {
         url: `${fixturePath}/assertInnerText.html`,
-        scenarios:[{
-          name: this.test.title,
-          actions: [
-            {type: 'assertInnerText', selector: '#demo', match: 'see', waitTimeout: 2000}
-          ]
-        }]
+        scenario: this.test.title,
+        actions: [
+          {type: 'assertInnerText', selector: '#demo', match: 'see', waitTimeout: 2000}
+        ]
       })
-      vbot = new VBot(options)
-      vbot.start()
+      vbot.start(playbook)
       vbot.on('action.fail', (log) => {
         assert.fail(log)
       })
@@ -126,18 +111,14 @@ describe('actions', async () => {
       })
     });
     it('timeout assert inner text', function (done) {
-      let options = _.clone(opts)
-      _.assign(options.playbook, {
+      _.assign(playbook, {
         url: `${fixturePath}/assertInnerText.html`,
-        scenarios:[{
-          name: this.test.title,
-          actions: [
-            {type: 'assertInnerText', selector: '#demo', match: 'see', waitTimeout: 500}
-          ]
-        }]
+        scenario: this.test.title,
+        actions: [
+          {type: 'assertInnerText', selector: '#demo', match: 'see', waitTimeout: 500}
+        ]
       })
-      vbot = new VBot(options)
-      vbot.start()
+      vbot.start(playbook)
       let failed = false
       vbot.on('action.fail', () => {
         failed = true
@@ -150,18 +131,14 @@ describe('actions', async () => {
   });
   describe('scroll', function () {
     it('should scroll using position', function (done) {
-      let options = _.clone(opts)
-      _.assign(options.playbook, {
+      _.assign(playbook, {
         url: `${fixturePath}/scroll.html`,
-        scenarios:[{
-          name: this.test.title,
-          actions: [
-            {type: 'scroll', selector: '.box', position: [0, 1000], delay: 1000},
-          ]
-        }]
+        scenario: this.test.title,
+        actions: [
+          {type: 'scroll', selector: '.box', position: [0, 1000], delay: 1000},
+        ]
       })
-      vbot = new VBot(options)
-      vbot.start()
+      vbot.start(playbook)
       let top
       vbot.on('scenario.start', () => {
         vbot.chromejs.box('#test').then((box) => {
@@ -178,20 +155,16 @@ describe('actions', async () => {
   });
   describe('reload', function () {
     it('should reload the page', function (done) {
-      let options = _.clone(opts)
-      _.assign(options.playbook, {
+      _.assign(playbook, {
         url: `${fixturePath}/typing.html`,
-        scenarios:[{
-          name: this.test.title,
-          actions: [
-            {type: 'click', selector: 'input'},
-            {type: 'typing', value: 'hello', enter: true},
-            {type: 'reload'}
-          ]
-        }]
+        scenario: this.test.title,
+        actions: [
+          {type: 'click', selector: 'input'},
+          {type: 'typing', value: 'hello', enter: true},
+          {type: 'reload'}
+        ]
       })
-      vbot = new VBot(options)
-      vbot.start()
+      vbot.start(playbook)
       vbot.on('end', () => {
         let promise = vbot.chromejs.eval(`document.querySelector('input').value`).then((data) => {
           assert.equal(data.result.value, '')
@@ -207,18 +180,13 @@ describe('actions', async () => {
   });
   describe('action failed', function () {
     it('action [exist] should emit action.fail when element not found', function (done) {
-      let options = _.clone(opts)
-      _.assign(options.playbook, {
+      let action = {type: 'exist', selector: '#nofound', waitTimeout: 2000}
+      _.assign(playbook, {
         url: `${fixturePath}/assertInnerText.html`,
-        scenarios:[{
-          name: this.test.title,
-          actions: [
-            {type: 'exist', selector: '#nofound', waitTimeout: 2000}
-          ]
-        }]
+        scenario: this.test.title,
+        actions: [action]
       })
-      vbot = new VBot(options)
-      vbot.start()
+      vbot.start(playbook)
       let failed = false
       let executed = false
       vbot.on('action.executed', () => {
@@ -226,6 +194,7 @@ describe('actions', async () => {
       })
       vbot.on('action.fail', (log) => {
         failed = true
+        assert.deepEqual(log.action, action)
       })
       vbot.on('end', () => {
         assert(failed)
@@ -234,18 +203,14 @@ describe('actions', async () => {
       })
     });
     it('action [assertInnerText] should emit action.fail when element not found', function (done) {
-      let options = _.clone(opts)
-      _.assign(options.playbook, {
+      _.assign(playbook, {
         url: `${fixturePath}/assertInnerText.html`,
-        scenarios:[{
-          name: this.test.title,
-          actions: [
-            {type: 'assertInnerText', selector: '#demo', match: 'no', waitTimeout: 2000}
-          ]
-        }]
+        scenario: this.test.title,
+        actions: [
+          {type: 'assertInnerText', selector: '#demo', match: 'no', waitTimeout: 2000}
+        ]
       })
-      vbot = new VBot(options)
-      vbot.start()
+      vbot.start(playbook)
       let failed = false
       let executed = false
       vbot.on('action.executed', () => {

@@ -20,7 +20,7 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": ["exist", "click", "typing", "select", "scroll"]
+            "enum": ["exist", "click", "typing", "select", "scroll", "assertInnerText", "reload"]
           },
           "comment": {"type": "string"},
           "screenshot": {"type": "boolean"},
@@ -61,6 +61,14 @@
               "type": {},
               "selector": { "type": "string" },
               "selectIndex": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "assertInnerText": {
+            "required": ["selector", "match"],
+            "properties": {
+              "type": {},
+              "selector": { "type": "string" },
+              "match": { "type": "string"}
             }
           },
           "scroll": {
