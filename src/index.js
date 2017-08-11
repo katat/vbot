@@ -337,46 +337,38 @@ class VBot extends EventEmitter {
   }
 
   async capture (action, stepIndex, folder) {
-    return new Promise(async (resolve, reject) => {
-      if (this.options.showWindow) {
-        return reject({err: 'Screenshot is disabled when running the tests with a visible Chrome window -- showWindow:true'})
-      }
-      let filename = this.getScreenshotFileName(action, stepIndex)
-      let baseFolder = this.getFolderPath(folder, 'base')
-      let baseFilePath = this.getFilePath(baseFolder, filename)
-      let files = {
-        base: baseFilePath
-      }
-      if (fs.existsSync(baseFilePath)) {
-        let testFolder = this.getFolderPath(folder, 'test')
-        let testFilePath = this.getFilePath(testFolder, filename)
-        await this.createFolder(testFolder)
-        await this.chromejs.screenshot(testFilePath, this.chromejs.options.windowSize);
-        let diffFolder = this.getFolderPath(folder, 'diff')
-        let diffFilePath = this.getFilePath(diffFolder, filename)
+    if (this.options.showWindow) {
+      this._log('Screenshot is disabled when running the tests with a visible Chrome window -- showWindow:true', 'warn')
+      return
+    }
+    let filename = this.getScreenshotFileName(action, stepIndex)
+    let baseFolder = this.getFolderPath(folder, 'base')
+    let baseFilePath = this.getFilePath(baseFolder, filename)
+    let files = {
+      base: baseFilePath
+    }
+    if (fs.existsSync(baseFilePath)) {
+      let testFolder = this.getFolderPath(folder, 'test')
+      let testFilePath = this.getFilePath(testFolder, filename)
+      await this.createFolder(testFolder)
+      await this.chromejs.screenshot(testFilePath, this.chromejs.options.windowSize);
+      let diffFolder = this.getFolderPath(folder, 'diff')
+      let diffFilePath = this.getFilePath(diffFolder, filename)
 
-        await this.createFolder(diffFolder)
-        let result = await this.compareImages({baseFilePath, testFilePath, diffFilePath}).catch((err) => {
-          console.log(err)
-        })
-        files.test = testFilePath
-        let percentage = parseFloat(result.data.misMatchPercentage)
-        if (percentage) {
-          files.diff = diffFilePath
-        }
-        let screenshotResult = {files, analysis: result.data}
-        resolve(screenshotResult)
-
-        // mkdirp(diffFolder, async () => {
-        // })
-
-        // mkdirp(testFolder, async () => {
-        // })
-        return
+      await this.createFolder(diffFolder)
+      let result = await this.compareImages({baseFilePath, testFilePath, diffFilePath}).catch((err) => {
+        console.log(err)
+      })
+      files.test = testFilePath
+      let percentage = parseFloat(result.data.misMatchPercentage)
+      if (percentage) {
+        files.diff = diffFilePath
       }
-      let screenshotResult = await this.screenshotBaseImg(folder, action, stepIndex)
-      resolve(screenshotResult)
-    })
+      let screenshotResult = {files, analysis: result.data}
+      return screenshotResult
+    }
+    let screenshotResult = await this.screenshotBaseImg(folder, action, stepIndex)
+    return screenshotResult
   }
 
   async compareImages (params) {
