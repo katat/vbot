@@ -1,7 +1,7 @@
 # VBot
 > A visual regression testing library/tool, aims to quickly automate browser-based tests with minimum development overhead.
 
-[This post](http://katat.me/2017/01/09/vbot/) describe the motivations.
+The [article](http://katat.me/2017/01/09/vbot/) describes more details behind the motivation.
 
 ## Features
  - **JSON-based**
@@ -29,6 +29,7 @@ VBot supports testings in both programming mode or CLI mode.
 ### Programming mode
 To test flexibly in different testing scenarios, either testing against web UI wired with backends or just static web page, VBot exposes API to be used with testing frameworks like [mocha](https://mochajs.org/) or [ava](https://github.com/avajs/ava) etc. Therefore, the test data variables can be updated according to different conditions, in order to decouple from real backends and avoid false negative results.
 
+------------
 #### Mocha example
 
 ```javascript
@@ -83,32 +84,34 @@ To see how this example work in action, you can clone code of this repository an
 
 Then you can get a feeling of how it works by running following test commands that runs mocha tests.
 
-##### Headless mode
+##### *Headless mode*
 To run the demo todo app test and take screenshot:
 
 `npm test -- -g "todo"`
 
 It will execute the test with Chrome in headless mode. You should see the verbose logs, and screenshots taken in folder `/test/tmp/screenshots/todo`
 
-##### Visible mode
+##### *Visible mode*
 To see the tests running on Chrome visibly:
 
 `WINDOW=true npm test -- -g "todo"`
 
-##### Rebase
+##### *Rebase*
 Try to update tests or the code in the demo todo app and VBot should automatically highlight the differences of the screenshots between previous and current version.
 
 To rebase screenshots:
 
 `REBASE=true npm test -- -g "todo"`
 
-#### Playbook schema
+--------------------
+
+### Playbook schema
 The schema is defined using [ajv](https://github.com/epoberezkin/ajv). For the schema details, please refer to [playbook schema definitions](src/schema/playbook.json)
 
-#### Supported actions
-Please refer to respective [mocha tests](test/src/action.js)
+### Supported actions
+Please refer to respective [mocha tests](test/src/actions.js)
 
-#### Screenshot directory
+### Screenshot directory
 ```
 ├── scenario name
       ├── base //baseline screenshots
@@ -116,7 +119,7 @@ Please refer to respective [mocha tests](test/src/action.js)
       └── diff //screenshots with differences highlighted
 ```
 
-#### Events
+### Events
 
  - `action.executed` when an action executed successfully
  - `screenshot.diff` when there are differences from screenshot comparison
@@ -126,7 +129,7 @@ Please refer to respective [mocha tests](test/src/action.js)
 #### gif demo the console logs
 #### gif demo the browser tests in action
 
-### CLI mode (Document outdated)
+### CLI mode
 Please see [CLI readme](cli.md)
 
 ## Chrome extension

@@ -10,7 +10,7 @@ const getPort      = require('get-port')
 const colors       = require('colors/safe')
 const _            = require('lodash')
 const Ajv          = require('ajv')
-const {URL}        = require('url')
+const URL          = require('url')
 const EventEmitter = require('events')
 
 colors.setTheme({
@@ -61,7 +61,7 @@ class VBot extends EventEmitter {
   }
 
   convertPlaybookSchema(playbook) {
-    let url = new URL(playbook.url)
+    let url = URL.parse(playbook.url)
     let host = `${url.protocol}//${url.auth?url.auth:''}${url.host}`
     return {
       host: host,
