@@ -65,7 +65,8 @@ describe('examples', () => {
         //comment will be used as the screenshot file name, otherwise selectorstring will be used
         {type: "click", comment: "done milk", selector:"ul#todo>li:nth-child(3)>div>button:nth-child(2)>svg", screenshot:true},
         {type: "click", comment: "done coffee", selector:"ul#todo>li:nth-child(2)>div>button:nth-child(2)>svg", screenshot:true},
-        {type: "click", comment: "remove work", selector:"ul#todo>li>div>button:nth-child(1)>svg", screenshot:true}
+        {type: "click", comment: "remove work", selector:"ul#todo>li>div>button:nth-child(1)>svg", screenshot:true},
+        {type: "reload", comment: "reload page", screenshot:true}
       ]
     })
     vbot.on('action.executed', (log) => {})//event when an action executed successfully
@@ -95,6 +96,12 @@ It will execute the test with Chrome in headless mode. You should see the verbos
 To see the tests running on Chrome visibly:
 
 `WINDOW=true npm test -- -g "todo"`
+
+#### *Screenshot comparison*
+The result of the screenshot comparison are the screenshots with difference highlighted. Let's modify the TODO app to disable the `localStorage` logics, and run the test example above again in headless mode. Now there should be 3 screenshots created for the last action step, which is the screenshot after reloaded the web page.
+
+Baseline:
+![baseline](img/8_reload_page_base.png){:class="img-responsive"}
 
 ##### *Rebase*
 Try to update tests or the code in the demo todo app and VBot should automatically highlight the differences of the screenshots between previous and current version.
