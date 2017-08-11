@@ -5,16 +5,17 @@ The [article](http://katat.me/2017/01/09/vbot/) describes more details behind th
 
 ## Features
  - **JSON-based**
- *Test steps defined in JSON, clearer to have one to one action mapping to browser interactions*
-
- - **Screenshot Comparison**
- *Screenshots can be taken and automatically compared with previous, no more eye workouts!*
-
+ test steps, clearer to have one to one action mapping to browser interactions
  - **Chrome**
- *Chrome is used to automate the testings, can run in headless mode or with a visible browser window during testing*
-
+  is used to automate the testings, can run in headless mode or with a visible browser window during testing
  - **Programming or CLI mode**
- *Support testing with frameworks like mocha, or with VBot's command line tool*
+ support testing with frameworks like mocha, or with VBot's command line tool
+ - **Screenshot Comparison**
+ done automatically by comparing with previous screenshots, no more eye workouts!
+
+ ![diff](img/8_reload_page_diff.png)
+
+#### gif demo the browser tests in action
 
 ## Requirements
  - Node 6 or later
@@ -97,11 +98,12 @@ To see the tests running on Chrome visibly:
 
 `WINDOW=true npm test -- -g "todo"`
 
-#### *Screenshot comparison*
-The result of the screenshot comparison are the screenshots with difference highlighted. Let's modify the TODO app to disable the `localStorage` logics, and run the test example above again in headless mode. Now there should be 3 screenshots created for the last action step, which is the screenshot after reloaded the web page.
+##### *Screenshot comparison*
+The result of the screenshot comparison are the screenshots with difference highlighted. Let's modify the [TODO](test/fixtures/todo) app to disable the `localStorage` related logics, and run the example above again in headless mode.
 
-Baseline:
-![baseline](img/8_reload_page_base.png){:class="img-responsive"}
+Now there should be one `diff` screenshot created for the last action step, which is the screenshot after reloaded the web page, because of the modified code leading to a different `test` screenshot:
+
+![baseline](img/diff.png)
 
 ##### *Rebase*
 Try to update tests or the code in the demo todo app and VBot should automatically highlight the differences of the screenshots between previous and current version.
@@ -132,9 +134,6 @@ Please refer to respective [mocha tests](test/src/actions.js)
  - `screenshot.diff` when there are differences from screenshot comparison
  - `action.fail` when an action failed to execute
  - `end` when test case ended
-
-#### gif demo the console logs
-#### gif demo the browser tests in action
 
 ### CLI mode
 Please see [CLI readme](cli.md)
