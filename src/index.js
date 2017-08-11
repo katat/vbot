@@ -438,7 +438,6 @@ class VBot extends EventEmitter {
     })
   }
 
-
   async reload() {
     await this.chromejs.client.Page.reload({ignoreCache: true})
   }
