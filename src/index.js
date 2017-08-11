@@ -7,24 +7,24 @@ const mkdirp       = require('mkdirp')
 const Jimp         = require('jimp')
 const jsonlint     = require("jsonlint")
 const getPort      = require('get-port')
-const colors       = require('colors/safe')
+const chalk        = require('chalk')
 const _            = require('lodash')
 const Ajv          = require('ajv')
 const URL          = require('url')
 const EventEmitter = require('events')
 
-colors.setTheme({
+const colors = {
   silly: 'rainbow',
   input: 'grey',
-  verbose: 'cyan',
-  prompt: 'grey',
-  info: 'green',
-  data: 'cyan',
+  verbose: 'hex("#55dbbe")',
+  prompt: 'underline.bold',
+  info: 'hex("#9fca56")',
+  data: 'hex("#55dbbe").bold',
   help: 'cyan',
-  warn: 'yellow',
-  section: 'blue',
-  error: 'red'
-});
+  warn: 'hex("#e6cd69")',
+  section: 'hex("#43a5d5")',
+  error: 'hex("#Cd3f45")'
+}
 
 class VBot extends EventEmitter {
   constructor (options) {
@@ -337,46 +337,38 @@ class VBot extends EventEmitter {
   }
 
   async capture (action, stepIndex, folder) {
-    return new Promise(async (resolve, reject) => {
-      if (this.options.showWindow) {
-        return reject({err: 'Screenshot is disabled when running the tests with a visible Chrome window -- showWindow:true'})
-      }
-      let filename = this.getScreenshotFileName(action, stepIndex)
-      let baseFolder = this.getFolderPath(folder, 'base')
-      let baseFilePath = this.getFilePath(baseFolder, filename)
-      let files = {
-        base: baseFilePath
-      }
-      if (fs.existsSync(baseFilePath)) {
-        let testFolder = this.getFolderPath(folder, 'test')
-        let testFilePath = this.getFilePath(testFolder, filename)
-        await this.createFolder(testFolder)
-        await this.chromejs.screenshot(testFilePath, this.chromejs.options.windowSize);
-        let diffFolder = this.getFolderPath(folder, 'diff')
-        let diffFilePath = this.getFilePath(diffFolder, filename)
+    if (this.options.showWindow) {
+      this._log('Screenshot is disabled when running the tests with a visible Chrome window -- showWindow:true', 'warn', 4)
+      return
+    }
+    let filename = this.getScreenshotFileName(action, stepIndex)
+    let baseFolder = this.getFolderPath(folder, 'base')
+    let baseFilePath = this.getFilePath(baseFolder, filename)
+    let files = {
+      base: baseFilePath
+    }
+    if (fs.existsSync(baseFilePath)) {
+      let testFolder = this.getFolderPath(folder, 'test')
+      let testFilePath = this.getFilePath(testFolder, filename)
+      await this.createFolder(testFolder)
+      await this.chromejs.screenshot(testFilePath, this.chromejs.options.windowSize);
+      let diffFolder = this.getFolderPath(folder, 'diff')
+      let diffFilePath = this.getFilePath(diffFolder, filename)
 
-        await this.createFolder(diffFolder)
-        let result = await this.compareImages({baseFilePath, testFilePath, diffFilePath}).catch((err) => {
-          console.log(err)
-        })
-        files.test = testFilePath
-        let percentage = parseFloat(result.data.misMatchPercentage)
-        if (percentage) {
-          files.diff = diffFilePath
-        }
-        let screenshotResult = {files, analysis: result.data}
-        resolve(screenshotResult)
-
-        // mkdirp(diffFolder, async () => {
-        // })
-
-        // mkdirp(testFolder, async () => {
-        // })
-        return
+      await this.createFolder(diffFolder)
+      let result = await this.compareImages({baseFilePath, testFilePath, diffFilePath}).catch((err) => {
+        console.log(err)
+      })
+      files.test = testFilePath
+      let percentage = parseFloat(result.data.misMatchPercentage)
+      if (percentage) {
+        files.diff = diffFilePath
       }
-      let screenshotResult = await this.screenshotBaseImg(folder, action, stepIndex)
-      resolve(screenshotResult)
-    })
+      let screenshotResult = {files, analysis: result.data}
+      return screenshotResult
+    }
+    let screenshotResult = await this.screenshotBaseImg(folder, action, stepIndex)
+    return screenshotResult
   }
 
   async compareImages (params) {
@@ -518,27 +510,40 @@ class VBot extends EventEmitter {
   }
 
   _handleEvents () {
-    this._log('> Starting', 'prompt')
+    this._log('Starting', 'prompt')
 
     this.on('scenario.start', (scenario) => {
-      this._log(`> started scenario: ${scenario.name}`, 'section')
+      this._log(`started scenario: ${scenario.name}`, 'section', 1)
     })
 
+    let playbookSchema = this.getSchema('playbook')
     this.on('action.executed', (log) => {
-      this._log(`>> #${log.index+1} executed type:${log.action.type} selector:${log.action.selector}`, 'info')
-      this._log(`>>> duration:${log.duration/1000}s`, 'data')
+      let actionType = _.get(log, 'action.type')
+      this._log(`#${log.index+1} executed type:${actionType}`, 'info', 2)
+      let properties = _.get(playbookSchema, `properties.actions.items.selectCases.${actionType}.properties`)
+      if (properties) {
+        let propNames = Object.keys(properties)
+        let propStrings = propNames.map((prop) => {
+          if (!properties[prop].type) {
+            return
+          }
+          return `${prop}:${log.action[prop]}`
+        }).filter(str => {return str}).join(', ')
+        this._log(`${propStrings}`, 'info', 3)
+      }
+      this._log(`duration:${log.duration/1000}s`, 'data', 3)
       if (log.screenshot) {
-        this._log(`>>>> screenshot`, 'data')
+        this._log(`screenshot`, 'data', 4)
         if (log.screenshot.err) {
           this._log(`${log.screenshot.err}`, 'error')
         }
         if (log.screenshot.analysis) {
           let analysis = log.screenshot.analysis
           if (analysis.misMatchPercentage) {
-            this._log(`>>>> misMatchPercentage: ${analysis.misMatchPercentage*100}%, isSameDimensions: ${analysis.isSameDimensions}, acceptable: ${analysis.acceptable}`, 'warn')
-            this._log(`>>>> diff: ${log.screenshot.files.diff}`, 'warn')
+            this._log(`misMatchPercentage: ${analysis.misMatchPercentage*100}%, isSameDimensions: ${analysis.isSameDimensions}, acceptable: ${analysis.acceptable}`, 'warn', 4)
+            this._log(`diff: ${log.screenshot.files.diff}`, 'warn', 4)
           } else {
-            this._log(`>>>> 100% matched`, 'data')
+            this._log(`100% matched`, 'data', 4)
           }
         }
       }
@@ -551,7 +556,7 @@ class VBot extends EventEmitter {
     })
 
     this.on('end', async (result) => {
-      this._log(`> DONE. duration: ${result.duration/1000}s`, 'prompt')
+      this._log(`DONE. duration: ${result.duration/1000}s`, 'prompt')
     })
   }
 
@@ -577,11 +582,20 @@ class VBot extends EventEmitter {
     cb()
   }
 
-  _log (text, type) {
+  _log (text, type, level) {
     if(!this.options.verbose && type !== 'error') {
       return
     }
-    console.log(colors[type](text))
+    let string = chalk`{${colors[type]} ${text}}`
+    if (level) {
+      let levelMark = ''
+      for(let i = 0; i < level; i++) {
+        levelMark += ' '
+      }
+      // string = chalk`{bg${colors[type].replace(/(^|\s)[a-z]/g, (str) => str.toUpperCase())} ${levelMark}} ` + string
+      string = `${levelMark}` + string
+    }
+    console.log(string)
   }
 
   async _failSnapshot () {
