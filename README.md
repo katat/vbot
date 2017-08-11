@@ -15,7 +15,8 @@ The [article](http://katat.me/2017/01/09/vbot/) describes more details behind th
 
  ![diff](img/8_reload_page_diff.png)
 
-#### gif demo the browser tests in action
+## Preview
+![vbot cli](img/vbot-cli.gif)
 
 ## Requirements
  - Node 6 or later
@@ -140,6 +141,8 @@ Please see [CLI readme](cli.md)
 
 ## Chrome extension
 There is a Chrome extension helps automatically record the interactions in a web page using the [playbook](#playbook-schema) schema. The playbook JSON exported can be run in either the programming mode as shown in above example or in CLI mode.
+
+![vbot chrome extension](img/vbot-chrome.gif)
 
 To run in CLI mode with the exported JSON file, just run:
 
