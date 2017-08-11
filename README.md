@@ -140,7 +140,7 @@ Please refer to respective [mocha tests](test/src/actions.js)
 Please see [CLI readme](cli.md)
 
 ## Chrome extension
-There is a Chrome extension facilitate recording the interactions in a web page using the [playbook](#playbook-schema) schema. The playbook JSON exported can be run in either the programming mode as shown in above example or in CLI mode.
+There is a [Chrome extension](https://chrome.google.com/webstore/detail/vbot-recorder/nngcjjhpjbaofdokebbcgcnkeebnidij?utm_source=chrome-ntp-icon) to facilitate recording the interactions in a web page using the [playbook](#playbook-schema) schema. The playbook JSON exported can be run in either the programming mode as shown in above example or in CLI mode.
 
 ![vbot chrome extension](img/vbot-chrome.gif)
 
