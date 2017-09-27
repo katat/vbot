@@ -31,6 +31,7 @@ class VBot extends EventEmitter {
     super()
     this.setOptions(options)
     this.idleClientList = []
+    this.consoleList = []
   }
 
   setOptions (options = {}) {
@@ -250,6 +251,7 @@ class VBot extends EventEmitter {
         this.animationStartTime = new Date()
       })
 
+      await this.listenConsole()
       await this.runActions(scenario, this.options.rebase).catch((e) => {
         throw e
       })
@@ -386,6 +388,12 @@ class VBot extends EventEmitter {
         passThreshold: diff.percent <= this.options.mismatchThreshold
       }
     }
+  }
+
+  async listenConsole () {
+    await this.chromejs.getConsole(async (msg) => {
+      await this.consoleList.push(msg)
+    })
   }
 
   async scroll (action) {
