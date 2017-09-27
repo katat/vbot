@@ -5,16 +5,18 @@ The [article](http://katat.me/2017/01/09/vbot/) describes more details behind th
 
 ## Features
  - **JSON-based**
- *Test steps defined in JSON, clearer to have one to one action mapping to browser interactions*
-
- - **Screenshot Comparison**
- *Screenshots can be taken and automatically compared with previous, no more eye workouts!*
-
+ test steps, clearer to have one to one action mapping to browser interactions
  - **Chrome**
- *Chrome is used to automate the testings, can run in headless mode or with a visible browser window during testing*
-
+  is used to automate the testings, can run in headless mode or with a visible browser window during testing
  - **Programming or CLI mode**
- *Support testing with frameworks like mocha, or with VBot's command line tool*
+ support testing with frameworks like mocha, or with VBot's command line tool
+ - **Screenshot Comparison**
+ done automatically by comparing with previous screenshots, no more eye workouts!
+
+ ![diff](img/8_reload_page_diff.png)
+
+## Preview
+![vbot cli](img/vbot-cli.gif)
 
 ## Requirements
  - Node 6 or later
@@ -65,7 +67,8 @@ describe('examples', () => {
         //comment will be used as the screenshot file name, otherwise selectorstring will be used
         {type: "click", comment: "done milk", selector:"ul#todo>li:nth-child(3)>div>button:nth-child(2)>svg", screenshot:true},
         {type: "click", comment: "done coffee", selector:"ul#todo>li:nth-child(2)>div>button:nth-child(2)>svg", screenshot:true},
-        {type: "click", comment: "remove work", selector:"ul#todo>li>div>button:nth-child(1)>svg", screenshot:true}
+        {type: "click", comment: "remove work", selector:"ul#todo>li>div>button:nth-child(1)>svg", screenshot:true},
+        {type: "reload", comment: "reload page", screenshot:true}
       ]
     })
     vbot.on('action.executed', (log) => {})//event when an action executed successfully
@@ -78,7 +81,7 @@ describe('examples', () => {
 });
 ```
 
-The code above is from the [test case](test/src/example-todo.js).
+Let me demo by testing a nice todo app created by [themaxsandelin](https://github.com/themaxsandelin/todo). The code above is from the [test case](test/src/example-todo.js).
 
 To see how this example work in action, you can clone code of this repository and go to the folder in command line, install the node modules by `npm install`.
 
@@ -95,6 +98,13 @@ It will execute the test with Chrome in headless mode. You should see the verbos
 To see the tests running on Chrome visibly:
 
 `WINDOW=true npm test -- -g "todo"`
+
+##### *Screenshot comparison*
+The result of the screenshot comparison are the screenshots with difference highlighted. Let's modify the [TODO](test/fixtures/todo) app to disable the `localStorage` related logics, and run the example above again in headless mode.
+
+Now there should be one `diff` screenshot created for the last action step, which is the screenshot after reloaded the web page, because of the modified code leading to a different `test` screenshot:
+
+![baseline](img/diff.png)
 
 ##### *Rebase*
 Try to update tests or the code in the demo todo app and VBot should automatically highlight the differences of the screenshots between previous and current version.
@@ -126,14 +136,13 @@ Please refer to respective [mocha tests](test/src/actions.js)
  - `action.fail` when an action failed to execute
  - `end` when test case ended
 
-#### gif demo the console logs
-#### gif demo the browser tests in action
-
 ### CLI mode
 Please see [CLI readme](cli.md)
 
 ## Chrome extension
-There is a Chrome extension helps automatically record the interactions in a web page using the [playbook](#playbook-schema) schema. The playbook JSON exported can be run in either the programming mode as shown in above example or in CLI mode.
+There is a [Chrome extension](https://chrome.google.com/webstore/detail/vbot-recorder/nngcjjhpjbaofdokebbcgcnkeebnidij?utm_source=chrome-ntp-icon) to facilitate recording the interactions in a web page using the [playbook](#playbook-schema) schema. The playbook JSON exported can be run in either the programming mode as shown in above example or in CLI mode.
+
+![vbot chrome extension](img/vbot-chrome.gif)
 
 To run in CLI mode with the exported JSON file, just run:
 

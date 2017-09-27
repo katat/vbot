@@ -32,7 +32,8 @@ describe('examples', () => {
         //comment will be used as the screenshot file name, otherwise selectorstring will be used
         {type: "click", comment: "done milk", selector:"ul#todo>li:nth-child(3)>div>button:nth-child(2)>svg", screenshot:true},
         {type: "click", comment: "done coffee", selector:"ul#todo>li:nth-child(2)>div>button:nth-child(2)>svg", screenshot:true},
-        {type: "click", comment: "remove work", selector:"ul#todo>li>div>button:nth-child(1)>svg", screenshot:true}
+        {type: "click", comment: "remove work", selector:"ul#todo>li>div>button:nth-child(1)>svg", screenshot:true},
+        {type: "reload", comment: "reload page", screenshot:true}
       ]
     })
     vbot.on('action.executed', (log) => {})//event when an action executed successfully
