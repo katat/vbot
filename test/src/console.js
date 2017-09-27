@@ -6,7 +6,7 @@ process.on('unhandledRejection', (e) => {
   console.log(e)
 })
 
-describe.only('console', async () => {
+describe('console', async () => {
 	let vbot
   const fixturePath = `file:///${__dirname}/../fixtures/html`
   const testPath = `${__dirname}`
