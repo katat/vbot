@@ -378,14 +378,21 @@ class VBot extends EventEmitter {
     let baseImg = await Jimp.read(baseFilePath)
     let testImg = await Jimp.read(testFilePath)
     let diff = Jimp.diff(baseImg, testImg)
-    diff.percent && await diff.image.write(diffFilePath)
-    return {
-      data: {
-        misMatchPercentage: diff.percent,
-        isSameDimensions: baseImg.bitmap.width === testImg.bitmap.width && baseImg.bitmap.height === testImg.bitmap.height,
-        passThreshold: diff.percent <= this.options.mismatchThreshold
+    return new Promise(resolve => {
+      const data = {
+        data: {
+          misMatchPercentage: diff.percent,
+          isSameDimensions: baseImg.bitmap.width === testImg.bitmap.width && baseImg.bitmap.height === testImg.bitmap.height,
+          passThreshold: diff.percent <= this.options.mismatchThreshold
+        }
       }
-    }
+      if (!diff.percent) {
+        return resolve(data)
+      }
+      diff.image.write(diffFilePath, () => {
+        resolve(data)
+      })
+    })
   }
 
   async scroll (action) {
