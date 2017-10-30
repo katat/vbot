@@ -26,6 +26,8 @@ const colors = {
   error: 'hex("#Cd3f45")'
 }
 
+const webRequest = {}
+
 class VBot extends EventEmitter {
   constructor (options) {
     super()
@@ -232,6 +234,32 @@ class VBot extends EventEmitter {
         proxy: this.options.proxy
       })
       await this.chromejs.start()
+      this.chromejs.client.Runtime.consoleAPICalled((msg) => {
+        for (var i = 0; i < msg.args.length; i++) {
+          let arg = msg.args[i]
+          let stackTrace = msg.stackTrace.callFrames[0]
+          const log = {
+            type: msg.type,
+            msg: arg.type === 'object' ? 'object' : arg.value,
+            url: stackTrace.url,
+            line: stackTrace.lineNumber
+          }
+
+          this.emit('console', log)
+        }
+      })
+      this.chromejs.client.Network.requestWillBeSent((msg) => {
+        webRequest[msg.requestId] = msg
+      })
+      this.chromejs.client.Network.loadingFailed((msg) => {
+        const reqHistory = webRequest[msg.requestId]
+        let error = {
+          url: reqHistory.documentURL,
+          method: reqHistory.request.method,
+          error: msg.errorText
+        }
+        this.emit('network.error', error)
+      })
       await this.chromejs.goto(scenario.url).catch((ex) => {
         throw new Error(ex.message + '; URL: ' + scenario.url)
       })
@@ -521,6 +549,14 @@ class VBot extends EventEmitter {
 
     this.on('scenario.start', (scenario) => {
       this._log(`started scenario: ${scenario.name}`, 'section', 1)
+    })
+
+    this.on('console', (log) => {
+      this._log(`console: ${log.msg}`, log.type === 'error' ? 'error' : 'input', 1)
+    })
+
+    this.on('network.error', (log) => {
+      this._log(`network: ${log.url} - ${log.method} - ${log.error}`, 'error', 1)
     })
 
     let playbookSchema = this.getSchema('playbook')

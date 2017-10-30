@@ -42,4 +42,66 @@ describe('window', async () => {
       })
     });
   });
+  describe('log', async () => {
+    it('console', (done) => {
+      vbot = new VBot({
+        verbose: false,
+        playbook: {
+          viewWidth: 375,
+          viewHeight: 677,
+          url: `file:///${testPath}fixtures/html/log.html`,
+          scenarios: [
+            {
+              name: 'console log',
+              actions: []
+            }
+          ]
+        }
+      })
+      vbot.start()
+      let count = 0
+      vbot.on('console', (log) => {
+        count ++
+        assert.equal(log.type, 'log')
+        if (count === 1) {
+          assert.equal(log.msg, 'test')
+        }
+        if (count === 2) {
+          assert.equal(log.msg, 'object')
+        }
+      })
+      vbot.on('end', () => {
+        assert(count !== 0)
+        done()
+      })
+    });
+    it('network error', function (done) {
+      vbot = new VBot({
+        verbose: false,
+        playbook: {
+          viewWidth: 375,
+          viewHeight: 677,
+          url: `http://shouldnotfindthisurlblabla.bla`,
+          scenarios: [
+            {
+              name: 'network error',
+              actions: []
+            }
+          ]
+        }
+      })
+      vbot.start()
+      let count = 0
+      vbot.on('network.error', (log) => {
+        count ++
+        assert(log.url)
+        assert(log.method)
+        assert(log.error)
+      })
+      vbot.on('end', () => {
+        assert(count !== 0)
+        done()
+      })
+    });
+  });
 });
