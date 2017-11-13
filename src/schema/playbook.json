@@ -18,14 +18,15 @@
       "items": {
         "type": "object",
         "properties": {
-          "delay": {"type": "integer", "minimum": 1},
-          "comment": {"type": "string"},
+          "comment": {"type": "string", "description": "action description"},
+          "delay": {"type": "integer", "minimum": 1, "description": "delay in ms before executing this action"},
           "type": {
             "type": "string",
-            "enum": ["exist", "click", "typing", "select", "scroll", "assertInnerText", "reload"]
+            "enum": ["exist", "click", "typing", "select", "scroll", "assertInnerText", "reload"],
+            "description": "action type"
           },
-          "screenshot": {"type": "boolean"},
-          "captureDelay": {"type": "integer", "minimum": 1}
+          "screenshot": {"type": "boolean", "description": "whether to take screenshot and do comparison with previous version after the action has been executed."},
+          "captureDelay": {"type": "integer", "minimum": 1, "description": "delay in ms before taking screenshot"}
         },
         "required": ["type"],
         "select": { "$data": "0/type" },
