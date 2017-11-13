@@ -453,7 +453,7 @@ class VBot extends EventEmitter {
       while (true) {
         await this.timeout(10)
         if (new Date() - start >= timeout) {
-          return reject(new Error('timeout'))
+          return reject(new Error('No matching inner text is found'))
         }
         nodeText = await this.chromejs.eval(expr)
         result.nodeText = nodeText.result.value
@@ -477,14 +477,14 @@ class VBot extends EventEmitter {
       // })
       try {
         let box = await this.chromejs.box(action.selector).catch((ex) => {
-          throw new Error('not found dom element')
+          throw new Error('No element matching the selector is visible')
         })
         if (box) {
           break
         }
       }catch(e) {
         if (new Date() - start >= (action.waitTimeout || 5000)) {
-          throw new Error('timeout')
+          throw e
         }
         await this.chromejs.wait(10)
       }
@@ -594,7 +594,7 @@ class VBot extends EventEmitter {
 
     this.on('action.fail', async (log) => {
       const details = log.details
-      delete log.details
+      // delete log.details
       this._log(details + '\n' + JSON.stringify(log, undefined, 2), 'error')
     })
 
