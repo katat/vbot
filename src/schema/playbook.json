@@ -18,14 +18,14 @@
       "items": {
         "type": "object",
         "properties": {
+          "delay": {"type": "integer", "minimum": 1},
+          "comment": {"type": "string"},
           "type": {
             "type": "string",
             "enum": ["exist", "click", "typing", "select", "scroll", "assertInnerText", "reload"]
           },
           "screenshot": {"type": "boolean"},
-          "captureDelay": {"type": "integer", "minimum": 1},
-          "comment": {"type": "string"},
-          "delay": {"type": "integer", "minimum": 1}
+          "captureDelay": {"type": "integer", "minimum": 1}
         },
         "required": ["type"],
         "select": { "$data": "0/type" },
