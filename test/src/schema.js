@@ -46,6 +46,14 @@ describe('schema validation', async () => {
             assert(!result.valid)
             assert.equal(result.errors[0].message, 'should have required property \'type\'')
           });
+          it('captureDelay should depend on screenshot', function () {
+            validdata.actions = [
+              {type: 'click', selector: '#test', captureDelay: 1}
+            ]
+            let result = vbot.validatePlaybookSchema(validdata)
+            assert(!result.valid)
+            assert.equal(result.errors[0].message, 'should have property screenshot when property captureDelay is present')
+          });
         });
         describe('click', function () {
           describe('invalid', function () {

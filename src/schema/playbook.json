@@ -22,12 +22,10 @@
             "type": "string",
             "enum": ["exist", "click", "typing", "select", "scroll", "assertInnerText", "reload"]
           },
-          "comment": {"type": "string"},
           "screenshot": {"type": "boolean"},
-          "scrollTo": {"type": "boolean"},
-          "delay": {"type": "integer", "minimum": 1},
           "captureDelay": {"type": "integer", "minimum": 1},
-          "waitTimeout": {"type": "integer", "minimum": 1}
+          "comment": {"type": "string"},
+          "delay": {"type": "integer", "minimum": 1}
         },
         "required": ["type"],
         "select": { "$data": "0/type" },
@@ -36,14 +34,18 @@
             "required": ["selector"],
             "properties": {
               "type": {},
-              "selector": { "type": "string" }
+              "selector": { "type": "string" },
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
             }
           },
           "click": {
             "required": ["selector"],
             "properties": {
               "type": {},
-              "selector": { "type": "string" }
+              "selector": { "type": "string" },
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
             }
           },
           "typing": {
@@ -60,7 +62,9 @@
             "properties": {
               "type": {},
               "selector": { "type": "string" },
-              "selectIndex": { "type": "integer", "minimum": 0 }
+              "selectIndex": { "type": "integer", "minimum": 0 },
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
             }
           },
           "assertInnerText": {
@@ -68,7 +72,9 @@
             "properties": {
               "type": {},
               "selector": { "type": "string" },
-              "match": { "type": "string"}
+              "match": { "type": "string"},
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
             }
           },
           "scroll": {
@@ -82,9 +88,14 @@
                   {"type": "number", "minimum": 0},
                   {"type": "number", "minimum": 0}
                 ]
-              }
+              },
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
             }
           }
+        },
+        "dependencies": {
+          "captureDelay": ["screenshot"]
         }
       },
       "minItems": 1
