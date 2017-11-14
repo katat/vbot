@@ -284,6 +284,9 @@ class VBot extends EventEmitter {
       // if (this.options.waitBeforeEnd) {
       //   await this.timeout(this.options.waitBeforeEnd)
       // }
+
+      await this.captureResult()
+
       this.idleClientList.push(this.chromejs)
       this.emit('scenario.end', scenario)
     }
@@ -477,7 +480,7 @@ class VBot extends EventEmitter {
       // })
       try {
         let box = await this.chromejs.box(action.selector).catch((ex) => {
-          throw new Error('No element matching the selector is visible')
+          throw new Error('The first element matching the selector is invisible')
         })
         if (box) {
           break
@@ -536,12 +539,20 @@ class VBot extends EventEmitter {
     if (this.options.showWindow && !force) {
       return
     }
+
     return new Promise(async (resolve) => {
       for (var i = 0; i < this.idleClientList.length; i++) {
         await this.idleClientList[i].close()
       }
       resolve()
     })
+  }
+
+  async captureResult () {
+    const finishFolder = `${this.imgFolder}/finish`
+    const finishScreenshot = `${finishFolder}/snapshot.png`
+    await this.createFolder(finishFolder)
+    await this.chromejs.screenshot(finishScreenshot, this.chromejs.options.windowSize);
   }
 
   _handleEvents () {
@@ -617,7 +628,7 @@ class VBot extends EventEmitter {
     }
     this._log(msg, 'error')
 
-    await this._failSnapshot()
+    // await this._failSnapshot()
     this.idleClientList.push(this.chromejs)
   }
 
