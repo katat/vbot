@@ -278,7 +278,9 @@ class VBot extends EventEmitter {
         this.animationStartTime = new Date()
       })
 
-      await this.runActions(scenario, this.options.rebase).catch((e) => {
+      await this.runActions(scenario, this.options.rebase).catch(async (e) => {
+        await this.captureResult()
+
         throw e
       })
       // if (this.options.waitBeforeEnd) {
@@ -549,9 +551,10 @@ class VBot extends EventEmitter {
   }
 
   async captureResult () {
-    const finishFolder = `${this.imgFolder}/finish`
+    const finishFolder = `${this.getImgFolder()}/finish`
     const finishScreenshot = `${finishFolder}/snapshot.png`
     await this.createFolder(finishFolder)
+    console.log('final screenshot', finishScreenshot)
     await this.chromejs.screenshot(finishScreenshot, this.chromejs.options.windowSize);
   }
 
