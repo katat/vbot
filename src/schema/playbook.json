@@ -18,16 +18,15 @@
       "items": {
         "type": "object",
         "properties": {
+          "comment": {"type": "string", "description": "action description"},
+          "delay": {"type": "integer", "minimum": 1, "description": "delay in ms before executing this action"},
           "type": {
             "type": "string",
-            "enum": ["exist", "click", "typing", "select", "scroll", "assertInnerText", "reload"]
+            "enum": ["exist", "click", "typing", "select", "scroll", "assertInnerText", "reload"],
+            "description": "action type"
           },
-          "comment": {"type": "string"},
-          "screenshot": {"type": "boolean"},
-          "scrollTo": {"type": "boolean"},
-          "delay": {"type": "integer", "minimum": 1},
-          "captureDelay": {"type": "integer", "minimum": 1},
-          "waitTimeout": {"type": "integer", "minimum": 1}
+          "screenshot": {"type": "boolean", "description": "whether to take screenshot and do comparison with previous version after the action has been executed."},
+          "captureDelay": {"type": "integer", "minimum": 1, "description": "delay in ms before taking screenshot"}
         },
         "required": ["type"],
         "select": { "$data": "0/type" },
@@ -36,14 +35,18 @@
             "required": ["selector"],
             "properties": {
               "type": {},
-              "selector": { "type": "string" }
+              "selector": { "type": "string" },
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
             }
           },
           "click": {
             "required": ["selector"],
             "properties": {
               "type": {},
-              "selector": { "type": "string" }
+              "selector": { "type": "string" },
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
             }
           },
           "typing": {
@@ -60,7 +63,9 @@
             "properties": {
               "type": {},
               "selector": { "type": "string" },
-              "selectIndex": { "type": "integer", "minimum": 0 }
+              "selectIndex": { "type": "integer", "minimum": 0 },
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
             }
           },
           "assertInnerText": {
@@ -68,7 +73,9 @@
             "properties": {
               "type": {},
               "selector": { "type": "string" },
-              "match": { "type": "string"}
+              "match": { "type": "string"},
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
             }
           },
           "scroll": {
@@ -82,9 +89,14 @@
                   {"type": "number", "minimum": 0},
                   {"type": "number", "minimum": 0}
                 ]
-              }
+              },
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
             }
           }
+        },
+        "dependencies": {
+          "captureDelay": ["screenshot"]
         }
       },
       "minItems": 1
