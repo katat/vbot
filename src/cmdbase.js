@@ -34,6 +34,11 @@ module.exports = function() {
       alias: 'd',
       describe: 'For debugging, make the Chrome window visible and see the tests in action',
       show: true
+    },
+    web: {
+      alias: 'w',
+      describe: 'For vbot web user to debug scenario locally using generated id',
+      show: true
     }
   }
 
@@ -70,6 +75,9 @@ module.exports = function() {
       }
       if (opt === 'include') {
         vbotOpts.include = val
+      }
+      if (opt === 'web') {
+        vbotOpts.web = true
       }
     });
     let vbot = new VBot(vbotOpts)

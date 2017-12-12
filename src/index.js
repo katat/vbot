@@ -12,6 +12,7 @@ const _            = require('lodash')
 const Ajv          = require('ajv')
 const URL          = require('url')
 const EventEmitter = require('events')
+const axios        = require('axios')
 
 const colors = {
   silly: 'rainbow',
@@ -94,6 +95,26 @@ class VBot extends EventEmitter {
         return reject(ex)
       }
       resolve(playbook);
+    })
+  }
+
+  async downloadPlaybook (playbookId) {
+    if (!playbookId) {
+      return
+    }
+    return new Promise ((resolve, reject) => {
+      let scenarioId = playbookId.split('|')[0]
+      let clientKey = playbookId.split('|')[1]
+      axios({
+        method: 'get',
+        url: `http://dev.vbot.io:5000/scenario/${scenarioId}/playbook`,
+        headers: {'x-clientKey': clientKey}
+      }).then((res) => {
+        console.log(res)
+        return resolve(res)
+      }).catch((err) => {
+        return reject(err)
+      })
     })
   }
 
@@ -501,11 +522,16 @@ class VBot extends EventEmitter {
 
   async start (playbook, opts) {
     try {
-      playbook = playbook || this.options.playbook || this.options.schema || await this.parsePlaybook(this.options.playbookFile).catch((ex) => {
-        throw ex
-      })
-      if (!playbook) {
-        throw new Error('no playbook found in the options')
+      playbook = playbook || this.options.playbook || this.options.schema
+      if (!playbook && this.options.web) {
+        playbook = await this.downloadPlaybook(this.options.playbookFile).catch((err) => {
+          throw err
+        })
+        this.options.showWindow = true
+      } else if (!playbook) {
+        playbook = await this.parsePlaybook(this.options.playbookFile).catch((ex) => {
+          throw ex
+        })
       }
       //if not using scenario-list based schema, then validate the playbook
       if (!playbook.scenarios) {
