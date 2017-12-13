@@ -8,8 +8,7 @@ module.exports = function() {
     "playbook": {
       alias: 'f',
       describe: 'file path for test definitions',
-      show: true,
-      demand: true
+      show: true
     },
     host: {
       alias: 'h',
@@ -38,6 +37,14 @@ module.exports = function() {
     web: {
       alias: 'w',
       describe: 'For vbot web user to debug scenario locally using generated id',
+      show: true
+    },
+    clientKey: {
+      alias: 'c',
+      show: true
+    },
+    scenario: {
+      describe: 'scenarioId of scenario will be download',
       show: true
     }
   }
@@ -76,10 +83,17 @@ module.exports = function() {
       if (opt === 'include') {
         vbotOpts.include = val
       }
-      if (opt === 'web') {
-        vbotOpts.web = true
+      if (opt === 'clientKey') {
+        vbotOpts.clientKey = val
+      }
+      if (opt === 'scenario') {
+        vbotOpts.scenarioId = val
       }
     });
+    if (!vbotOpts.scenarioId && !vbotOpts.playbookFile) {
+      yargs.showHelp()
+      return console.log('playbook or scneario is required')
+    }
     let vbot = new VBot(vbotOpts)
     vbot.start()
     vbot.on('scenario.end', async () => {

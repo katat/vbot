@@ -98,20 +98,17 @@ class VBot extends EventEmitter {
     })
   }
 
-  async downloadPlaybook (playbookId) {
-    if (!playbookId) {
+  async downloadPlaybook (clientKey, scenarioId) {
+    if (!scenarioId || !clientKey) {
       return
     }
     return new Promise ((resolve, reject) => {
-      let scenarioId = playbookId.split('|')[0]
-      let clientKey = playbookId.split('|')[1]
       axios({
         method: 'get',
         url: `http://dev.vbot.io:5000/scenario/${scenarioId}/playbook`,
         headers: {'x-clientKey': clientKey}
       }).then((res) => {
-        console.log(res)
-        return resolve(res)
+        return resolve(res.data)
       }).catch((err) => {
         return reject(err)
       })
@@ -523,15 +520,16 @@ class VBot extends EventEmitter {
   async start (playbook, opts) {
     try {
       playbook = playbook || this.options.playbook || this.options.schema
-      if (!playbook && this.options.web) {
-        playbook = await this.downloadPlaybook(this.options.playbookFile).catch((err) => {
-          throw err
-        })
-        this.options.showWindow = true
-      } else if (!playbook) {
+      if (!playbook && this.options.playbookFile) {
         playbook = await this.parsePlaybook(this.options.playbookFile).catch((ex) => {
           throw ex
         })
+      }
+      if (!playbook) {
+        playbook = await this.downloadPlaybook(this.options.clientKey, this.options.scenarioId).catch((err) => {
+          throw err
+        })
+        this.options.showWindow = true
       }
       //if not using scenario-list based schema, then validate the playbook
       if (!playbook.scenarios) {
