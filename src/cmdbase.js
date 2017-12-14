@@ -37,11 +37,13 @@ module.exports = function() {
       describe: 'For debugging, make the Chrome window visible and see the tests in action',
       show: true
     },
-    clientKey: {
-      show: false
+    "client-key": {
+      describe: 'user id for local use, can get from profile page',
+      show: true
     },
-    scenarioId: {
-      show: false
+    "scenario-id": {
+      describe: 'to specify the scenario will be run',
+      show: true
     }
   }
 
@@ -54,18 +56,13 @@ module.exports = function() {
       yargs.option(opt, this.cmdOptions[opt])
     });
     yargs
-    .command('$0', 'the default command', (yargs) => {
+    .command('$0', 'run vbot test from local json file', (yargs) => {
       return yargs.option('f', {demand: true})
     })
-    .command('run local file <playbookFile>', 'run vbot test from local json file')
-    .command('run local fetch <clientKey> <scenarioId>', 'run vbot test stored in vbot web')
-    .command("run", false, (yargs) => {
+    .command('download', 'run vbot test stored in vbot web', (yargs) => {
       return yargs
-        .command('local <playbook>', 'run local', (yargs) => {
-          yargs
-            .command('fetch <clientKey> <scenarioId>')
-            .command('file <playbook>')
-        })
+      .option('client-key', {demand: true})
+      .option('scenario-id', {demand: true})
     })
     const argv = yargs.argv;
     Object.keys(this.cmdOptions).forEach((opt) => {
@@ -93,10 +90,10 @@ module.exports = function() {
       if (opt === 'include') {
         vbotOpts.include = val
       }
-      if (opt === 'clientKey') {
+      if (opt === 'client-key') {
         vbotOpts.clientKey = val
       }
-      if (opt === 'scenarioId') {
+      if (opt === 'scenario-id') {
         vbotOpts.scenarioId = val
       }
     });
