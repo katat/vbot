@@ -57,15 +57,14 @@ module.exports = function() {
     .command('$0', 'the default command', (yargs) => {
       return yargs.option('f', {demand: true})
     })
-    .command('run local <playbook>', 'run vbot test from local json file')
-    .command('run remote <clientKey> <scenarioId>', 'run vbot test stored in vbot web')
+    .command('run local file <playbookFile>', 'run vbot test from local json file')
+    .command('run local fetch <clientKey> <scenarioId>', 'run vbot test stored in vbot web')
     .command("run", false, (yargs) => {
       return yargs
         .command('local <playbook>', 'run local', (yargs) => {
-          console.log('run local')
-        })
-        .command('remote <clientKey> <scenarioId>', 'run remote', (yargs) => {
-          console.log('run remote')
+          yargs
+            .command('fetch <clientKey> <scenarioId>')
+            .command('file <playbook>')
         })
     })
     const argv = yargs.argv;
