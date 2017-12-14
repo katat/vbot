@@ -525,7 +525,7 @@ class VBot extends EventEmitter {
           throw ex
         })
       }
-      if (!playbook) {
+      if (!playbook && this.options.clientKey && this.options.scenarioId) {
         playbook = await this.downloadPlaybook(this.options.clientKey, this.options.scenarioId).catch((err) => {
           throw err
         })

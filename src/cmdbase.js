@@ -7,16 +7,19 @@ module.exports = function() {
   this.cmdOptions = {
     "playbook": {
       alias: 'f',
+      type: 'string',
       describe: 'file path for test definitions',
       show: true
     },
     host: {
       alias: 'h',
+      type: 'string',
       describe: 'override host target',
       show: true
     },
     rebase: {
       alias: 'r',
+      type: 'boolean',
       describe: 'rebase the screenshots',
       show: true
     },
@@ -34,18 +37,11 @@ module.exports = function() {
       describe: 'For debugging, make the Chrome window visible and see the tests in action',
       show: true
     },
-    web: {
-      alias: 'w',
-      describe: 'For vbot web user to debug scenario locally using generated id',
-      show: true
-    },
     clientKey: {
-      alias: 'c',
-      show: true
+      show: false
     },
-    scenario: {
-      describe: 'scenarioId of scenario will be download',
-      show: true
+    scenarioId: {
+      show: false
     }
   }
 
@@ -57,6 +53,21 @@ module.exports = function() {
       }
       yargs.option(opt, this.cmdOptions[opt])
     });
+    yargs
+    .command('$0', 'the default command', (yargs) => {
+      return yargs.option('f', {demand: true})
+    })
+    .command('run local <playbookFile>', 'run vbot test from local json file')
+    .command('run remote <clientKey> <scenarioId>', 'run vbot test stored in vbot web')
+    .command("run", false, (yargs) => {
+      return yargs
+        .command('local <playbookFile>', 'run local', (yargs) => {
+          console.log('run local')
+        })
+        .command('remote <clientKey> <scenarioId>', 'run remote', (yargs) => {
+          console.log('run remote')
+        })
+    })
     const argv = yargs.argv;
     Object.keys(this.cmdOptions).forEach((opt) => {
       let val = argv[opt]
@@ -86,14 +97,10 @@ module.exports = function() {
       if (opt === 'clientKey') {
         vbotOpts.clientKey = val
       }
-      if (opt === 'scenario') {
+      if (opt === 'scenarioId') {
         vbotOpts.scenarioId = val
       }
     });
-    if (!vbotOpts.scenarioId && !vbotOpts.playbookFile) {
-      yargs.showHelp()
-      return console.log('playbook or scneario is required')
-    }
     let vbot = new VBot(vbotOpts)
     vbot.start()
     vbot.on('scenario.end', async () => {
