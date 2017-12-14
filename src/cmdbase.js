@@ -57,7 +57,7 @@ module.exports = function() {
     .command('$0', 'the default command', (yargs) => {
       return yargs.option('f', {demand: true})
     })
-    .command('run local <playbookFile>', 'run vbot test from local json file')
+    .command('run local <playbook>', 'run vbot test from local json file')
     .command('run remote <clientKey> <scenarioId>', 'run vbot test stored in vbot web')
     .command("run", false, (yargs) => {
       return yargs
