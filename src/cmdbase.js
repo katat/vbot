@@ -61,7 +61,7 @@ module.exports = function() {
     .command('run remote <clientKey> <scenarioId>', 'run vbot test stored in vbot web')
     .command("run", false, (yargs) => {
       return yargs
-        .command('local <playbookFile>', 'run local', (yargs) => {
+        .command('local <playbook>', 'run local', (yargs) => {
           console.log('run local')
         })
         .command('remote <clientKey> <scenarioId>', 'run remote', (yargs) => {
