@@ -56,8 +56,9 @@ module.exports = function() {
       yargs.option(opt, this.cmdOptions[opt])
     });
     yargs
+    .usage('vbot <-f> | vbot download <--client-key> <--scenario-id>')
     .command('$0', 'run vbot test from local json file', (yargs) => {
-      return yargs.option('f', {demand: true})
+      return yargs.demandOption(['f'])
     })
     .command('download', 'run vbot test stored in vbot web', (yargs) => {
       return yargs
