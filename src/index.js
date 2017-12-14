@@ -514,14 +514,20 @@ class VBot extends EventEmitter {
       playbook = playbook || this.options.playbook || this.options.schema
       if (!playbook && this.options.playbookFile) {
         playbook = await this.parsePlaybook(this.options.playbookFile).catch((ex) => {
-          throw ex
+          this._log('Wrong file path', 'error')
         })
       }
       if (!playbook && this.options.clientKey && this.options.scenarioId) {
         playbook = await this.downloadPlaybook(this.options.clientKey, this.options.scenarioId).catch((err) => {
-          throw err
+          this._log('Wrong client key or scenario id', 'error')
         })
         this.options.showWindow = true
+      }
+      if (!playbook) {
+        if (!this.options.playbookFile && !this.options.clientKey && !this.options.scenarioId) {
+          this._log('No valid playbook', 'error')
+        }
+        return
       }
       //if not using scenario-list based schema, then validate the playbook
       if (!playbook.scenarios) {
