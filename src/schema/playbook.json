@@ -1,0 +1,107 @@
+{
+  "type": "object",
+  "properties": {
+    "url": {
+      "type": "string",
+      "pattern": "^(http|https|file):\/\/[^ \"]+$"
+    },
+    "size": {
+      "type": "object",
+      "properties": {
+        "width": {"type": "integer", "minimum": 100},
+        "height": {"type": "integer", "maximum": 4000}
+      }
+    },
+    "scenario": { "type": "string" },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "comment": {"type": "string", "description": "action description"},
+          "delay": {"type": "integer", "minimum": 1, "description": "delay in ms before executing this action"},
+          "type": {
+            "type": "string",
+            "enum": ["exist", "click", "typing", "select", "scroll", "assertInnerText", "reload"],
+            "description": "action type"
+          },
+          "screenshot": {"type": "boolean", "description": "whether to take screenshot and do comparison with previous version after the action has been executed."},
+          "captureDelay": {"type": "integer", "minimum": 1, "description": "delay in ms before taking screenshot"}
+        },
+        "required": ["type"],
+        "select": { "$data": "0/type" },
+        "selectCases": {
+          "exist": {
+            "required": ["selector"],
+            "properties": {
+              "type": {},
+              "selector": { "type": "string" },
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
+            }
+          },
+          "click": {
+            "required": ["selector"],
+            "properties": {
+              "type": {},
+              "selector": { "type": "string" },
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
+            }
+          },
+          "typing": {
+            "required": ["value"],
+            "properties": {
+              "type": {},
+              "value": { "type": "string" },
+              "enter": {"type": "boolean"},
+              "tab": {"type": "boolean"}
+            }
+          },
+          "select": {
+            "required": ["selector", "selectIndex"],
+            "properties": {
+              "type": {},
+              "selector": { "type": "string" },
+              "selectIndex": { "type": "integer", "minimum": 0 },
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
+            }
+          },
+          "assertInnerText": {
+            "required": ["selector", "match"],
+            "properties": {
+              "type": {},
+              "selector": { "type": "string" },
+              "match": { "type": "string"},
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
+            }
+          },
+          "scroll": {
+            "required": ["selector", "position"],
+            "properties": {
+              "type": {},
+              "selector": { "type": "string" },
+              "position": {
+                "type": "array",
+                "items": [
+                  {"type": "number"},
+                  {"type": "number"}
+                ]
+              },
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
+            }
+          }
+        },
+        "dependencies": {
+          "captureDelay": ["screenshot"]
+        }
+      },
+      "minItems": 1
+    },
+    "imgdir": {"type": "string"}
+  },
+  "required": ["url", "scenario", "size", "actions"]
+}
