@@ -81,7 +81,7 @@ describe('examples', () => {
 });
 ```
 
-The code above is from the [test case](test/src/example-todo.js).
+Let me demo by testing a nice todo app created by [themaxsandelin](https://github.com/themaxsandelin/todo). The code above is from the [test case](test/src/example-todo.js).
 
 To see how this example work in action, you can clone code of this repository and go to the folder in command line, install the node modules by `npm install`.
 
