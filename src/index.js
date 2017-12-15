@@ -12,6 +12,7 @@ const _            = require('lodash')
 const Ajv          = require('ajv')
 const URL          = require('url')
 const EventEmitter = require('events')
+const axios        = require('axios')
 
 const colors = {
   silly: 'rainbow',
@@ -93,6 +94,23 @@ class VBot extends EventEmitter {
         return reject(ex)
       }
       resolve(playbook);
+    })
+  }
+
+  async downloadPlaybook (clientKey, scenarioId) {
+    if (!scenarioId || !clientKey) {
+      return
+    }
+    return new Promise ((resolve, reject) => {
+      axios({
+        method: 'get',
+        url: `http://dev.vbot.io:5000/scenario/${scenarioId}/playbook`,
+        headers: {'x-clientKey': clientKey}
+      }).then((res) => {
+        return resolve(res.data)
+      }).catch((err) => {
+        return reject(err)
+      })
     })
   }
 
@@ -498,11 +516,23 @@ class VBot extends EventEmitter {
 
   async start (playbook, opts) {
     try {
-      playbook = playbook || this.options.playbook || this.options.schema || await this.parsePlaybook(this.options.playbookFile).catch((ex) => {
-        throw ex
-      })
+      playbook = playbook || this.options.playbook || this.options.schema
+      if (!playbook && this.options.playbookFile) {
+        playbook = await this.parsePlaybook(this.options.playbookFile).catch((ex) => {
+          this._log('Wrong file path', 'error')
+        })
+      }
+      if (!playbook && this.options.clientKey && this.options.scenarioId) {
+        playbook = await this.downloadPlaybook(this.options.clientKey, this.options.scenarioId).catch((err) => {
+          this._log('Wrong client key or scenario id', 'error')
+        })
+        this.options.showWindow = true
+      }
       if (!playbook) {
-        throw new Error('no playbook found in the options')
+        if (!this.options.playbookFile && !this.options.clientKey && !this.options.scenarioId) {
+          this._log('No valid playbook', 'error')
+        }
+        return
       }
       //if not using scenario-list based schema, then validate the playbook
       if (!playbook.scenarios) {
