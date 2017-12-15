@@ -104,7 +104,7 @@ class VBot extends EventEmitter {
     return new Promise ((resolve, reject) => {
       axios({
         method: 'get',
-        url: `http://dev.vbot.io:5000/scenario/${scenarioId}/playbook`,
+        url: `https://api.vbot.io/scenario/${scenarioId}/playbook`,
         headers: {'x-clientKey': clientKey}
       }).then((res) => {
         return resolve(res.data)
