@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>move tests</title>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    <<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.4/lodash.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.4/lodash.min.js"></script>
     <style type="text/css">
         #changecolor {
             margin-top: 200px;
@@ -19,25 +19,14 @@
             background-color: blue;
         }
 
-        #ccccd {
-            margin-top: 200px;
-            margin-left: 150px;
-            height: 400px;
-            width: 300px;
-            background-color: blue;
-        }
-
         .blank {
 
         }
-
 
     </style>
 </head>
 <body>
     <div id="changecolor"></div>
-    <div id="cccc"></div>
-
     <script>
 
             function getMousePos(event) {
@@ -45,41 +34,6 @@
             console.log(e.clientX,e.clientY);
             return {'x':e.clientX,'y':e.clientY}
         }
-        function isObjectValueEqual(a, b) {
-            var aProps = Object.getOwnPropertyNames(a);
-            var bProps = Object.getOwnPropertyNames(b);
-            if (aProps.length != bProps.length) {
-                return false;
-            }
-            for (var i = 0; i < aProps.length; i++) {
-                var propName = aProps[i];
-                console.log(a[propName]);
-                console.log(b[propName]);
-                if (a[propName] !== b[propName]) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        //var arr = document.getElementById("changecolor").attributes;
-        //console.log('this is arr: ', arr);
-
-        var cgc = document.getElementById("changecolor");
-        //console.log($("#changecolor").css("background-color"));
-        //console.log('this is dom : ',dom);
-
-        var dom2 = document.getElementById("ccccd");
-        //$('#changecolor').mouseover(function () {
-            //var dom1 = document.getElementById("changecolor");
-            //console.log($("#changecolor").css("background-color"));
-
-            //console.log(Object.is(dom,dom1));
-            //console.log(Object.is(dom1,dom2));
-
-            //console.log(_.isEqual(dom,dom1));
-            //console.log(_.isEqual(dom,dom2));
-
-        //})
 
         $('#changecolor').mouseover(function () {
             $('#changecolor').addClass("blank");
@@ -88,21 +42,6 @@
                 console.log('is mouseover');
             }
         })
-        /*
-        function isClass(obj,cls) {
-        var action_class = obj.className;
-        var action_class_lst = action_class //.split(/\s+/);
-        var x = 0;
-        for(x in action_class_lst) {
-            if(action_class_lst[x] == cls){
-                console.log('mouse is over ');
-                return true;
-            }
-        }
-        console.log('fail over it');
-        return false;
-    }*/
-
         /*
         $('#changecolor').mouseout(function () {
             $('#changecolor').removeClass("blank");

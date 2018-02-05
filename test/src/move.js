@@ -40,36 +40,16 @@ describe('screenshot', async () => {
       beforeEach(function () {
         playbook = {
          url: `file:///${testPath}/fixtures/move.html`,
-         //url: `http://www.ctrln.com.ar/#`,
-         //url: `https://www.nimbletank.com/`,
-          //url: `http://sjfinearts.com/`,
           scenario: 'view2',
-          size: {width: 1200,height: 1000},
-         /* actions: [//sjf
-              {type: 'move', selector: '#content', start_position: [0,0], end_position: [1,1], screenshot: true, delay: 10000},
-              {type: 'click', selector: '#gallery-7_1 > div > div.galleria-stage > div.galleria-image-nav > div.galleria-image-nav-right', screenshot: true},
-          ]*/
-         /* "actions": [//ctrln
-              {"type": "exist","selector": "#home > div > nav > ul > li.nosotros > a", "screenshot": true },
-              {"type": "move", "selector": "#home > div > nav > ul > li.nosotros > a", "start_position": [200, 300], "end_position": [50, 100], "screenshot": true, delay: 2000},
-              {"type": "move", "selector": "#home > div > nav > ul > li.nosotros > a", "start_position": [200, 220], "end_position": [80, 100], "screenshot": true, delay: 2000},
-          ]*/
-         /* actions: [//nim
-            //{type: 'click', selector: '#content > header > div > div.relative.fullscreen.fullscreen-height.fullscreen-mobile > button > i', delay:2000},
-            {type: 'scroll', selector: 'html', delay: 1000, position: [0,925]},
-            {type: 'move', selector: 'body > div.section.section-first.section-last.fullscreen-css.fullscreen-mobile.work > div > div.owl-stage-outer.skrollable.skrollable-between > div > div:nth-child(9)', start_position: [0, 0], end_position: [300, 0], screenshot: true},
-            {type: 'move', selector: 'body > div.section.section-first.section-last.fullscreen-css.fullscreen-mobile.work > div > div.owl-stage-outer.skrollable.skrollable-between > div > div:nth-child(10)', start_position: [10, 20], end_position: [350, 19], delay: 2000, screenshot: true},
-            {type: 'exist', selector: 'body > div.section.section-first.section-last.fullscreen-css.fullscreen-mobile.work > div > div.owl-stage-outer.skrollable.skrollable-between > div > div:nth-child(10)', start_position: [10, 20], end_position: [350, 19], delay: 2000, screenshot: true},
-            //{type: 'move', selector: 'body > div.section.section-first.section-last.fullscreen-css.fullscreen-mobile.work > div > div.owl-stage-outer.skrollable.skrollable-between > div > div:nth-child(9) > div > a', start_position: [50, 100], end_position: [200, 300],screenshot: true, delay: 2000},
-        ]*/
+          size: {width: 800,height: 800},
         actions: [
-          {type: 'move', selector: '#changecolor', start_position: [80, 100], end_position: [200, 260], delay: 2000},
-          {type: 'move', selector: '#changecolor', start_position: [50, 100], end_position: [200, 300], delay: 2000},
+          {type: 'move', selector: '#changecolor', start_position: [80, 100], end_position: [200, 260], delay: 1000, 'screenshot': true},
+          {type: 'move', selector: '#changecolor', start_position: [200, 300], end_position: [50, 100], delay: 1000, 'screenshot': true},
         ]
      }
    });
 
-    describe.only('over', function () {
+    describe('mouseover test without screenshot', function () {
         beforeEach(async () => {
           vbot = new VBot({verbose: true,showWindow: true})
         });
@@ -77,8 +57,7 @@ describe('screenshot', async () => {
         vbot.start(playbook)
         vbot.on('action.executed', () => {
         vbot.chromejs.eval(`document.querySelector('#changecolor').className`).then((data) => {
-        assert.equal(data.result.value,'blankk')
-        console.log(data);
+        assert.equal(data.result.value,'blank')
             })
         })
         vbot.on('end', () => {
@@ -90,23 +69,17 @@ describe('screenshot', async () => {
     describe('base', function () {
       let imgdir = `${testPath}/tmp/compare_imgs`
       beforeEach(async () => {
-        vbot = new VBot({verbose: true,showWindow: true})
+        vbot = new VBot({verbose: false})
         fs.removeSync(imgdir)
       });
       it('base', function (done) {
         let screenshot = false
         vbot.start(playbook, {imgdir: imgdir})
-        //console.log(playbook);
-        //console.log(imgdir);
-        //console.log('passed');
         vbot.on('action.executed', (log) => {
           if (!log.screenshot) {
-            console.log('no screenshot command');
             return
         }
-          console.log('start action.executed');
           screenshot = true
-          //assert([0, 2, 4, 6].indexOf(log.index) >= 0)
           assert.equal(true, log.screenshot.files.base.indexOf(`${testPath}/tmp/compare_imgs/view2/base/`) >= 0)
           assert(fs.existsSync(log.screenshot.files.base))
           assert.equal(undefined, log.screenshot.files.test)
@@ -115,7 +88,6 @@ describe('screenshot', async () => {
           assert.equal(undefined, log.screenshot.isSameDimensions)
         })
         vbot.on('end', () => {
-          console.log(screenshot);
           assert(screenshot,'error')
           done();
         })
@@ -124,11 +96,10 @@ describe('screenshot', async () => {
     describe('diff', function () {
       let initDiffVbot = async (threshold) => {
         let imgdir = `${testPath}/tmp/compare_imgs`
-        vbot = new VBot({verbose: true})
+        vbot = new VBot({verbose: false})
         fs.removeSync(imgdir)
         // await fs.copy(`${testPath}/fixtures/compare_imgs/same`, `${testPath}/tmp/compare_imgs/view2/base`)
-        await fs.copy(`${testPath}/fixtures/compare_imgs/diff/cdg_test.png`, `${testPath}/tmp/compare_imgs/view2/base/1_move-#home_>_div_>_nav_>_ul_>_li.nosotros_>_a.png`)
-        //await fs.copy(`${testPath}/fixtures/compare_imgs/diff/1_test.png`, `${testPath}/tmp/compare_imgs/view2/base/1_move-#changecolor.png`)
+        await fs.copy(`${testPath}/fixtures/compare_imgs/diff/1_test.png`, `${testPath}/tmp/compare_imgs/view2/base/1_move-#changecolor.png`)
         vbot.start(playbook, {imgdir: imgdir, mismatchThreshold: threshold})
       }
       describe('without threshold', function () {
@@ -139,13 +110,10 @@ describe('screenshot', async () => {
           let count = 0, diff = false
           vbot.on('action.executed', (log) => {
             if (!log.screenshot) {
-                console.log('log.screenshot is false');
               return
             }
             //assert([0, 2, 4, 6].indexOf(log.index) >= 0)
-            console.log('this is log index : ',log.index);
             if (log.index === 1) {
-                console.log('here is index 1');
               // assert(log.screenshot.files.base)
               // assert(log.screenshot.files.test)
               // assert(log.screenshot.files.diff)
@@ -159,7 +127,6 @@ describe('screenshot', async () => {
             assert(log.screenshot.files.base)
           })
           vbot.on('screenshot.diff', (log) => {
-            console.log('start screenshot.diff ');
             assert(log.screenshot.files.base)
             assert(log.screenshot.files.test)
             assert(log.screenshot.files.diff)

@@ -163,7 +163,6 @@ class VBot extends EventEmitter {
           // move log
           if (action.type === 'move') {
             await this.move(action).catch((e) => {
-              console.log('catch a move error');
               log = {index: i, action: action, details: e}
               throw e
             })
@@ -172,7 +171,6 @@ class VBot extends EventEmitter {
           // over log
           if (action.type === 'over') {
             await this.over(action).catch((e) => {
-              console.log('catch a over error',e);
               log = {index: i, action: action, details: e}
               throw e
             })
@@ -222,14 +220,12 @@ class VBot extends EventEmitter {
             await this.waitAnimation()
             action.captureDelay && await this.chromejs.wait(action.captureDelay)
             let screenshot = await this.capture(action, i, imgFolder).catch((err) => {
-                console.log('catch a actionshot error');
               actionLog.screenshot = (typeof err === 'string') ? {err: err} : err
               return
             })
             if (screenshot) {
               actionLog.screenshot = screenshot
               if (_.get(screenshot, 'analysis.misMatchPercentage') > 0) {
-                  console.log('here emit diff message');
                 this.emit('screenshot.diff', actionLog)
               }
             }
@@ -238,8 +234,6 @@ class VBot extends EventEmitter {
           this.emit('action.executed', actionLog)
         }
       } catch (ex) {
-        console.log('here emit action fail');
-        console.log('this is ex:',ex);
         this.emit('action.fail', log)
         return reject(ex)
       }
@@ -278,10 +272,6 @@ class VBot extends EventEmitter {
         for (var i = 0; i < msg.args.length; i++) {
           let arg = msg.args[i]
           let stackTrace;
-          if(typeof stackTrace === 'undefined')
-          {
-              const log = "";
-          }else{
           stackTrace = msg.stackTrace.callFrames[0]
           const log = {
             type: msg.type,
@@ -290,7 +280,6 @@ class VBot extends EventEmitter {
             line: stackTrace.lineNumber
           }
           this.emit('console', log)
-         }
         }
       })
       this.chromejs.client.Network.requestWillBeSent((msg) => {
@@ -662,16 +651,13 @@ class VBot extends EventEmitter {
       }
       this._log(`duration:${log.duration/1000}s`, 'data', 3)
       if (log.screenshot) {
-          //console.log('this is log.screenshot',log.screenshot);
         this._log(`screenshot`, 'data', 4)
         if (log.screenshot.err) {
           this._log(`${log.screenshot.err}`, 'error')
         }
         if (log.screenshot.analysis) {
           let analysis = log.screenshot.analysis
-          console.log('this is log analysis: ',analysis);
           if (analysis.misMatchPercentage) {
-              console.log('the misMatchPercentage existed: ', analysis.misMatchPercentage);
             this._log(`misMatchPercentage: ${analysis.misMatchPercentage*100}%, isSameDimensions: ${analysis.isSameDimensions}, acceptable: ${analysis.acceptable}`, 'warn', 4)
             this._log(`diff: ${log.screenshot.files.diff}`, 'warn', 4)
           } else {
@@ -681,8 +667,7 @@ class VBot extends EventEmitter {
       }
     })
 
-    this.on('action.fail', async (log) => {//
-    console.log('this is action.fail log: ',log);
+    this.on('action.fail', async (log) => {
       const details = log.details
       // delete log.details
       this._log(details + '\n' + JSON.stringify(log, undefined, 2), 'error')
