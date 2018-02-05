@@ -477,19 +477,12 @@ class VBot extends EventEmitter {
     await this.chromejs.click(action.selector)
   }
 
-  //Add new event
+
   async move(action) {
     if (!action.selector) {
       throw new Error('move action failed')
     }
     await this.chromejs.move(action.selector, action.start_position[0], action.start_position[1], action.end_position[0], action.end_position[1])
-  }
-
-  async over(action) {
-      if (!action.selector) {
-        throw new Error('over action failed')
-      }
-      await this.chromejs.over(action.selector)
   }
 
   async selectDropdown(action) {
