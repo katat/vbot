@@ -160,6 +160,24 @@ class VBot extends EventEmitter {
               throw e
             })
           }
+          // move log
+          if (action.type === 'move') {
+            await this.move(action).catch((e) => {
+              console.log('catch a move error');
+              log = {index: i, action: action, details: e}
+              throw e
+            })
+          }
+
+          // over log
+          if (action.type === 'over') {
+            await this.over(action).catch((e) => {
+              console.log('catch a over error',e);
+              log = {index: i, action: action, details: e}
+              throw e
+            })
+          }
+
           if (['enter', 'typing'].indexOf(action.type) !== -1) {
             await this.type(action)
             if (action.enter) {
@@ -204,12 +222,14 @@ class VBot extends EventEmitter {
             await this.waitAnimation()
             action.captureDelay && await this.chromejs.wait(action.captureDelay)
             let screenshot = await this.capture(action, i, imgFolder).catch((err) => {
+                console.log('catch a actionshot error');
               actionLog.screenshot = (typeof err === 'string') ? {err: err} : err
               return
             })
             if (screenshot) {
               actionLog.screenshot = screenshot
               if (_.get(screenshot, 'analysis.misMatchPercentage') > 0) {
+                  console.log('here emit diff message');
                 this.emit('screenshot.diff', actionLog)
               }
             }
@@ -218,6 +238,8 @@ class VBot extends EventEmitter {
           this.emit('action.executed', actionLog)
         }
       } catch (ex) {
+        console.log('here emit action fail');
+        console.log('this is ex:',ex);
         this.emit('action.fail', log)
         return reject(ex)
       }
@@ -255,15 +277,20 @@ class VBot extends EventEmitter {
       this.chromejs.client.Runtime.consoleAPICalled((msg) => {
         for (var i = 0; i < msg.args.length; i++) {
           let arg = msg.args[i]
-          let stackTrace = msg.stackTrace.callFrames[0]
+          let stackTrace;
+          if(typeof stackTrace === 'undefined')
+          {
+              const log = "";
+          }else{
+          stackTrace = msg.stackTrace.callFrames[0]
           const log = {
             type: msg.type,
             msg: arg.type === 'object' ? 'object' : arg.value,
             url: stackTrace.url,
             line: stackTrace.lineNumber
           }
-
           this.emit('console', log)
+         }
         }
       })
       this.chromejs.client.Network.requestWillBeSent((msg) => {
@@ -461,6 +488,21 @@ class VBot extends EventEmitter {
     await this.chromejs.click(action.selector)
   }
 
+  //Add new event
+  async move(action) {
+    if (!action.selector) {
+      throw new Error('move action failed')
+    }
+    await this.chromejs.move(action.selector, action.start_position[0], action.start_position[1], action.end_position[0], action.end_position[1])
+  }
+
+  async over(action) {
+      if (!action.selector) {
+        throw new Error('over action failed')
+      }
+      await this.chromejs.over(action.selector)
+  }
+
   async selectDropdown(action) {
     await this.chromejs.select(action.selector, action.selectIndex)
   }
@@ -620,13 +662,16 @@ class VBot extends EventEmitter {
       }
       this._log(`duration:${log.duration/1000}s`, 'data', 3)
       if (log.screenshot) {
+          //console.log('this is log.screenshot',log.screenshot);
         this._log(`screenshot`, 'data', 4)
         if (log.screenshot.err) {
           this._log(`${log.screenshot.err}`, 'error')
         }
         if (log.screenshot.analysis) {
           let analysis = log.screenshot.analysis
+          console.log('this is log analysis: ',analysis);
           if (analysis.misMatchPercentage) {
+              console.log('the misMatchPercentage existed: ', analysis.misMatchPercentage);
             this._log(`misMatchPercentage: ${analysis.misMatchPercentage*100}%, isSameDimensions: ${analysis.isSameDimensions}, acceptable: ${analysis.acceptable}`, 'warn', 4)
             this._log(`diff: ${log.screenshot.files.diff}`, 'warn', 4)
           } else {
@@ -636,7 +681,8 @@ class VBot extends EventEmitter {
       }
     })
 
-    this.on('action.fail', async (log) => {
+    this.on('action.fail', async (log) => {//
+    console.log('this is action.fail log: ',log);
       const details = log.details
       // delete log.details
       this._log(details + '\n' + JSON.stringify(log, undefined, 2), 'error')

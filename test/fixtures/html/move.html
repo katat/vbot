@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" onclick = 'getMousePos();'>
+<head>
+    <meta charset="UTF-8">
+    <title>move tests</title>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <style type="text/css">
+        #changecolor {
+            margin-top: 200px;
+            margin-left: 150px;
+            height: 400px;
+            width: 300px;
+            background-color: black;
+        }
+
+        #changecolor:hover {
+            background-color: blue;
+        }
+    </style>
+</head>
+<body>
+    <div id="changecolor"></div>
+
+    <script>
+            function getMousePos(event) {
+            var e = event || window.event;
+            console.log(e.clientX,e.clientY);
+            return {'x':e.clientX,'y':e.clientY}
+        }
+        console.log($("#changecolor").css("background-color"));
+        console.log($("#changecolor"));
+        var c = document.getElementById("changecolor");
+        console.log(c.offsetTop);
+        console.log(c.offsetHeight);
+    </script>
+</body>
+</html>

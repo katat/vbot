@@ -2,6 +2,7 @@ const assert      = require('assert')
 const VBot        = require('../../dist')
 const _ = require('lodash')
 
+
 process.on('unhandledRejection', (e) => {
   console.log(e)
 })
@@ -11,10 +12,12 @@ describe('actions', async () => {
   const fixturePath = `file:///${__dirname}/../fixtures/html`
   const testPath = `${__dirname}`
   let playbook = {
-    size: {width: 375, height: 677}
+    //size: {width: 375, height: 677}
+    size: {width: 1000, height: 1000}
   }
   let opts = {
-    showWindow: process.env.WIN,
+    //showWindow: process.env.WIN,
+    showWindow: true||process.env.WIN,
     verbose: false,
     imgdir: `${testPath}/../tmp/screenshots`,
     playbook: playbook
@@ -25,7 +28,7 @@ describe('actions', async () => {
   afterEach(function (done) {
     vbot.close().then(done)
   });
-  describe('click', function () {
+  describe('click', function () {//
     it('should click an element', function (done) {
       _.assign(playbook, {
         url: `${fixturePath}/click.html`,
@@ -129,13 +132,74 @@ describe('actions', async () => {
       })
     });
   });
+
+
+describe('move', function () {
+  it('should move using position', function (done) {
+    _.assign(playbook, {
+      url: `${fixturePath}/move.html`,
+      scenario: this.test.title,
+      actions: [
+        {type: 'move', selector: '#changecolor', start_position: [80, 100], end_position: [200, 260], delay: 2000},
+        {type: 'move', selector: '#changecolor', start_position: [50, 100], end_position: [200, 300], delay: 2000},
+      ]
+    })
+    //let a = document.getElementById('changecolor').attributes;
+
+    vbot.start(playbook)
+    vbot.on('end', () => {
+      vbot.chromejs.eval(`document.querySelector('#changecolor').className`).then((data) => {
+          console.log(data);
+        //assert.equal(data.result.value, 'Clicked')
+        done()
+      })
+    })
+  });
+});
+
+/*
+describe.only('over', function () {
+  it('should over using position', function (done) {
+    _.assign(playbook, {
+      url: `${fixturePath}/move.html`,
+      scenario: this.test.title,
+      actions: [
+        {type: 'over', selector: '#changecolor', delay: 2000},
+        {type: 'over', selector: '#changecolor', delay: 2000},
+      ]
+    })
+    //let a = document.getElementById('changecolor').attributes;
+    vbot.start(playbook)
+    vbot.on('end', () => {
+        done()
+    })
+  });
+});*/
+/*
+describe('move', function () {
+  it('should move using position', function (done) {
+    _.assign(playbook, {
+      url: `http://www.ctrln.com.ar/#`,
+      scenario: this.test.title,
+      actions: [
+        {type: 'move', selector: '#home > div > nav > ul > li.nosotros > a', start_position: [80, 100], end_position: [200, 260], delay: 2000},
+        {type: 'move', selector: '#home > div > nav > ul > li.nosotros > a', start_position: [50, 100], end_position: [200, 300], delay: 2000},
+      ]
+    })
+    vbot.start(playbook)
+    vbot.on('end', () => {
+        done()
+    })
+  });
+});*/
+
   describe('scroll', function () {
     it('should scroll using position', function (done) {
       _.assign(playbook, {
         url: `${fixturePath}/scroll.html`,
         scenario: this.test.title,
         actions: [
-          {type: 'scroll', selector: '.box', position: [0, 1000], delay: 1000},
+          {type: 'scroll', selector: '.box', position: [0, 400], delay: 1000},
         ]
       })
       vbot.start(playbook)

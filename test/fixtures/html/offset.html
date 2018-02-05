@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <div style="width: 300px; border-color:blue; border-style:solid; border-width:1; position:absolute">
+  <span>Short span. </span>
+  <span id="long">Long span that wraps withing this div.</span>
+</div>
+
+<div id="box" style="position: absolute; border-color: red; border-width: 0.5px; border-style: solid; z-index: 10">
+</div>
+
+<script>
+  var box = document.getElementById("box");
+  var long = document.getElementById("long");
+  //
+  // long.offsetLeft这个值就是span的offsetLeft.
+  // span是个行内元素，它没有absolute定位，但还是默认offsetParent就是父元素，而不是根
+  //
+
+  box.style.left = long.offsetLeft + document.body.scrollLeft + "px";
+  box.style.top = long.offsetTop + document.body.scrollTop + "px";
+  box.style.width = long.offsetWidth + "px";
+  box.style.height = long.offsetHeight + "px";
+  console.log(box.style.left);
+  console.log(box.style.top);
+  console.log(box.style.width);
+  console.log(box.style.height);
+</script>
+</body>
+</html>

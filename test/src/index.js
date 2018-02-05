@@ -1,5 +1,6 @@
 require('source-map-support').install()
 require('./screenshot')
+require('./move')
 require('./actions')
 require('./scenarios')
 require('./window')
