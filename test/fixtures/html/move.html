@@ -16,22 +16,22 @@
         #changecolor:hover {
             background-color: blue;
         }
+
+        .blank {}
+
     </style>
 </head>
 <body>
     <div id="changecolor"></div>
-
     <script>
             function getMousePos(event) {
             var e = event || window.event;
             console.log(e.clientX,e.clientY);
             return {'x':e.clientX,'y':e.clientY}
         }
-        console.log($("#changecolor").css("background-color"));
-        console.log($("#changecolor"));
-        var c = document.getElementById("changecolor");
-        console.log(c.offsetTop);
-        console.log(c.offsetHeight);
+        $('#changecolor').mouseover(function () {
+            $('#changecolor').addClass("blank");
+        })
     </script>
 </body>
 </html>

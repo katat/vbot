@@ -137,15 +137,17 @@ describe('move', function () {
       url: `${fixturePath}/move.html`,
       scenario: this.test.title,
       actions: [
-        {type: 'move', selector: '#changecolor', start_position: [80, 100], end_position: [200, 260], delay: 1000},
-        {type: 'move', selector: '#changecolor', start_position: [50, 100], end_position: [200, 300], delay: 1000},
+        {type: 'move', selector: '#changecolor', start_position: [200, 300], end_position: [50, 100], delay: 1000},
       ]
     })
     vbot.start(playbook)
     vbot.on('end', () => {
+        vbot.chromejs.eval(`document.querySelector('#changecolor').className`).then((data) => {
+        assert.equal(data.result.value,'blank')
         done()
+        })
       })
-    })
+   });
  });
 
   describe('scroll', function () {
