@@ -22,7 +22,7 @@ describe('screenshot', async () => {
     vbot = new VBot({
       verbose: false,
       playbookFile: `${testPath}/fixtures/project.json`,
-      host: `http://localhost:${serverPort}`,
+      host: `file:///${testPath}/fixtures/index.html`,
       imgdir: `${testPath}/tmp/screenshots`,
       // showWindow: true
     })
@@ -37,7 +37,7 @@ describe('screenshot', async () => {
     let playbook
     beforeEach(function () {
       playbook = {
-        "url": `http://localhost:${serverPort}/`,
+        url: `file:///${testPath}/fixtures/index.html`,
         scenario: 'view1',
         size: {width: 375,height: 677},
         "actions": [
