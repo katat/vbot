@@ -160,6 +160,22 @@ class VBot extends EventEmitter {
               throw e
             })
           }
+          // move log
+          if (action.type === 'move') {
+            await this.move(action).catch((e) => {
+              log = {index: i, action: action, details: e}
+              throw e
+            })
+          }
+
+          // over log
+          if (action.type === 'over') {
+            await this.over(action).catch((e) => {
+              log = {index: i, action: action, details: e}
+              throw e
+            })
+          }
+
           if (['enter', 'typing'].indexOf(action.type) !== -1) {
             await this.type(action)
             if (action.enter) {
@@ -255,14 +271,14 @@ class VBot extends EventEmitter {
       this.chromejs.client.Runtime.consoleAPICalled((msg) => {
         for (var i = 0; i < msg.args.length; i++) {
           let arg = msg.args[i]
-          let stackTrace = msg.stackTrace.callFrames[0]
+          let stackTrace;
+          stackTrace = msg.stackTrace.callFrames[0]
           const log = {
             type: msg.type,
             msg: arg.type === 'object' ? 'object' : arg.value,
             url: stackTrace.url,
             line: stackTrace.lineNumber
           }
-
           this.emit('console', log)
         }
       })
@@ -459,6 +475,14 @@ class VBot extends EventEmitter {
       throw new Error('click action should have selector attribute')
     }
     await this.chromejs.click(action.selector)
+  }
+
+
+  async move(action) {
+    if (!action.selector) {
+      throw new Error('move action failed')
+    }
+    await this.chromejs.move(action.selector, action.start_position[0], action.start_position[1], action.end_position[0], action.end_position[1])
   }
 
   async selectDropdown(action) {

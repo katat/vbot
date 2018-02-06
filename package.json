@@ -18,7 +18,7 @@
     "lint:staged": "lint-staged",
     "lint:js": "eslint bin src||true",
     "pretest": "babel src --source-maps --out-dir dist --ignore 'test/**/*.js'&&babel test/src --source-maps --out-dir test/dist",
-    "test": "mocha test/dist -t 15000",
+    "test": "mocha test/dist -t 150000",
     "build": "babel src --source-maps --out-dir dist --ignore 'test/**/*.js'"
   },
   "author": "kata.choi@gmail.com",
@@ -33,11 +33,14 @@
     "chromejs": "^0.4.0",
     "fs-extra": "^3.0.1",
     "get-port": "^3.1.0",
+    "jQuery": "^1.7.4",
     "jimp": "^0.2.28",
+    "jsdom": "^11.6.2",
     "jsonlint": "^1.6.2",
     "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",
     "shelljs": "^0.7.5",
+    "xmlhttprequest": "^1.8.0",
     "yargs": "10.0.3"
   },
   "bin": {

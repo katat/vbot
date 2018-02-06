@@ -22,7 +22,7 @@
           "delay": {"type": "integer", "minimum": 1, "description": "delay in ms before executing this action"},
           "type": {
             "type": "string",
-            "enum": ["exist", "click", "typing", "select", "scroll", "assertInnerText", "reload"],
+            "enum": ["exist", "click", "typing", "select", "scroll", "assertInnerText", "reload", "move", "over"],
             "description": "action type"
           },
           "screenshot": {"type": "boolean", "description": "whether to take screenshot and do comparison with previous version after the action has been executed."},
@@ -40,7 +40,39 @@
               "waitTimeout": {"type": "integer", "minimum": 1}
             }
           },
+          "move": {
+              "required": ["selector","start_position","end_position"],
+              "properties": {
+                "type": {},
+                "selector": { "type": "string" },
+                "start_position": {
+                "type": "array",
+                "items": [
+                  {"type": "number"},
+                  {"type": "number"}
+                ]
+              },
+                  "end_position": {
+                  "type": "array",
+                  "items": [
+                    {"type": "number"},
+                    {"type": "number"}
+                  ]
+                },
+                "scrollTo": {"type": "boolean"},
+                "waitTimeout": {"type": "integer", "minimum": 1}
+            }
+          },
           "click": {
+            "required": ["selector"],
+            "properties": {
+              "type": {},
+              "selector": { "type": "string" },
+              "scrollTo": {"type": "boolean"},
+              "waitTimeout": {"type": "integer", "minimum": 1}
+            }
+          },
+          "over": {
             "required": ["selector"],
             "properties": {
               "type": {},

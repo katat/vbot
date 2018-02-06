@@ -2,6 +2,7 @@ const assert      = require('assert')
 const VBot        = require('../../dist')
 const _ = require('lodash')
 
+
 process.on('unhandledRejection', (e) => {
   console.log(e)
 })
@@ -11,10 +12,10 @@ describe('actions', async () => {
   const fixturePath = `file:///${__dirname}/../fixtures/html`
   const testPath = `${__dirname}`
   let playbook = {
-    size: {width: 375, height: 677}
+    size: {width: 1000, height: 1000}
   }
   let opts = {
-    showWindow: process.env.WIN,
+    showWindow: true||process.env.WIN,
     verbose: false,
     imgdir: `${testPath}/../tmp/screenshots`,
     playbook: playbook
@@ -129,13 +130,33 @@ describe('actions', async () => {
       })
     });
   });
+
+describe('move', function () {
+  it('should move using position', function (done) {
+    _.assign(playbook, {
+      url: `${fixturePath}/move.html`,
+      scenario: this.test.title,
+      actions: [
+        {type: 'move', selector: '#changecolor', start_position: [200, 300], end_position: [50, 100], delay: 1000},
+      ]
+    })
+    vbot.start(playbook)
+    vbot.on('end', () => {
+        vbot.chromejs.eval(`document.querySelector('#changecolor').className`).then((data) => {
+        assert.equal(data.result.value,'blank')
+        done()
+        })
+      })
+   });
+ });
+
   describe('scroll', function () {
     it('should scroll using position', function (done) {
       _.assign(playbook, {
         url: `${fixturePath}/scroll.html`,
         scenario: this.test.title,
         actions: [
-          {type: 'scroll', selector: '.box', position: [0, 1000], delay: 1000},
+          {type: 'scroll', selector: '.box', position: [0, 400], delay: 1000},
         ]
       })
       vbot.start(playbook)
