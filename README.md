@@ -139,6 +139,11 @@ Please refer to respective [mocha tests](test/src/actions.js)
 ### CLI mode
 Please see [CLI readme](cli.md)
 
+## Online Playbook Editor
+There is an [web UI](https://app.vbot.io) to facilitate creating/editing a playbook. The playbook created on the [app.vbot.io](https://app.vbot.io) can be downloaded and run the test on your local machine using command:
+
+`vbot download --client-key=yourclientkey --scenario-id=yourscenarioid`
+
 ## Chrome extension
 There is a [Chrome extension](https://chrome.google.com/webstore/detail/vbot-recorder/nngcjjhpjbaofdokebbcgcnkeebnidij?utm_source=chrome-ntp-icon) to facilitate recording the interactions in a web page using the [playbook](#playbook-schema) schema. The playbook JSON exported can be run in either the programming mode as shown in above example or in CLI mode.
 

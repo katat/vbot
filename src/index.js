@@ -104,7 +104,7 @@ class VBot extends EventEmitter {
     return new Promise ((resolve, reject) => {
       axios({
         method: 'get',
-        url: `http://dev.vbot.io:5000/scenario/${scenarioId}/playbook`,
+        url: `https://api.vbot.io/scenario/${scenarioId}/playbook`,
         headers: {'x-clientKey': clientKey}
       }).then((res) => {
         return resolve(res.data)
@@ -296,12 +296,17 @@ class VBot extends EventEmitter {
         this.animationStartTime = new Date()
       })
 
-      await this.runActions(scenario, this.options.rebase).catch((e) => {
+      await this.runActions(scenario, this.options.rebase).catch(async (e) => {
+        await this.captureResult()
+
         throw e
       })
       // if (this.options.waitBeforeEnd) {
       //   await this.timeout(this.options.waitBeforeEnd)
       // }
+
+      await this.captureResult()
+
       this.idleClientList.push(this.chromejs)
       this.emit('scenario.end', scenario)
     }
@@ -471,7 +476,7 @@ class VBot extends EventEmitter {
       while (true) {
         await this.timeout(10)
         if (new Date() - start >= timeout) {
-          return reject(new Error('timeout'))
+          return reject(new Error('No matching inner text is found'))
         }
         nodeText = await this.chromejs.eval(expr)
         result.nodeText = nodeText.result.value
@@ -495,14 +500,14 @@ class VBot extends EventEmitter {
       // })
       try {
         let box = await this.chromejs.box(action.selector).catch((ex) => {
-          throw new Error('not found dom element')
+          throw new Error('The first element matching the selector is invisible')
         })
         if (box) {
           break
         }
       }catch(e) {
         if (new Date() - start >= (action.waitTimeout || 5000)) {
-          throw new Error('timeout')
+          throw e
         }
         await this.chromejs.wait(10)
       }
@@ -514,12 +519,12 @@ class VBot extends EventEmitter {
       playbook = playbook || this.options.playbook || this.options.schema
       if (!playbook && this.options.playbookFile) {
         playbook = await this.parsePlaybook(this.options.playbookFile).catch((ex) => {
-          this._log('Wrong file path', 'error')
+          this._log('Invalid file path', 'error')
         })
       }
       if (!playbook && this.options.clientKey && this.options.scenarioId) {
         playbook = await this.downloadPlaybook(this.options.clientKey, this.options.scenarioId).catch((err) => {
-          this._log('Wrong client key or scenario id', 'error')
+          this._log('Invalid client key or scenario id', 'error')
         })
         this.options.showWindow = true
       }
@@ -566,12 +571,21 @@ class VBot extends EventEmitter {
     if (this.options.showWindow && !force) {
       return
     }
+
     return new Promise(async (resolve) => {
       for (var i = 0; i < this.idleClientList.length; i++) {
         await this.idleClientList[i].close()
       }
       resolve()
     })
+  }
+
+  async captureResult () {
+    const finishFolder = `${this.getImgFolder()}/finish`
+    const finishScreenshot = `${finishFolder}/snapshot.png`
+    await this.createFolder(finishFolder)
+    console.log('final screenshot', finishScreenshot)
+    await this.chromejs.screenshot(finishScreenshot, this.chromejs.options.windowSize);
   }
 
   _handleEvents () {
@@ -624,7 +638,7 @@ class VBot extends EventEmitter {
 
     this.on('action.fail', async (log) => {
       const details = log.details
-      delete log.details
+      // delete log.details
       this._log(details + '\n' + JSON.stringify(log, undefined, 2), 'error')
     })
 
@@ -647,7 +661,7 @@ class VBot extends EventEmitter {
     }
     this._log(msg, 'error')
 
-    await this._failSnapshot()
+    // await this._failSnapshot()
     this.idleClientList.push(this.chromejs)
   }
 
