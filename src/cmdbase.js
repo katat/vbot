@@ -34,7 +34,7 @@ module.exports = function() {
     },
     debug: {
       alias: 'd',
-      describe: 'For debugging, make the Chrome window visible and see the tests in action',
+      describe: 'for debugging, make the Chrome window visible and see the tests in action',
       show: true
     },
     "client-key": {
