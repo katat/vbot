@@ -160,6 +160,13 @@ class VBot extends EventEmitter {
               throw e
             })
           }
+          if (action.type === 'move') {
+              await this.move(action).catch((e) => {
+                console.log('catch a move error');
+                log = {index: i, action: action, details: e}
+                throw e
+            })
+          }
           if (['enter', 'typing'].indexOf(action.type) !== -1) {
             await this.type(action)
             if (action.enter) {
@@ -460,6 +467,13 @@ class VBot extends EventEmitter {
     }
     await this.chromejs.click(action.selector)
   }
+  async move(action) {
+   if (!action.selector) {
+     throw new Error('move action failed')
+    }
+   await this.chromejs.move(action.selector, action.start_position[0], action.start_position[1], action.end_position[0], action.end_position[1])
+  }
+
 
   async selectDropdown(action) {
     await this.chromejs.select(action.selector, action.selectIndex)
