@@ -1,5 +1,5 @@
 const assert = require('assert')
-const VBot   = require('../../dist')
+const VBot   = require('../../dist').vbot
 const _      = require('lodash')
 const Ajv    = require('ajv')
 

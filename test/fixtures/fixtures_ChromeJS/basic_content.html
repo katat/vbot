@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Basic Content</title>
+</head>
+<body>
+  <div id="myElement">myElement Content</div>
+  <div id="square" style="height: 100px; width: 100px; display: block; overflow: hidden;">I like squares</div>
+  <a href="form.html" id="formLink">Visit the form page</a>
+  <a href="form.html" id="popupLink">Do Popup</a>
+  <a href="#" id="moreContentTrigger">Click here to append more content to the body (after 100 ms).</a>
+  <script type="text/javascript">
+    var trigger = document.querySelector('#moreContentTrigger');
+    trigger.addEventListener('click', function(e) {
+      e.preventDefault()
+      setTimeout(function() {
+        var newContent = document.createElement('div')
+        newContent.className = 'moreContent'
+        newContent.textContent = 'here is more content'
+        document.body.appendChild(newContent)
+      }, 200)
+    })
+
+    var popupLink = document.getElementById('popupLink')
+    popupLink.addEventListener('click', function(e) {
+      e.preventDefault()
+      window.open('/form.html', '_blank')
+    })
+  </script>
+</body>
+</html>

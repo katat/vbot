@@ -1,6 +1,6 @@
 const localServer = require('../fixtures/server.js')
 const assert      = require('assert')
-const VBot        = require('../../dist')
+const VBot        = require('../../dist').vbot
 const testPath = `${__dirname}/../`
 describe('window', async () => {
   let vbot

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html style="max-height:500px; overflow-y:scroll;">
+<head>
+  <title>Mouse Events Test</title>
+</head>
+<body style="height:1000px;position:relative;">
+  <div id="target" style="position:absolute;bottom:0">default</div>
+  <script type="text/javascript">
+    var target = document.querySelector('#target')
+    target.addEventListener('mousedown', function (e) {
+      target.textContent = 'mousedown'
+    })
+  </script>
+</body>
+</html>

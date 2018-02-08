@@ -1,5 +1,5 @@
 const assert      = require('assert')
-const VBot        = require('../../dist')
+const VBot        = require('../../dist').vbot
 const _ = require('lodash')
 
 process.on('unhandledRejection', (e) => {
@@ -129,6 +129,24 @@ describe('actions', async () => {
       })
     });
   });
+  describe('move', function () {
+  it('should move using position', function (done) {
+    _.assign(playbook, {
+      url: `${fixturePath}/move.html`,
+      scenario: this.test.title,
+      actions: [
+        {type: 'move', selector: '#changecolor', start_position: [160, 220], end_position: [50, 100], delay: 1000},
+      ]
+    })
+    vbot.start(playbook)
+    vbot.on('end', () => {
+        vbot.chromejs.eval(`document.querySelector('#changecolor').className`).then((data) => {
+        assert.equal(data.result.value,'blank')
+        done()
+        })
+      })
+   });
+ });
   describe('scroll', function () {
     it('should scroll using position', function (done) {
       _.assign(playbook, {
