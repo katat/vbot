@@ -1,7 +1,6 @@
 'use strict';
 require('source-map-support').install()
 
-//const ChromeJS     = require('chromejs')
 const fs           = require('fs-extra')
 const mkdirp       = require('mkdirp')
 const Jimp         = require('jimp')
@@ -610,7 +609,6 @@ class VBot extends EventEmitter {
         webRequest[msg.requestId] = msg
       })
       this.chromejs.client.Network.loadingFailed((msg) => {
-          console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
         const reqHistory = webRequest[msg.requestId]
         let error = {
           url: reqHistory.documentURL,
