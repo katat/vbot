@@ -81,7 +81,8 @@ describe('window', async () => {
         playbook: {
           viewWidth: 375,
           viewHeight: 677,
-          url: `http://shouldnotfindthisurlblabla.bla`,
+          //url: `http://shouldnotfindthisurlblabla.bla`,
+          url: `http://localhost:55558`,
           scenarios: [
             {
               name: 'network error',
