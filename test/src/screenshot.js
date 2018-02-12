@@ -38,8 +38,8 @@ describe('screenshot', async () => {
     let playbook
     beforeEach(function () {
       playbook = {
-        //url: `file:///${testPath}/fixtures/index.html`,
-        "url": `http://localhost:${serverPort}/../index.html`,
+        url: `file:///${testPath}/fixtures/index.html`,
+        //"url": `http://localhost:${serverPort}/../index.html`,
         scenario: 'view1',
         size: {width: 375,height: 677},
         "actions": [
