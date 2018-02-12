@@ -1,9 +1,9 @@
 const localServer      = require('../fixtures/fixtures_ChromeJS/server.js')
-const ChromeJS      = require('../../dist/ChromeJS.js')
+const ChromeJS      = require('../../dist/chromejs.js')
 const assert      = require('assert')
 const getPort     = require('get-port')
 const fs      = require('fs')
-describe.only('chromejs tests', async () => {
+describe('chromejs tests', async () => {
   let serverPort, chromeJs
   before((done) => {
     localServer(undefined, (err, instance) => {

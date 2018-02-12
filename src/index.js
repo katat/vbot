@@ -12,7 +12,7 @@ const Ajv          = require('ajv')
 const URL          = require('url')
 const EventEmitter = require('events')
 const axios        = require('axios')
-const ChromeJS     = require('./ChromeJS.js')
+const ChromeJS     = require('./chromejs.js')
 
 const colors = {
   silly: 'rainbow',
@@ -162,7 +162,6 @@ class VBot extends EventEmitter {
           }
           if (action.type === 'move') {
               await this.move(action).catch((e) => {
-                console.log('catch a move error');
                 log = {index: i, action: action, details: e}
                 throw e
             })
@@ -716,8 +715,3 @@ class VBot extends EventEmitter {
 }
 
 module.exports = VBot
-/*
-module.exports = {
-    vbot: VBot,
-    chromejs: ChromeJS,
-} */
