@@ -1,7 +1,7 @@
 const localServer = require('../fixtures/server.js')
 const assert      = require('assert')
 const fs          = require('fs-extra')
-const VBot        = require('../../dist').vbot
+const VBot        = require('../../dist')
 const testPath = `${__dirname}/../`
 describe('screenshot', async () => {
   let serverPort, vbot

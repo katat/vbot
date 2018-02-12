@@ -1,9 +1,9 @@
 const localServer      = require('../fixtures/fixtures_ChromeJS/server.js')
-const ChromeJS      = require('../../dist/index.js').chromejs
+const ChromeJS      = require('../../dist/ChromeJS.js')
 const assert      = require('assert')
 const getPort     = require('get-port')
 const fs      = require('fs')
-describe('chromejs tests', async () => {
+describe.only('chromejs tests', async () => {
   let serverPort, chromeJs
   before((done) => {
     localServer(undefined, (err, instance) => {
@@ -21,14 +21,12 @@ describe('chromejs tests', async () => {
         //chromeJs = new ChromeJS({windowSize: {width: 400, height: 500}})
         chromeJs = new ChromeJS({windowSize: {width: 400, height: 500}, headless: true})
         await chromeJs.start()
-        console.log('askljhjadsf',serverPort);
         await chromeJs.goto(`http://localhost:${serverPort}/find_elements.html`)
 
       });
       it('should resize window', async () => {
         let evalResponse = await chromeJs.eval('JSON.stringify({width: window.innerWidth, height: window.innerHeight})')
         let size = JSON.parse(evalResponse.result.value)
-        console.log('this is asnfdjklsf: ', evalResponse)
         assert.equal(400, size.width)
         assert.equal(500, size.height)
         await chromeJs.close()

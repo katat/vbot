@@ -1,5 +1,5 @@
 const assert      = require('assert')
-const VBot        = require('../../dist').vbot
+const VBot        = require('../../dist')
 const _ = require('lodash')
 describe('scenarios', async () => {
   let vbot
